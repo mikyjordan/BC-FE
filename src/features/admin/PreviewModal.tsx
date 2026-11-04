@@ -1,0 +1,51 @@
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../api/client';
+import type { ContentKindPath, PublicContent, PublicationStatus } from '../../api/types';
+import { Modal } from '../../components/Modal';
+import { Poster } from '../../components/Poster';
+import { Alert, Badge, Bc, Muted, Spinner, Stack } from '../../components/ui';
+import { STATUS_LABELS } from '../../components/format';
+
+/**
+ * Anteprima della scheda pubblica così come la vedrebbe un utente, ottenuta dall'endpoint
+ * amministrativo /preview (funziona anche per bozze). Nessuna azione d'acquisto è possibile qui.
+ */
+export function PreviewModal({ kind, id, status, onClose }: { kind: ContentKindPath; id: string; status: PublicationStatus; onClose: () => void }) {
+  const q = useQuery({ queryKey: ['admin', kind, id, 'preview'], queryFn: () => api<PublicContent>(`/admin/${kind}/${id}/preview`) });
+  const c = q.data;
+  return (
+    <Modal title="Anteprima scheda pubblica" onClose={onClose} wide>
+      {status !== 'PUBLISHED' && (
+        <Alert $tone="warning" style={{ marginBottom: 16 }}>
+          Stato attuale: {STATUS_LABELS[status]}. Questa scheda NON è visibile agli utenti.
+        </Alert>
+      )}
+      {!c ? (
+        <Spinner />
+      ) : (
+        <Stack $row $gap={20} $wrap>
+          <div style={{ width: 200 }}>
+            <Poster src={c.posterUrl} alt={c.title} kind={c.kind} />
+          </div>
+          <Stack $gap={10} style={{ flex: '1 1 320px' }}>
+            <Stack $row $gap={6} $wrap>
+              <Badge $tone="blue">{c.kind === 'MOVIE' ? 'Film' : 'Serie TV'}</Badge>
+              {c.genres.map((g) => <Badge key={g}>{g}</Badge>)}
+            </Stack>
+            <h1 style={{ fontSize: '1.6rem' }}>{c.title}</h1>
+            {c.description && <Muted>{c.description}</Muted>}
+            {c.kind === 'MOVIE' && c.director && <Muted>Regia: {c.director}</Muted>}
+            {c.kind === 'TV_SERIES' && c.platforms.length > 0 && <Muted>Piattaforme: {c.platforms.join(', ')}</Muted>}
+            <div style={{ marginTop: 8 }}>
+              <Muted $size="0.8rem">Prezzo per quota</Muted>
+              {c.purchase.priceBc ? <Bc value={c.purchase.priceBc} size={20} /> : <Muted>Non impostato</Muted>}
+              <Muted $size="0.8rem" style={{ marginTop: 4 }}>
+                {c.purchase.purchasable ? 'Acquistabile' : `Non acquistabile: ${c.purchase.message ?? c.purchase.reason}`}
+              </Muted>
+            </div>
+          </Stack>
+        </Stack>
+      )}
+    </Modal>
+  );
+}

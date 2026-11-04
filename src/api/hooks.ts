@@ -1,0 +1,156 @@
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { api, newIdempotencyKey } from './client';
+import type {
+  AdminContent,
+  AdminSeason,
+  AdminUserRow,
+  AuditEntry,
+  ContentKindPath,
+  Holding,
+  HomeResponse,
+  LedgerEntry,
+  Me,
+  Paginated,
+  PublicMovie,
+  PublicSeries,
+  PublicationStatus,
+  PurchaseResult,
+  WalletSummary,
+} from './types';
+import { useAuthStore } from '../store/auth';
+
+const authed = () => useAuthStore.getState().status === 'authenticated';
+
+/* ---------- Catalogo pubblico ---------- */
+export const useHome = () => useQuery({ queryKey: ['home'], queryFn: () => api<HomeResponse>('/home') });
+
+export interface CatalogFilters {
+  page: number;
+  q?: string;
+  genre?: string;
+  sort?: 'newest' | 'title' | 'price';
+}
+
+export const useMovies = (f: CatalogFilters) =>
+  useQuery({ queryKey: ['movies', f], queryFn: () => api<Paginated<PublicMovie>>('/movies', { query: { ...f } }), placeholderData: keepPreviousData });
+export const useMovie = (id: string) => useQuery({ queryKey: ['movie', id], queryFn: () => api<PublicMovie>(`/movies/${id}`), retry: false });
+export const useSeriesList = (f: CatalogFilters) =>
+  useQuery({ queryKey: ['tv-series', f], queryFn: () => api<Paginated<PublicSeries>>('/tv-series', { query: { ...f } }), placeholderData: keepPreviousData });
+export const useSeries = (id: string) => useQuery({ queryKey: ['series', id], queryFn: () => api<PublicSeries>(`/tv-series/${id}`), retry: false });
+export const useGenres = (kind: ContentKindPath) =>
+  useQuery({ queryKey: ['genres', kind], queryFn: () => api<{ items: string[] }>(`/${kind}/genres`), staleTime: 300_000 });
+
+/* ---------- Wallet ---------- */
+export const useWallet = () => useQuery({ queryKey: ['wallet'], queryFn: () => api<WalletSummary>('/wallet'), enabled: authed() });
+export const useHoldings = () => useQuery({ queryKey: ['holdings'], queryFn: () => api<{ items: Holding[] }>('/wallet/holdings'), enabled: authed() });
+export const useTransactions = (page: number, category?: string) =>
+  useQuery({
+    queryKey: ['transactions', page, category],
+    queryFn: () => api<Paginated<LedgerEntry>>('/transactions', { query: { page, pageSize: 20, category } }),
+    placeholderData: keepPreviousData,
+  });
+
+/**
+ * Acquisto: la chiave idempotente è generata una volta per "intenzione di acquisto"
+ * (passata dal chiamante), così un doppio click o un retry non addebitano due volte.
+ */
+export function usePurchase(kind: ContentKindPath, id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { quantity: number; seasonId?: string; idempotencyKey: string }) =>
+      api<PurchaseResult>(`/${kind}/${id}/purchases`, {
+        method: 'POST',
+        body: { quantity: v.quantity, ...(v.seasonId ? { seasonId: v.seasonId } : {}) },
+        idempotencyKey: v.idempotencyKey,
+      }),
+    onSuccess: () => {
+      for (const k of ['wallet', 'holdings', 'transactions']) void qc.invalidateQueries({ queryKey: [k] });
+    },
+  });
+}
+
+/* ---------- Profilo ---------- */
+export function useUpdateProfile() {
+  return useMutation({
+    mutationFn: (body: Partial<NonNullable<Me['profile']>>) => api<Me>('/profile', { method: 'PATCH', body }),
+    onSuccess: (me) => useAuthStore.getState().setUser(me),
+  });
+}
+
+export function useAvatar() {
+  return useMutation({
+    mutationFn: (file: File | null) =>
+      file ? api<Me>('/profile/avatar', { method: 'PUT', rawBody: file, contentType: file.type }) : api<Me>('/profile/avatar', { method: 'DELETE' }),
+    onSuccess: (me) => useAuthStore.getState().setUser(me),
+  });
+}
+
+export const useSessions = () =>
+  useQuery({ queryKey: ['sessions'], queryFn: () => api<{ items: Array<{ id: string; createdAt: string; expiresAt: string; ip: string | null; userAgent: string | null }> }>('/auth/sessions') });
+
+/* ---------- Admin ---------- */
+export const useAdminDashboard = () =>
+  useQuery({
+    queryKey: ['admin', 'dashboard'],
+    queryFn: () =>
+      api<{
+        users: { total: number; last7Days: number; admins: number };
+        economy: { totalBalance: number; wallets: number };
+        last24h: { transactions: number; purchases: number };
+        content: Record<'movies' | 'tvSeries', Record<PublicationStatus, number>>;
+      }>('/admin/dashboard'),
+  });
+
+export const useAdminContentList = (kind: ContentKindPath, status: PublicationStatus | undefined, page: number, q?: string) =>
+  useQuery({
+    queryKey: ['admin', kind, 'list', status, page, q],
+    queryFn: () => api<Paginated<AdminContent>>(`/admin/${kind}`, { query: { status, page, pageSize: 20, q } }),
+    placeholderData: keepPreviousData,
+  });
+
+export const useAdminContent = (kind: ContentKindPath, id: string | undefined) =>
+  useQuery({ queryKey: ['admin', kind, id], queryFn: () => api<AdminContent>(`/admin/${kind}/${id}`), enabled: !!id });
+
+export const useAdminSeasons = (seriesId: string | undefined) =>
+  useQuery({ queryKey: ['admin', 'seasons', seriesId], queryFn: () => api<{ items: AdminSeason[] }>(`/admin/tv-series/${seriesId}/seasons`), enabled: !!seriesId });
+
+export const useStatusCounts = (kind: ContentKindPath) =>
+  useQuery({ queryKey: ['admin', kind, 'counts'], queryFn: () => api<Record<PublicationStatus, number>>(`/admin/${kind}/status-counts`) });
+
+/** Mutazione amministrativa generica che invalida tutto ciò che riguarda i contenuti. */
+export function useAdminMutation<TVars>(fn: (v: TVars) => Promise<unknown>) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['admin'] });
+      for (const k of ['home', 'movies', 'tv-series', 'movie', 'series']) void qc.invalidateQueries({ queryKey: [k] });
+    },
+  });
+}
+
+export const useAdminUsers = (page: number, q?: string, role?: string) =>
+  useQuery({
+    queryKey: ['admin', 'users', page, q, role],
+    queryFn: () => api<Paginated<AdminUserRow>>('/admin/users', { query: { page, pageSize: 20, q, role } }),
+    placeholderData: keepPreviousData,
+  });
+
+export const useAdminPermissions = () =>
+  useQuery({ queryKey: ['admin', 'permissions'], queryFn: () => api<{ items: Array<{ key: string; label: string }> }>('/admin/permissions'), staleTime: Infinity });
+
+export const useAuditLogs = (page: number, filters: { entityType?: string; action?: string }) =>
+  useQuery({
+    queryKey: ['admin', 'audit', page, filters],
+    queryFn: () => api<Paginated<AuditEntry>>('/admin/audit-logs', { query: { page, pageSize: 30, ...filters } }),
+    placeholderData: keepPreviousData,
+  });
+
+export const useReconciliation = () =>
+  useQuery({
+    queryKey: ['admin', 'reconciliation'],
+    queryFn: () => api<{ checkedAt: string; mismatches: number; items: unknown[] }>('/admin/wallet/reconciliation'),
+    enabled: false,
+  });
+
+export { newIdempotencyKey };
