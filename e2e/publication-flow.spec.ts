@@ -29,7 +29,7 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.keyboard.press('Enter');
     await page.getByRole('button', { name: 'Gestisci' }).first().click();
 
-    await page.getByLabel('Prezzo per quota (Bustercoin)').fill('125000');
+    await page.getByLabel('Prezzo del film (Bustercoin)').fill('500000');
     await page.getByRole('button', { name: 'Salva prezzo e date' }).click();
     await expect(page.getByText('Impostazioni salvate.')).toBeVisible();
     await page.getByRole('button', { name: 'Abilita acquisti' }).click();
@@ -41,24 +41,49 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await expect(page.getByText('Pubblicato', { exact: true }).first()).toBeVisible();
   });
 
-  test('un nuovo utente vede il film in home, lo acquista e il saldo scende', async ({ page }) => {
+  test('un utente compra il film, vede incasso e guadagno in verde, riscatta e non può ricomprarlo', async ({ page, browser }) => {
     await registerNewUser(page);
     await expect(page.getByText('1.000.000 B').first()).toBeVisible();
     await page.getByRole('link', { name: new RegExp(title) }).first().click();
     await expect(page.getByRole('heading', { name: title })).toBeVisible();
 
-    await page.getByLabel('Quantità').fill('2');
     await page.getByRole('button', { name: 'Acquista' }).click();
-    await page.getByRole('button', { name: /Conferma 250\.000 B/ }).click();
-    await expect(page.getByText(/Acquistate 2 quote/)).toBeVisible();
+    await page.getByRole('button', { name: /Conferma 500\.000 B/ }).click();
+    await expect(page.getByText('Il tuo investimento')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Riscatta' })).toBeDisabled();
+
+    // Il Superadmin inserisce l'incasso attuale: 600.000 €
+    const admin = await browser.newPage();
+    await login(admin, SUPERADMIN.email, SUPERADMIN.password);
+    await admin.goto('/admin/pubblicazione?tipo=movies&stato=PUBLISHED');
+    await admin.getByPlaceholder('Cerca per titolo…').fill(title);
+    await admin.keyboard.press('Enter');
+    await admin.getByRole('button', { name: 'Gestisci' }).first().click();
+    await admin.getByLabel('Nuovo incasso totale (€)').fill('600000');
+    await admin.getByRole('button', { name: /Registra incasso/ }).click();
+    await expect(admin.getByText('Incasso aggiornato a 600.000 B.')).toBeVisible();
+    await admin.close();
 
     await page.goto('/app/portafoglio');
-    await expect(page.getByText('750.000 B').first()).toBeVisible();
-    await expect(page.getByText(title)).toBeVisible();
+    await expect(page.getByText('500.000 B').first()).toBeVisible(); // saldo
+    const card = page.getByRole('article', { name: `Film ${title}` });
+    await expect(card.getByText('600.000 B')).toBeVisible();
+    await expect(card.locator('[data-trend="up"]')).toContainText('+100.000 B');
+
+    await card.getByRole('button', { name: 'Riscatta' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: /Riscatta 600\.000 B/ }).click();
+    await expect(page.getByText(/Accreditati 600\.000 B/)).toBeVisible();
+    await expect(page.getByText('1.100.000 B').first()).toBeVisible();
 
     await page.goto('/app/movimenti');
-    await expect(page.getByText('Acquisto film').first()).toBeVisible();
-    await expect(page.getByText('-250.000 B')).toBeVisible();
+    await expect(page.getByText('Riscatto film').first()).toBeVisible();
+
+    // Non è più riacquistabile
+    await page.goto('/app/portafoglio');
+    await page.getByRole('tab', { name: 'Riscattati' }).or(page.getByRole('button', { name: 'Riscattati' })).click();
+    await page.getByRole('link', { name: title }).click();
+    await expect(page.getByRole('heading', { name: 'Film riscattato' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Acquista' })).toHaveCount(0);
   });
 
   test('nascosto dal Superadmin: sparisce dal catalogo ma resta nel portafoglio', async ({ page }) => {

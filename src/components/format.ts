@@ -14,7 +14,7 @@ export const LEDGER_LABELS: Record<string, string> = {
   WEEKLY_BONUS: 'Bonus settimanale',
   MOVIE_PURCHASE: 'Acquisto film',
   TV_SERIES_PURCHASE: 'Acquisto serie TV',
-  BOX_OFFICE_REWARD: 'Rendimento Box Office',
+  BOX_OFFICE_REWARD: 'Riscatto film',
   TV_SERIES_REWARD: 'Rendimento serie TV',
   COIN_PURCHASE: 'Acquisto Bustercoin',
   PROMOTIONAL_BONUS: 'Bonus promozionale',

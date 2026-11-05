@@ -9,6 +9,7 @@ import { Badge, Card, EmptyState, Muted, Spinner, Stack, Tab, Tabs } from '../..
 import { formatDate } from '../../components/format';
 import { media } from '../../theme/theme';
 import { PurchasePanel } from './PurchasePanel';
+import { BoxOfficeCard, MovieSidePanel } from './MoviePanels';
 
 const Layout = styled.div`
   display: grid;
@@ -62,13 +63,13 @@ function fact(label: string, value: string | number | null | undefined) {
   );
 }
 
-/** Le performance arrivano con le Fasi 5–7: finché non ci sono dati reali non si mostra nulla di inventato. */
-function PerformancePlaceholder({ kind }: { kind: 'MOVIE' | 'TV_SERIES' }) {
+/** Metriche delle serie: arriveranno con la Fase 6; finché non ci sono dati reali non si mostra nulla di inventato. */
+function PerformancePlaceholder() {
   return (
     <Card>
       <Stack $row $gap={10} $align="center" style={{ marginBottom: 8 }}>
         <BarChart3 size={18} />
-        <h3>{kind === 'MOVIE' ? 'Box Office italiano e rendimento' : 'Metriche italiane e rendimento'}</h3>
+        <h3>Metriche italiane e rendimento</h3>
       </Stack>
       <Muted>Nessuna rilevazione disponibile per questo titolo. I dati verranno mostrati solo quando provenienti da fonti verificate.</Muted>
     </Card>
@@ -108,9 +109,9 @@ function MovieBody({ m }: { m: PublicMovie }) {
             <Muted>{m.plot}</Muted>
           </div>
         )}
-        <PerformancePlaceholder kind="MOVIE" />
+        <BoxOfficeCard movie={m} />
       </Stack>
-      <PurchasePanel kind="movies" contentId={m.id} purchase={m.purchase} label="Film" />
+      <MovieSidePanel movie={m} />
     </Layout>
   );
 }
@@ -172,7 +173,7 @@ function SeriesBody({ s }: { s: PublicSeries }) {
             )}
           </div>
         )}
-        <PerformancePlaceholder kind="TV_SERIES" />
+        <PerformancePlaceholder />
       </Stack>
       {s.holdingScope === 'SEASON' ? (
         selected ? (

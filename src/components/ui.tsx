@@ -361,3 +361,26 @@ export function Pagination({ page, totalPages, onChange }: { page: number; total
     </Stack>
   );
 }
+
+/* ---------- Guadagno / perdita ---------- */
+const GainWrap = styled.span<{ $tone: 'up' | 'down' | 'even'; $size: number }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: ${({ $size }) => `${$size}px`};
+  color: ${({ $tone, theme }) => ($tone === 'up' ? theme.colors.success : $tone === 'down' ? theme.colors.danger : theme.colors.textSecondary)};
+`;
+
+/** Guadagno in verde, perdita in rosso (in Bustercoin, con segno). */
+export function Gain({ value, size = 15, pct }: { value: number | null; size?: number; pct?: number }) {
+  if (value === null) return <Muted as="span" $size={`${size * 0.9}px`}>In attesa dell’incasso</Muted>;
+  const tone = value > 0 ? 'up' : value < 0 ? 'down' : 'even';
+  return (
+    <GainWrap $tone={tone} $size={size} data-trend={tone}>
+      {tone === 'up' ? '▲' : tone === 'down' ? '▼' : '='} {formatBc(value, true)}
+      {pct !== undefined && <span style={{ fontWeight: 600, opacity: 0.85 }}>({pct > 0 ? '+' : ''}{pct.toLocaleString('it-IT', { maximumFractionDigits: 1 })}%)</span>}
+    </GainWrap>
+  );
+}

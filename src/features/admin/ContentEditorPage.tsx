@@ -15,6 +15,7 @@ import { PublicationActions } from './publication-actions';
 import { PreviewModal } from './PreviewModal';
 import { statusTone } from './PublicationPage';
 import { SeasonsSection } from './SeasonsSection';
+import { BoxOfficeSection } from './BoxOfficeSection';
 
 const FormGrid = styled.div`
   display: grid;
@@ -244,7 +245,7 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
           <Badge $tone={item.purchasesEnabled ? 'green' : 'neutral'}>{item.purchasesEnabled ? 'Acquisti attivi' : 'Acquisti disattivati'}</Badge>
           {item.priceBc ? <Bc value={item.priceBc} size={14} /> : null}
         </Stack>
-        <Field label="Prezzo per quota (Bustercoin)">
+        <Field label={kind === 'movies' ? 'Prezzo del film (Bustercoin)' : 'Prezzo per quota (Bustercoin)'}>
           <Input type="number" min={1} value={price} disabled={!can} onChange={(e) => setPrice(e.target.value)} />
         </Field>
         <Field label="Apertura acquisti" hint="Facoltativa">
@@ -297,6 +298,7 @@ export function ContentEditorPage() {
       <Columns>
         <Stack $gap={18}>
           <EditorialForm kind={kind} item={item} />
+          {item && kind === 'movies' && <BoxOfficeSection movie={item} />}
           {item && kind === 'tv-series' && <SeasonsSection seriesId={item.id} />}
         </Stack>
         {item && (

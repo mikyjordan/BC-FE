@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { Award, Camera, Gift, Settings, Trash2 } from 'lucide-react';
 import { useAvatar, useHoldings, useUpdateProfile, useWallet } from '../../api/hooks';
 import { Avatar } from '../../components/Avatar';
-import { Alert, Badge, Bc, Button, Card, Field, Input, Muted, PageHeader, Stack, Textarea } from '../../components/ui';
+import { Alert, Badge, Bc, Gain, Button, Card, Field, Input, Muted, PageHeader, Stack, Textarea } from '../../components/ui';
 import { formatDate, formatPct } from '../../components/format';
 import { useAuthStore } from '../../store/auth';
 
@@ -49,7 +49,7 @@ export function ProfilePage() {
     avatar.mutate(file, { onError: (e) => setFileError(e.message) });
   };
 
-  const movies = holdings.data?.items.filter((h) => h.contentType === 'MOVIE').length ?? 0;
+  const movies = holdings.data?.items.filter((h) => h.contentType === 'MOVIE' && h.status === 'OPEN').length ?? 0;
   const series = holdings.data?.items.filter((h) => h.contentType === 'TV_SERIES').length ?? 0;
 
   return (
@@ -95,7 +95,7 @@ export function ProfilePage() {
           </Card>
           <Card style={{ flex: '1 1 160px' }}>
             <Muted $size="0.8rem">Guadagni</Muted>
-            {wallet.data && <Bc value={wallet.data.totalRewards} size={18} />}
+            {wallet.data && <Gain value={wallet.data.totalGain} size={18} />}
           </Card>
           <Card style={{ flex: '1 1 160px' }}>
             <Muted $size="0.8rem">Rendimento</Muted>

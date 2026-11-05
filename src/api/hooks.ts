@@ -5,6 +5,8 @@ import type {
   AdminSeason,
   AdminUserRow,
   AuditEntry,
+  BoxOfficeReading,
+  RedeemResult,
   ContentKindPath,
   Holding,
   HomeResponse,
@@ -68,6 +70,23 @@ export function usePurchase(kind: ContentKindPath, id: string) {
     },
   });
 }
+
+/** Riscatto di un film: accredita l'incasso attuale e chiude la partecipazione. */
+export function useRedeem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (holdingId: string) => api<RedeemResult>(`/wallet/holdings/${holdingId}/redeem`, { method: 'POST' }),
+    onSuccess: () => {
+      for (const k of ['wallet', 'holdings', 'transactions']) void qc.invalidateQueries({ queryKey: [k] });
+    },
+  });
+}
+
+export const useMovieBoxOffice = (id: string) =>
+  useQuery({ queryKey: ['movie', id, 'box-office'], queryFn: () => api<{ items: BoxOfficeReading[] }>(`/movies/${id}/box-office`), retry: false });
+
+export const useAdminBoxOffice = (id: string) =>
+  useQuery({ queryKey: ['admin', 'movies', id, 'box-office'], queryFn: () => api<{ items: BoxOfficeReading[] }>(`/admin/movies/${id}/box-office`) });
 
 /* ---------- Profilo ---------- */
 export function useUpdateProfile() {

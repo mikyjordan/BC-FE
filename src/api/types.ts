@@ -66,6 +66,17 @@ export interface PublicMovie extends PublicContentBase {
   screeningEndDate: string | null;
   distributor: string | null;
   ageRating: string | null;
+  boxOffice: { currentGross: number | null; recordedAt: string | null };
+}
+
+export interface BoxOfficeReading {
+  id?: string;
+  grossAmount: number;
+  spectators: number | null;
+  recordedAt: string;
+  source: string;
+  notes?: string | null;
+  createdAt?: string;
 }
 
 export interface PublicSeason {
@@ -103,7 +114,9 @@ export interface WalletSummary {
   balance: number;
   holdingsValue: number;
   totalInvested: number;
-  totalRewards: number;
+  realizedGain: number;
+  unrealizedGain: number;
+  totalGain: number;
   returnPct: number;
   distribution: {
     movies: { invested: number; value: number; count: number };
@@ -120,10 +133,21 @@ export interface Holding {
   title: string;
   posterUrl: string | null;
   available: boolean;
+  status: 'OPEN' | 'REDEEMED';
   units: number;
+  purchasePrice: number;
   totalInvested: number;
   totalRewards: number;
+  /** Solo film: incasso attuale in Bustercoin (1 € = 1 B); null se non ancora inserito. */
+  currentGross: number | null;
+  currentGrossAt: string | null;
   currentValue: number;
+  /** Guadagno (+) o perdita (−); null se l'incasso non è ancora disponibile. */
+  profit: number | null;
+  trend: 'UP' | 'DOWN' | 'EVEN' | 'UNKNOWN';
+  redeemable: boolean;
+  redeemedAt: string | null;
+  redeemedAmount: number | null;
   firstPurchasedAt: string;
   lastPurchaseAt: string | null;
 }
@@ -140,6 +164,15 @@ export interface LedgerEntry {
   tvSeasonId: string | null;
   relatedTransactionId: string | null;
   createdAt: string;
+}
+
+export interface RedeemResult {
+  replayed: boolean;
+  holdingId: string;
+  purchasePrice: number;
+  grossAmount: number;
+  profit: number;
+  balanceAfter: number;
 }
 
 export interface PurchaseResult {
@@ -188,6 +221,8 @@ export interface AdminContent {
   screeningEndDate?: string | null;
   distributor?: string | null;
   ageRating?: string | null;
+  latestGross?: number | null;
+  latestGrossAt?: string | null;
   // serie
   creator?: string | null;
   platforms?: string[];

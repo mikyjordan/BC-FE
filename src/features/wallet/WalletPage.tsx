@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import styled from 'styled-components';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { Wallet } from 'lucide-react';
+import { Wallet as WalletIcon } from 'lucide-react';
+import { MovieHoldingCard } from './MovieHoldingCard';
 import { useHoldings, useTransactions, useWallet } from '../../api/hooks';
 import type { Holding } from '../../api/types';
-import { Badge, Bc, Card, EmptyState, Muted, PageHeader, Pagination, Spinner, Stack, Tab, Tabs, Table, TableScroll } from '../../components/ui';
+import { Badge, Bc, Card, EmptyState, Gain, Grid, Muted, PageHeader, Pagination, Spinner, Stack, Tab, Tabs, Table, TableScroll } from '../../components/ui';
 import { formatBc, formatDate, formatDateTime, formatPct, LEDGER_LABELS } from '../../components/format';
 import { Poster } from '../../components/Poster';
 import { media } from '../../theme/theme';
@@ -25,7 +26,7 @@ const Split = styled.div`
   ${media.md} { grid-template-columns: 1fr 2fr; }
 `;
 
-const HoldingRow = styled.div`
+const SeriesRow = styled.div`
   display: grid;
   grid-template-columns: 48px 1fr auto;
   gap: 14px;
@@ -38,17 +39,30 @@ const HoldingRow = styled.div`
 // Colori neutri/blu per la distribuzione (l'oro resta riservato agli importi).
 const PIE_COLORS = ['#4F6BD8', '#8FA3EE'];
 
-type Filter = 'all' | 'MOVIE' | 'TV_SERIES';
+type Filter = 'all' | 'MOVIE' | 'TV_SERIES' | 'REDEEMED';
 
-function HoldingLink({ h }: { h: Holding }) {
-  const to = h.contentType === 'MOVIE' ? `/app/film/${h.contentId}` : `/app/serie/${h.contentId}`;
+function SeriesHoldingRow({ h }: { h: Holding }) {
   const title = (
     <div style={{ fontWeight: 600 }}>
       {h.title}
       {h.seasonNumber ? ` — S${h.seasonNumber}` : ''}
     </div>
   );
-  return h.available ? <Link to={to}>{title}</Link> : title;
+  return (
+    <SeriesRow>
+      <Poster src={h.posterUrl} alt="" kind="TV_SERIES" />
+      <div style={{ minWidth: 0 }}>
+        {h.available ? <Link to={`/app/serie/${h.contentId}`}>{title}</Link> : title}
+        <Muted $size="0.8rem">
+          {h.units} quote · investiti {formatBc(h.totalInvested)} · dal {formatDate(h.firstPurchasedAt)}
+        </Muted>
+        {!h.available && <Badge $tone="amber" style={{ marginTop: 4 }}>Non più in catalogo</Badge>}
+      </div>
+      <div style={{ textAlign: 'right' }}>
+        <Bc value={h.currentValue} size={14} />
+      </div>
+    </SeriesRow>
+  );
 }
 
 export function WalletPage() {
@@ -58,7 +72,11 @@ export function WalletPage() {
 
   if (wallet.isLoading) return <Spinner />;
   const w = wallet.data;
-  const items = (holdings.data?.items ?? []).filter((h) => filter === 'all' || h.contentType === filter);
+  const all = holdings.data?.items ?? [];
+  const movies = all.filter((h) => h.contentType === 'MOVIE' && (filter === 'REDEEMED' ? h.status === 'REDEEMED' : h.status === 'OPEN'));
+  const series = all.filter((h) => h.contentType === 'TV_SERIES');
+  const showMovies = filter === 'all' || filter === 'MOVIE' || filter === 'REDEEMED';
+  const showSeries = filter === 'all' || filter === 'TV_SERIES';
   const pieData = w
     ? [
         { name: 'Film', value: w.distribution.movies.value },
@@ -81,7 +99,8 @@ export function WalletPage() {
           </Card>
           <Card>
             <Muted $size="0.8rem">Guadagno totale</Muted>
-            <Bc value={w.totalRewards} size={18} />
+            <Gain value={w.totalGain} size={17} />
+            <Muted $size="0.72rem">Realizzato {formatBc(w.realizedGain, true)} · in corso {formatBc(w.unrealizedGain, true)}</Muted>
           </Card>
           <Card>
             <Muted $size="0.8rem">Rendimento</Muted>
@@ -108,7 +127,7 @@ export function WalletPage() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <Muted>Nessuna partecipazione.</Muted>
+            <Muted>Nessuna partecipazione aperta.</Muted>
           )}
           {w && (
             <Stack $gap={6} style={{ marginTop: 8 }}>
@@ -119,37 +138,37 @@ export function WalletPage() {
         </Card>
 
         <Card>
-          <Stack $row $justify="space-between" $align="center" $wrap style={{ marginBottom: 6 }}>
+          <Stack $row $justify="space-between" $align="center" $wrap style={{ marginBottom: 12 }}>
             <h3>Partecipazioni</h3>
             <Tabs style={{ margin: 0 }}>
               <Tab $active={filter === 'all'} onClick={() => setFilter('all')}>Tutti</Tab>
               <Tab $active={filter === 'MOVIE'} onClick={() => setFilter('MOVIE')}>Film</Tab>
               <Tab $active={filter === 'TV_SERIES'} onClick={() => setFilter('TV_SERIES')}>Serie TV</Tab>
+              <Tab $active={filter === 'REDEEMED'} onClick={() => setFilter('REDEEMED')}>Riscattati</Tab>
             </Tabs>
           </Stack>
           {holdings.isLoading ? (
             <Spinner />
-          ) : items.length === 0 ? (
-            <EmptyState icon={<Wallet size={30} />} title="Nessuna partecipazione">
-              Esplora il <Link to="/app/film" style={{ textDecoration: 'underline' }}>catalogo</Link> per iniziare a investire.
+          ) : (showMovies ? movies.length : 0) + (showSeries ? series.length : 0) === 0 ? (
+            <EmptyState icon={<WalletIcon size={30} />} title={filter === 'REDEEMED' ? 'Nessun film riscattato' : 'Nessuna partecipazione'}>
+              {filter !== 'REDEEMED' && (
+                <>Esplora il <Link to="/app/film" style={{ textDecoration: 'underline' }}>catalogo</Link> per iniziare a investire.</>
+              )}
             </EmptyState>
           ) : (
-            items.map((h) => (
-              <HoldingRow key={h.id}>
-                <Poster src={h.posterUrl} alt="" kind={h.contentType} />
-                <div style={{ minWidth: 0 }}>
-                  <HoldingLink h={h} />
-                  <Muted $size="0.8rem">
-                    {h.units} quote · investiti {formatBc(h.totalInvested)} · dal {formatDate(h.firstPurchasedAt)}
-                  </Muted>
-                  {!h.available && <Badge $tone="amber" style={{ marginTop: 4 }}>Non più in catalogo</Badge>}
+            <Stack $gap={18}>
+              {showMovies && movies.length > 0 && (
+                <Grid $min={250} $gap={14}>
+                  {movies.map((h) => <MovieHoldingCard key={h.id} h={h} />)}
+                </Grid>
+              )}
+              {showSeries && series.length > 0 && (
+                <div>
+                  {filter === 'all' && <h3 style={{ margin: '4px 0 4px', fontSize: '0.95rem' }}>Serie TV</h3>}
+                  {series.map((h) => <SeriesHoldingRow key={h.id} h={h} />)}
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <Bc value={h.currentValue} size={14} />
-                  <Muted $size="0.75rem">rendimenti {formatBc(h.totalRewards)}</Muted>
-                </div>
-              </HoldingRow>
-            ))
+              )}
+            </Stack>
           )}
         </Card>
       </Split>

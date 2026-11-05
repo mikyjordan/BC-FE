@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { Clapperboard, Gift, Sparkles, Trophy, Tv } from 'lucide-react';
 import { useHome, useTransactions, useWallet } from '../../api/hooks';
-import { Alert, Bc, Card, EmptyState, Grid, Muted, SectionTitle, Spinner, Stack } from '../../components/ui';
+import { Alert, Bc, Card, Gain, EmptyState, Grid, Muted, SectionTitle, Spinner, Stack } from '../../components/ui';
 import { formatDateTime, formatPct, LEDGER_LABELS } from '../../components/format';
 import { useAuthStore } from '../../store/auth';
 import { ContentCard } from '../catalog/ContentCard';
@@ -72,7 +72,7 @@ export function HomePage() {
         </StatCard>
         <StatCard>
           <Muted $size="0.8rem">Guadagni</Muted>
-          {wallet.data ? <Bc value={wallet.data.totalRewards} size={18} /> : <Muted>—</Muted>}
+          {wallet.data ? <Gain value={wallet.data.totalGain} size={18} /> : <Muted>—</Muted>}
         </StatCard>
         <StatCard>
           <Muted $size="0.8rem">Rendimento</Muted>
