@@ -369,7 +369,6 @@ export function ContentEditorPage() {
         <Stack $gap={18}>
           <EditorialForm kind={kind} item={item} />
           {item && kind === 'movies' && <BoxOfficeSection movie={item} />}
-          {item && kind === 'movies' && <AutoRedeemSection movie={item} />}
           {item && kind === 'tv-series' && <SeasonsSection seriesId={item.id} />}
         </Stack>
         {item && (
@@ -377,6 +376,7 @@ export function ContentEditorPage() {
             <PublicationSection kind={kind} item={item} />
             <VisibilitySection kind={kind} item={item} />
             <PurchaseSection kind={kind} item={item} />
+            {kind === 'movies' && <AutoRedeemSection movie={item} />}
           </Stack>
         )}
       </Columns>
