@@ -7,6 +7,7 @@ import { formatBc, formatDateTime } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { fromLocalInput, toLocalInput } from './content-fields';
 import { BoxOfficeReadingRow } from './BoxOfficeReadingRow';
+import { t, tx } from '../../i18n';
 
 /**
  * Inserimento dell'incasso del film (1 € = 1 B). Ogni inserimento è una nuova rilevazione
@@ -35,10 +36,10 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
   /** Incasso e data di rilevazione sono obbligatori (stesse regole del backend). */
   const validate = () => {
     const e: typeof errors = {};
-    if (gross === '') e.grossAmount = 'L’incasso è obbligatorio';
-    else if (!Number.isInteger(amount) || amount < 0) e.grossAmount = 'Inserisci un numero intero maggiore o uguale a zero';
-    if (!when) e.recordedAt = 'La data di rilevazione è obbligatoria';
-    else if (new Date(when).getTime() > Date.now() + 60_000) e.recordedAt = 'La data di rilevazione non può essere futura';
+    if (gross === '') e.grossAmount = t('admin.boxOfficeSection.lIncassoEObbligatorio');
+    else if (!Number.isInteger(amount) || amount < 0) e.grossAmount = t('admin.boxOfficeSection.inserisciUnNumeroInteroMaggiore');
+    if (!when) e.recordedAt = t('admin.boxOfficeSection.laDataDiRilevazioneE');
+    else if (new Date(when).getTime() > Date.now() + 60_000) e.recordedAt = t('admin.boxOfficeSection.laDataDiRilevazioneNon');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -57,7 +58,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
       {
         onSuccess: (r) => {
           const res = r as { becomesCurrent: boolean };
-          setSaved(res.becomesCurrent ? `Incasso aggiornato a ${formatBc(amount)}.` : 'Rilevazione salvata nello storico (data precedente all’incasso in vigore).');
+          setSaved(res.becomesCurrent ? t('admin.boxOfficeSection.incassoAggiornatoAAmount', { amount: formatBc(amount) }) : t('admin.boxOfficeSection.rilevazioneSalvataNelloStoricoData'));
           setGross('');
           setSpectators('');
           setWhen(toLocalInput(new Date().toISOString()));
@@ -74,55 +75,51 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
 
   return (
     <Card>
-      <h3 style={{ marginBottom: 4 }}>Incasso del film</h3>
-      <Muted $size="0.82rem" style={{ marginBottom: 14 }}>
-        Inserisci l’incasso totale attuale in euro: vale 1 € = 1 Bustercoin. È l’importo che ogni utente riceve quando riscatta il film.
-        Le rilevazioni si possono modificare o eliminare: i riscatti già effettuati non cambiano.
-      </Muted>
+      <h3 style={{ marginBottom: 4 }}>{t('admin.boxOfficeSection.incassoDelFilm')}</h3>
+      <Muted $size="0.82rem" style={{ marginBottom: 14 }}>{t('admin.boxOfficeSection.inserisciLIncassoTotaleAttuale')}</Muted>
       <Stack $gap={12}>
         <Stack $row $justify="space-between" $align="center">
-          <Muted>Incasso in vigore</Muted>
-          {movie.latestGross != null ? <Bc value={movie.latestGross} size={16} /> : <Muted>Nessuno</Muted>}
+          <Muted>{t('admin.boxOfficeSection.incassoInVigore')}</Muted>
+          {movie.latestGross != null ? <Bc value={movie.latestGross} size={16} /> : <Muted>{t('admin.boxOfficeSection.nessuno')}</Muted>}
         </Stack>
-        {movie.latestGrossAt && <Muted $size="0.75rem">Rilevato il {formatDateTime(movie.latestGrossAt)}</Muted>}
+        {movie.latestGrossAt && <Muted $size="0.75rem">{tx('admin.boxOfficeSection.rilevatoIlLatestgrossat', { latestGrossAt: formatDateTime(movie.latestGrossAt) })}</Muted>}
 
         {can ? (
           <>
-            <Field label="Nuovo incasso totale (€) *" error={errors.grossAmount}>
+            <Field label={t('admin.boxOfficeSection.nuovoIncassoTotale')} error={errors.grossAmount}>
               <Input type="number" min={0} step={1} required aria-invalid={!!errors.grossAmount} value={gross} onChange={(e) => setGross(e.target.value)} />
             </Field>
             <Stack $row $gap={10} $wrap>
               <div style={{ flex: '1 1 160px' }}>
-                <Field label="Spettatori (facoltativo)">
+                <Field label={t('admin.boxOfficeSection.spettatoriFacoltativo')}>
                   <Input type="number" min={0} value={spectators} onChange={(e) => setSpectators(e.target.value)} />
                 </Field>
               </div>
               <div style={{ flex: '1 1 200px' }}>
-                <Field label="Data rilevazione *" hint="Precompilata con la data e l’ora attuali" error={errors.recordedAt}>
+                <Field label={t('admin.boxOfficeSection.dataRilevazione')} hint={t('admin.boxOfficeSection.precompilataConLaDataE')} error={errors.recordedAt}>
                   <Input type="datetime-local" required aria-invalid={!!errors.recordedAt} value={when} onChange={(e) => { setWhen(e.target.value); setWhenTouched(true); }} />
                 </Field>
               </div>
             </Stack>
-            <Field label="Fonte / note (facoltative)">
-              <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Es. Cinetel, settimana 44" />
+            <Field label={t('admin.boxOfficeSection.fonteNoteFacoltative')}>
+              <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('admin.boxOfficeSection.esCinetelSettimana44')} />
             </Field>
-            {decreasing && <Alert $tone="warning">Il nuovo incasso è inferiore a quello in vigore: gli utenti che riscattano riceveranno meno.</Alert>}
-            {mutation.error && !Object.keys(errors).length && <Alert $tone="error">{mutation.error instanceof ApiError ? mutation.error.message : 'Errore'}</Alert>}
+            {decreasing && <Alert $tone="warning">{t('admin.boxOfficeSection.ilNuovoIncassoEInferiore')}</Alert>}
+            {mutation.error && !Object.keys(errors).length && <Alert $tone="error">{mutation.error instanceof ApiError ? mutation.error.message : t('admin.boxOfficeSection.errore')}</Alert>}
             {saved && <Alert $tone="success">{saved}</Alert>}
             <div>
-              <Button $variant="gold" disabled={mutation.isPending} onClick={submit}>
-                Registra incasso {valid ? formatBc(amount) : ''}
+              <Button $variant="gold" disabled={mutation.isPending} onClick={submit}>{tx('admin.boxOfficeSection.registraIncassoV', { v: valid ? formatBc(amount) : '' })}
               </Button>
             </div>
           </>
         ) : (
-          <Muted $size="0.85rem">Non hai il permesso di inserire gli incassi (boxoffice.manage).</Muted>
+          <Muted $size="0.85rem">{t('admin.boxOfficeSection.nonHaiIlPermessoDi')}</Muted>
         )}
 
         {(history.data?.items.length ?? 0) > 0 && (
           <TableScroll>
             <Table>
-              <thead><tr><th>Rilevazione</th><th style={{ textAlign: 'right' }}>Incasso</th><th style={{ textAlign: 'right' }}>Spettatori</th><th>Note</th><th /></tr></thead>
+              <thead><tr><th>{t('admin.boxOfficeSection.rilevazione')}</th><th style={{ textAlign: 'right' }}>{t('admin.boxOfficeSection.incasso')}</th><th style={{ textAlign: 'right' }}>{t('admin.boxOfficeSection.spettatori')}</th><th>{t('admin.boxOfficeSection.note')}</th><th /></tr></thead>
               <tbody>
                 {history.data!.items.map((r) => (
                   <BoxOfficeReadingRow

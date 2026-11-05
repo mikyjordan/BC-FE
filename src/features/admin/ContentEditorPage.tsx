@@ -19,6 +19,7 @@ import { BoxOfficeSection } from './BoxOfficeSection';
 import { PosterField } from './PosterField';
 import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadge';
 import { AutoRedeemSection } from './AutoRedeemSection';
+import { t, tx } from '../../i18n';
 
 const FormGrid = styled.div`
   display: grid;
@@ -75,7 +76,7 @@ function EditorialForm({ kind, item }: { kind: ContentKindPath; item?: AdminCont
   });
 
   return (
-    <Section title="Dati editoriali" note={!item ? 'Il titolo verrà creato in BOZZA: non sarà visibile finché non lo pubblichi.' : undefined}>
+    <Section title={t('admin.contentEditorPage.datiEditoriali')} note={!item ? t('admin.contentEditorPage.ilTitoloVerraCreatoIn') : undefined}>
       <form onSubmit={onSubmit}>
         <fieldset disabled={!canEdit} style={{ border: 0, padding: 0, margin: 0 }}>
           <FormGrid>
@@ -109,11 +110,11 @@ function EditorialForm({ kind, item }: { kind: ContentKindPath; item?: AdminCont
         </fieldset>
         <Stack $gap={10} style={{ marginTop: 16 }}>
           {mutation.error && <Alert $tone="error">{errorText(mutation.error)}</Alert>}
-          {saved && <Alert $tone="success">Modifiche salvate.</Alert>}
+          {saved && <Alert $tone="success">{t('admin.contentEditorPage.modificheSalvate')}</Alert>}
           {canEdit ? (
-            <div><Button type="submit" disabled={mutation.isPending}>{item ? 'Salva modifiche' : 'Crea in bozza'}</Button></div>
+            <div><Button type="submit" disabled={mutation.isPending}>{item ? t('admin.contentEditorPage.salvaModifiche') : t('admin.contentEditorPage.creaInBozza')}</Button></div>
           ) : (
-            <Muted $size="0.85rem">Non hai il permesso di modificare i dati editoriali.</Muted>
+            <Muted $size="0.85rem">{t('admin.contentEditorPage.nonHaiIlPermessoDi')}</Muted>
           )}
         </Stack>
       </form>
@@ -134,37 +135,34 @@ function PublicationSection({ kind, item }: { kind: ContentKindPath; item: Admin
   const canSchedule = canPublish && (item.publicationStatus === 'DRAFT' || item.publicationStatus === 'HIDDEN');
 
   return (
-    <Section title="Pubblicazione">
+    <Section title={t('admin.contentEditorPage.pubblicazione')}>
       <Stack $gap={14}>
         <Stack $row $gap={10} $align="center" $wrap>
           <Badge $tone={statusTone(item.publicationStatus)}>{STATUS_LABELS[item.publicationStatus]}</Badge>
-          <Muted $size="0.85rem">{item.publishedAt ? `Ultima pubblicazione: ${formatDateTime(item.publishedAt)}` : 'Mai pubblicato'}</Muted>
+          <Muted $size="0.85rem">{item.publishedAt ? t('admin.contentEditorPage.ultimaPubblicazionePublishedat', { publishedAt: formatDateTime(item.publishedAt) }) : t('admin.contentEditorPage.maiPubblicato')}</Muted>
         </Stack>
         <PublicationActions kind={kind} item={item} size="md" />
-        {!canPublish && <Muted $size="0.85rem">Non hai il permesso di pubblicare.</Muted>}
+        {!canPublish && <Muted $size="0.85rem">{t('admin.contentEditorPage.nonHaiIlPermessoDi2')}</Muted>}
 
         {item.scheduledPublishAt ? (
           <Alert $tone="warning">
             <Stack $row $justify="space-between" $align="center" $wrap $gap={8}>
-              <span><CalendarClock size={14} /> Pubblicazione programmata e confermata per {formatDateTime(item.scheduledPublishAt)}</span>
-              {canPublish && <Button $size="sm" $variant="secondary" onClick={() => cancel.mutate(undefined)} disabled={cancel.isPending}>Annulla programmazione</Button>}
+              <span><CalendarClock size={14} />{' '}{tx('admin.contentEditorPage.pubblicazioneProgrammataEConfermataPer', { scheduledPublishAt: formatDateTime(item.scheduledPublishAt) })}</span>
+              {canPublish && <Button $size="sm" $variant="secondary" onClick={() => cancel.mutate(undefined)} disabled={cancel.isPending}>{t('admin.contentEditorPage.annullaProgrammazione')}</Button>}
             </Stack>
           </Alert>
         ) : (
           canSchedule && (
             <Stack $gap={10}>
-              <Field label="Programma la pubblicazione" hint="Avverrà automaticamente solo dopo la tua conferma esplicita.">
+              <Field label={t('admin.contentEditorPage.programmaLaPubblicazione')} hint={t('admin.contentEditorPage.avverraAutomaticamenteSoloDopoLa')}>
                 <Input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
               </Field>
               <Checkbox>
-                <input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} />
-                Confermo che il titolo dovrà essere pubblicato alla data indicata.
-              </Checkbox>
+                <input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} />{t('admin.contentEditorPage.confermoCheIlTitoloDovra')}</Checkbox>
               {schedule.error && <Alert $tone="error">{errorText(schedule.error)}</Alert>}
               <div>
                 <Button $variant="secondary" disabled={!when || !confirm || schedule.isPending} onClick={() => schedule.mutate(fromLocalInput(when)!, { onSuccess: () => { setWhen(''); setConfirm(false); } })}>
-                  <CalendarClock size={15} /> Programma
-                </Button>
+                  <CalendarClock size={15} />{' '}{t('admin.contentEditorPage.programma')}</Button>
               </div>
             </Stack>
           )
@@ -206,16 +204,16 @@ function VisibilitySection({ kind, item }: { kind: ContentKindPath; item: AdminC
   );
 
   return (
-    <Section title="Visibilità" note="Questi flag hanno effetto solo quando il titolo è pubblicato.">
+    <Section title={t('admin.contentEditorPage.visibilita')} note={t('admin.contentEditorPage.questiFlagHannoEffettoSolo')}>
       <Stack $gap={10}>
-        {toggle('showOnHomepage', 'Mostra nella homepage')}
-        {toggle('featured', 'Metti in evidenza')}
-        {toggle('showInLeaderboards', 'Includi nelle classifiche')}
-        <Field label="Disponibile dal" hint="Facoltativo: prima di questa data il titolo resta invisibile anche se pubblicato.">
+        {toggle('showOnHomepage', t('admin.contentEditorPage.mostraNellaHomepage'))}
+        {toggle('featured', t('admin.contentEditorPage.mettiInEvidenza'))}
+        {toggle('showInLeaderboards', t('admin.contentEditorPage.includiNelleClassifiche'))}
+        <Field label={t('admin.contentEditorPage.disponibileDal')} hint={t('admin.contentEditorPage.facoltativoPrimaDiQuestaData')}>
           <Input type="datetime-local" value={availableFrom} disabled={!can} onChange={(e) => setAvailableFrom(e.target.value)} />
         </Field>
         <div>
-          <Button $variant="secondary" disabled={!can || mutation.isPending} onClick={() => mutation.mutate({ availableFrom: fromLocalInput(availableFrom) })}>Salva disponibilità</Button>
+          <Button $variant="secondary" disabled={!can || mutation.isPending} onClick={() => mutation.mutate({ availableFrom: fromLocalInput(availableFrom) })}>{t('admin.contentEditorPage.salvaDisponibilita')}</Button>
         </div>
         {mutation.error && <Alert $tone="error">{errorText(mutation.error)}</Alert>}
       </Stack>
@@ -260,16 +258,16 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
   const validate = () => {
     const e: Partial<Record<PurchaseField, string>> = {};
     const n = Number(price);
-    if (!price) e.priceBc = 'Il prezzo è obbligatorio';
-    else if (!Number.isInteger(n) || n <= 0) e.priceBc = 'Inserisci un numero intero maggiore di zero';
-    if (!opens) e.purchaseOpensAt = 'L’apertura degli acquisti è obbligatoria';
-    if (!closes) e.purchaseClosesAt = 'La chiusura degli acquisti è obbligatoria';
-    else if (opens && new Date(closes) <= new Date(opens)) e.purchaseClosesAt = 'La chiusura deve seguire l’apertura';
+    if (!price) e.priceBc = t('admin.contentEditorPage.ilPrezzoEObbligatorio');
+    else if (!Number.isInteger(n) || n <= 0) e.priceBc = t('admin.contentEditorPage.inserisciUnNumeroInteroMaggiore');
+    if (!opens) e.purchaseOpensAt = t('admin.contentEditorPage.lAperturaDegliAcquistiE');
+    if (!closes) e.purchaseClosesAt = t('admin.contentEditorPage.laChiusuraDegliAcquistiE');
+    else if (opens && new Date(closes) <= new Date(opens)) e.purchaseClosesAt = t('admin.contentEditorPage.laChiusuraDeveSeguireL');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const save = (extra: Record<string, unknown> = {}, message = 'Impostazioni salvate.') => {
+  const save = (extra: Record<string, unknown> = {}, message = t('admin.contentEditorPage.impostazioniSalvate')) => {
     setSaved(null);
     if (!validate()) return;
     mutation.mutate(
@@ -287,30 +285,30 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
 
   const suspend = () => {
     setSaved(null);
-    mutation.mutate({ purchasesEnabled: false }, { onSuccess: () => setSaved('Acquisti sospesi.') });
+    mutation.mutate({ purchasesEnabled: false }, { onSuccess: () => setSaved(t('admin.contentEditorPage.acquistiSospesi')) });
   };
 
   return (
-    <Section title="Acquisti" note={seasonScoped ? 'Serie acquistabile per stagione: il prezzo della stagione, se impostato, prevale su quello della serie.' : 'Tutti i campi sono obbligatori.'}>
+    <Section title={t('admin.contentEditorPage.acquisti')} note={seasonScoped ? t('admin.contentEditorPage.serieAcquistabilePerStagioneIl') : t('admin.contentEditorPage.tuttiICampiSonoObbligatori')}>
       <Stack $gap={12}>
         <Stack $row $justify="space-between" $align="center">
           <PurchaseBadge {...adminPurchaseState(item)} />
           {item.priceBc ? <Bc value={item.priceBc} size={14} /> : null}
         </Stack>
-        <Field label={kind === 'movies' ? 'Prezzo del film (Bustercoin) *' : 'Prezzo per quota (Bustercoin) *'} error={errors.priceBc}>
+        <Field label={kind === 'movies' ? t('admin.contentEditorPage.prezzoDelFilmBustercoin') : t('admin.contentEditorPage.prezzoPerQuotaBustercoin')} error={errors.priceBc}>
           <Input type="number" min={1} required aria-invalid={!!errors.priceBc} value={price} disabled={!can} onChange={(e) => setPrice(e.target.value)} />
         </Field>
-        <Field label="Apertura acquisti *" error={errors.purchaseOpensAt}>
+        <Field label={t('admin.contentEditorPage.aperturaAcquisti')} error={errors.purchaseOpensAt}>
           <Input type="datetime-local" required aria-invalid={!!errors.purchaseOpensAt} value={opens} disabled={!can} onChange={(e) => setOpens(e.target.value)} />
         </Field>
         <Field
-          label="Chiusura acquisti *"
+          label={t('admin.contentEditorPage.chiusuraAcquisti')}
           error={errors.purchaseClosesAt}
           hint={
             kind === 'movies'
               ? suggestedClose
-                ? 'Regola: mezzanotte del giorno prima dell’uscita nelle sale (precompilata dalla data d’uscita italiana).'
-                : 'Regola: mezzanotte del giorno prima dell’uscita nelle sale. Imposta la data d’uscita italiana nei dati editoriali per precompilarla.'
+                ? t('admin.contentEditorPage.regolaMezzanotteDelGiornoPrima')
+                : t('admin.contentEditorPage.regolaMezzanotteDelGiornoPrima2')
               : undefined
           }
         >
@@ -318,26 +316,22 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
         </Field>
         {kind === 'movies' && suggestedClose && closes !== suggestedClose && can && (
           <div>
-            <Button $size="sm" $variant="ghost" onClick={() => setCloses(suggestedClose)}>
-              Usa la mezzanotte prima dell’uscita ({formatDate(item.italianReleaseDate)})
-            </Button>
+            <Button $size="sm" $variant="ghost" onClick={() => setCloses(suggestedClose)}>{tx('admin.contentEditorPage.usaLaMezzanottePrimaDell', { italianReleaseDate: formatDate(item.italianReleaseDate) })}</Button>
           </div>
         )}
         {mutation.error && !Object.keys(errors).length && <Alert $tone="error">{errorText(mutation.error)}</Alert>}
         {saved && <Alert $tone="success">{saved}</Alert>}
         {can ? (
           <Stack $row $gap={8} $wrap>
-            <Button $variant="gold" disabled={mutation.isPending} onClick={() => save()}>Salva prezzo e date</Button>
+            <Button $variant="gold" disabled={mutation.isPending} onClick={() => save()}>{t('admin.contentEditorPage.salvaPrezzoEDate')}</Button>
             {item.purchasesEnabled ? (
-              <Button $variant="secondary" disabled={mutation.isPending} onClick={suspend}>Sospendi acquisti</Button>
+              <Button $variant="secondary" disabled={mutation.isPending} onClick={suspend}>{t('admin.contentEditorPage.sospendiAcquisti')}</Button>
             ) : (
-              <Button $variant="secondary" disabled={mutation.isPending || item.publicationStatus === 'ARCHIVED'} onClick={() => save({ purchasesEnabled: true }, 'Acquisti abilitati.')}>
-                Abilita acquisti
-              </Button>
+              <Button $variant="secondary" disabled={mutation.isPending || item.publicationStatus === 'ARCHIVED'} onClick={() => save({ purchasesEnabled: true }, t('admin.contentEditorPage.acquistiAbilitati'))}>{t('admin.contentEditorPage.abilitaAcquisti')}</Button>
             )}
           </Stack>
         ) : (
-          <Muted $size="0.85rem">Non hai il permesso di gestire prezzi e acquisti.</Muted>
+          <Muted $size="0.85rem">{t('admin.contentEditorPage.nonHaiIlPermessoDi3')}</Muted>
         )}
       </Stack>
     </Section>
@@ -350,21 +344,20 @@ export function ContentEditorPage() {
   const isNew = id === 'nuovo';
   const q = useAdminContent(kind, isNew ? undefined : id);
   const [preview, setPreview] = useState(false);
-  const label = kind === 'movies' ? 'film' : 'serie TV';
+  const label = kind === 'movies' ? t('admin.contentEditorPage.film') : t('admin.contentEditorPage.serieTv');
 
   if (!isNew && q.isLoading) return <Spinner />;
-  if (!isNew && !q.data) return <Alert $tone="error">Contenuto non trovato.</Alert>;
+  if (!isNew && !q.data) return <Alert $tone="error">{t('admin.contentEditorPage.contenutoNonTrovato')}</Alert>;
   const item = q.data;
 
   return (
     <>
       <Link to={`/admin/pubblicazione?tipo=${kind}${item ? `&stato=${item.publicationStatus}` : ''}`} style={{ display: 'inline-flex', gap: 6, alignItems: 'center', marginBottom: 14, color: theme.colors.textMuted }}>
-        <ArrowLeft size={16} /> Pubblicazione
-      </Link>
+        <ArrowLeft size={16} />{' '}{t('admin.contentEditorPage.pubblicazione')}</Link>
       <PageHeader
-        title={item ? item.title : `Nuovo ${label}`}
-        subtitle={item ? `ID ${item.id} · fonte ${item.source}${item.externalId ? ` (${item.externalId})` : ''}` : undefined}
-        actions={item && <Button $variant="secondary" onClick={() => setPreview(true)}><Eye size={15} /> Anteprima pubblica</Button>}
+        title={item ? item.title : t('admin.contentEditorPage.nuovoLabel', { label })}
+        subtitle={item ? t('admin.contentEditorPage.idIdFonteSourceV', { id: item.id, source: item.source, v: item.externalId ? ` (${item.externalId})` : '' }) : undefined}
+        actions={item && <Button $variant="secondary" onClick={() => setPreview(true)}><Eye size={15} />{' '}{t('admin.contentEditorPage.anteprimaPubblica')}</Button>}
       />
       <Columns>
         <Stack $gap={18}>

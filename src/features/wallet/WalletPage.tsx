@@ -10,6 +10,7 @@ import { Badge, Bc, Card, EmptyState, Gain, Grid, Muted, PageHeader, Pagination,
 import { formatBc, formatDate, formatDateTime, formatPct, LEDGER_LABELS } from '../../components/format';
 import { Poster } from '../../components/Poster';
 import { media, theme } from '../../theme/theme';
+import { t, tx } from '../../i18n';
 
 const Summary = styled.div`
   display: grid;
@@ -42,11 +43,12 @@ const PIE_COLORS = theme.colors.chart;
 type Filter = 'all' | 'MOVIE' | 'TV_SERIES' | 'REDEEMED';
 
 function SeriesHoldingRow({ h }: { h: Holding }) {
-  const linkable = h.available && !!useFeatures().data?.tvSeries;
+  const seriesEnabled = !!useFeatures().data?.tvSeries;
+  const linkable = h.available && seriesEnabled;
   const title = (
     <div style={{ fontWeight: 600 }}>
       {h.title}
-      {h.seasonNumber ? ` — S${h.seasonNumber}` : ''}
+      {h.seasonNumber ? t('wallet.walletPage.stagioneBreve', { number: h.seasonNumber }) : ''}
     </div>
   );
   return (
@@ -55,9 +57,9 @@ function SeriesHoldingRow({ h }: { h: Holding }) {
       <div style={{ minWidth: 0 }}>
         {linkable ? <Link to={`/app/serie/${h.contentId}`}>{title}</Link> : title}
         <Muted $size="0.8rem">
-          {h.units} quote · investiti {formatBc(h.totalInvested)} · dal {formatDate(h.firstPurchasedAt)}
+          {tx('wallet.walletPage.unitsQuoteInvestitiTotalinvestedDal', { units: h.units, totalInvested: formatBc(h.totalInvested), firstPurchasedAt: formatDate(h.firstPurchasedAt) })}
         </Muted>
-        {!h.available && <Badge $tone="amber" style={{ marginTop: 4 }}>Non più in catalogo</Badge>}
+        {!h.available && <Badge $tone="amber" style={{ marginTop: 4 }}>{t('wallet.walletPage.nonPiuInCatalogo')}</Badge>}
       </div>
       <div style={{ textAlign: 'right' }}>
         <Bc value={h.currentValue} size={14} />
@@ -84,40 +86,40 @@ export function WalletPage() {
   const showSeries = filter === 'all' || filter === 'TV_SERIES';
   const pieData = w
     ? [
-        { name: 'Film', value: w.distribution.movies.value },
-        { name: 'Serie TV', value: w.distribution.tvSeries.value },
+        { name: t('common.film'), value: w.distribution.movies.value },
+        { name: t('common.serieTv'), value: w.distribution.tvSeries.value },
       ].filter((d) => d.value > 0)
     : [];
 
   return (
     <>
-      <PageHeader title="Portafoglio" subtitle="Saldo spendibile e partecipazioni virtuali sono tenuti separati." actions={<Link to="/app/movimenti">Storico movimenti →</Link>} />
+      <PageHeader title={t('wallet.walletPage.portafoglio')} subtitle={t('wallet.walletPage.saldoSpendibileEPartecipazioniVirtuali')} actions={<Link to="/app/movimenti">{t('wallet.walletPage.storicoMovimenti')}</Link>} />
       {w && (
         <Summary>
           <Card>
-            <Muted $size="0.8rem">Saldo spendibile</Muted>
+            <Muted $size="0.8rem">{t('wallet.walletPage.saldoSpendibile')}</Muted>
             <Bc value={w.balance} size={22} />
           </Card>
           <Card>
-            <Muted $size="0.8rem">Valore partecipazioni</Muted>
+            <Muted $size="0.8rem">{t('wallet.walletPage.valorePartecipazioni')}</Muted>
             <Bc value={w.holdingsValue} size={18} />
           </Card>
           <Card>
-            <Muted $size="0.8rem">Guadagno totale</Muted>
+            <Muted $size="0.8rem">{t('wallet.walletPage.guadagnoTotale')}</Muted>
             <Gain value={w.totalGain} size={17} />
-            <Muted $size="0.72rem">Realizzato {formatBc(w.realizedGain, true)} · in corso {formatBc(w.unrealizedGain, true)}</Muted>
+            <Muted $size="0.72rem">{tx('wallet.walletPage.realizzatoRealizedgainInCorsoUnrealizedgain', { realizedGain: formatBc(w.realizedGain, true), unrealizedGain: formatBc(w.unrealizedGain, true) })}</Muted>
           </Card>
           <Card>
-            <Muted $size="0.8rem">Rendimento</Muted>
+            <Muted $size="0.8rem">{t('wallet.walletPage.rendimento')}</Muted>
             <div style={{ fontSize: 18, fontWeight: 700 }}>{formatPct(w.returnPct)}</div>
-            <Muted $size="0.72rem">Solo partecipazioni, esclusi bonus e ricariche</Muted>
+            <Muted $size="0.72rem">{t('wallet.walletPage.soloPartecipazioniEsclusiBonusE')}</Muted>
           </Card>
         </Summary>
       )}
 
       <Split>
         <Card>
-          <h3 style={{ marginBottom: 10 }}>Distribuzione</h3>
+          <h3 style={{ marginBottom: 10 }}>{t('wallet.walletPage.distribuzione')}</h3>
           {pieData.length ? (
             <div style={{ height: 200 }}>
               <ResponsiveContainer>
@@ -132,32 +134,32 @@ export function WalletPage() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <Muted>Nessuna partecipazione aperta.</Muted>
+            <Muted>{t('wallet.walletPage.nessunaPartecipazioneAperta')}</Muted>
           )}
           {w && (
             <Stack $gap={6} style={{ marginTop: 8 }}>
-              <Stack $row $justify="space-between"><Muted>Film ({w.distribution.movies.count})</Muted><Bc value={w.distribution.movies.value} size={13} /></Stack>
-              <Stack $row $justify="space-between"><Muted>Serie TV ({w.distribution.tvSeries.count})</Muted><Bc value={w.distribution.tvSeries.value} size={13} /></Stack>
+              <Stack $row $justify="space-between"><Muted>{tx('wallet.walletPage.filmCount', { count: w.distribution.movies.count })}</Muted><Bc value={w.distribution.movies.value} size={13} /></Stack>
+              <Stack $row $justify="space-between"><Muted>{tx('wallet.walletPage.serieTvCount', { count: w.distribution.tvSeries.count })}</Muted><Bc value={w.distribution.tvSeries.value} size={13} /></Stack>
             </Stack>
           )}
         </Card>
 
         <Card>
           <Stack $row $justify="space-between" $align="center" $wrap style={{ marginBottom: 12 }}>
-            <h3>Partecipazioni</h3>
+            <h3>{t('wallet.walletPage.partecipazioni')}</h3>
             <Tabs style={{ margin: 0 }}>
-              <Tab $active={filter === 'all'} onClick={() => setFilter('all')}>Tutti</Tab>
-              {features?.movies && <Tab $active={filter === 'MOVIE'} onClick={() => setFilter('MOVIE')}>Film</Tab>}
-              {features?.tvSeries && <Tab $active={filter === 'TV_SERIES'} onClick={() => setFilter('TV_SERIES')}>Serie TV</Tab>}
-              <Tab $active={filter === 'REDEEMED'} onClick={() => setFilter('REDEEMED')}>Riscattati</Tab>
+              <Tab $active={filter === 'all'} onClick={() => setFilter('all')}>{t('wallet.walletPage.tutti')}</Tab>
+              {features?.movies && <Tab $active={filter === 'MOVIE'} onClick={() => setFilter('MOVIE')}>{t('common.film')}</Tab>}
+              {features?.tvSeries && <Tab $active={filter === 'TV_SERIES'} onClick={() => setFilter('TV_SERIES')}>{t('common.serieTv')}</Tab>}
+              <Tab $active={filter === 'REDEEMED'} onClick={() => setFilter('REDEEMED')}>{t('wallet.walletPage.riscattati')}</Tab>
             </Tabs>
           </Stack>
           {holdings.isLoading ? (
             <Spinner />
           ) : (showMovies ? movies.length : 0) + (showSeries ? series.length : 0) === 0 ? (
-            <EmptyState icon={<WalletIcon size={30} />} title={filter === 'REDEEMED' ? 'Nessun film riscattato' : 'Nessuna partecipazione'}>
+            <EmptyState icon={<WalletIcon size={30} />} title={filter === 'REDEEMED' ? t('wallet.walletPage.nessunFilmRiscattato') : t('wallet.walletPage.nessunaPartecipazione')}>
               {filter !== 'REDEEMED' && (
-                <>Esplora il <Link to="/app/film" style={{ textDecoration: 'underline' }}>catalogo</Link> per iniziare a investire.</>
+                <>{tx('wallet.walletPage.esploraIlLinkPerIniziare', { link: <Link to="/app/film" style={{ textDecoration: 'underline' }}>{t('wallet.walletPage.catalogo')}</Link> })}</>
               )}
             </EmptyState>
           ) : (
@@ -169,7 +171,7 @@ export function WalletPage() {
               )}
               {showSeries && series.length > 0 && (
                 <div>
-                  {filter === 'all' && <h3 style={{ margin: '4px 0 4px', fontSize: '0.95rem' }}>Serie TV</h3>}
+                  {filter === 'all' && <h3 style={{ margin: '4px 0 4px', fontSize: '0.95rem' }}>{t('common.serieTv')}</h3>}
                   {series.map((h) => <SeriesHoldingRow key={h.id} h={h} />)}
                 </div>
               )}
@@ -182,13 +184,13 @@ export function WalletPage() {
 }
 
 const CATEGORIES: Array<[string | undefined, string, keyof Features | null]> = [
-  [undefined, 'Tutti', null],
-  ['movies', 'Film', 'movies'],
-  ['series', 'Serie TV', 'tvSeries'],
-  ['earnings', 'Guadagni', null],
-  ['purchases', 'Acquisti', null],
-  ['bonus', 'Bonus', null],
-  ['prizes', 'Premi', null],
+  [undefined, t('wallet.walletPage.tutti'), null],
+  ['movies', t('common.film'), 'movies'],
+  ['series', t('common.serieTv'), 'tvSeries'],
+  ['earnings', t('wallet.walletPage.guadagni'), null],
+  ['purchases', t('wallet.walletPage.acquisti'), null],
+  ['bonus', t('wallet.walletPage.bonus'), null],
+  ['prizes', t('common.premi'), null],
 ];
 
 export function TransactionsPage() {
@@ -199,7 +201,7 @@ export function TransactionsPage() {
 
   return (
     <>
-      <PageHeader title="Storico movimenti" subtitle="Registro contabile immutabile di tutti i movimenti Bustercoin." />
+      <PageHeader title={t('wallet.walletPage.storicoMovimenti2')} subtitle={t('wallet.walletPage.registroContabileImmutabileDiTutti')} />
       <Tabs>
         {CATEGORIES.filter(([, , f]) => !f || !!features?.[f]).map(([key, label]) => (
           <Tab key={label} $active={category === key} onClick={() => { setCategory(key); setPage(1); }}>
@@ -215,11 +217,11 @@ export function TransactionsPage() {
             <Table>
               <thead>
                 <tr>
-                  <th>Data</th>
-                  <th>Tipo</th>
-                  <th>Descrizione</th>
-                  <th style={{ textAlign: 'right' }}>Importo</th>
-                  <th style={{ textAlign: 'right' }}>Saldo</th>
+                  <th>{t('wallet.walletPage.data')}</th>
+                  <th>{t('wallet.walletPage.tipo')}</th>
+                  <th>{t('wallet.walletPage.descrizione')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('wallet.walletPage.importo')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('wallet.walletPage.saldo')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -233,7 +235,7 @@ export function TransactionsPage() {
                   </tr>
                 ))}
                 {tx.data?.items.length === 0 && (
-                  <tr><td colSpan={5}><Muted>Nessun movimento in questa categoria.</Muted></td></tr>
+                  <tr><td colSpan={5}><Muted>{t('wallet.walletPage.nessunMovimentoInQuestaCategoria')}</Muted></td></tr>
                 )}
               </tbody>
             </Table>

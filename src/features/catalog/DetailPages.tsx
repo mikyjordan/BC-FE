@@ -10,6 +10,7 @@ import { formatDate } from '../../components/format';
 import { media } from '../../theme/theme';
 import { PurchasePanel } from './PurchasePanel';
 import { BoxOfficeCard, MovieSidePanel } from './MoviePanels';
+import { t, tx } from '../../i18n';
 
 const Layout = styled.div`
   display: grid;
@@ -46,9 +47,8 @@ function NotAvailable({ back }: { back: string }) {
   return (
     <>
       <Back to={back}>
-        <ArrowLeft size={16} /> Torna al catalogo
-      </Back>
-      <EmptyState title="Titolo non disponibile">Il contenuto non esiste o non è attualmente pubblicato.</EmptyState>
+        <ArrowLeft size={16} />{' '}{t('catalog.detailPages.tornaAlCatalogo')}</Back>
+      <EmptyState title={t('catalog.detailPages.titoloNonDisponibile')}>{t('catalog.detailPages.ilContenutoNonEsisteO')}</EmptyState>
     </>
   );
 }
@@ -69,9 +69,9 @@ function PerformancePlaceholder() {
     <Card>
       <Stack $row $gap={10} $align="center" style={{ marginBottom: 8 }}>
         <BarChart3 size={18} />
-        <h3>Metriche italiane e rendimento</h3>
+        <h3>{t('catalog.detailPages.metricheItalianeERendimento')}</h3>
       </Stack>
-      <Muted>Nessuna rilevazione disponibile per questo titolo. I dati verranno mostrati solo quando provenienti da fonti verificate.</Muted>
+      <Muted>{t('catalog.detailPages.nessunaRilevazioneDisponibilePerQuesto')}</Muted>
     </Card>
   );
 }
@@ -83,7 +83,7 @@ function MovieBody({ m }: { m: PublicMovie }) {
       <Stack $gap={18}>
         <div>
           <Stack $row $gap={6} $wrap style={{ marginBottom: 10 }}>
-            <Badge $tone="blue">Film</Badge>
+            <Badge $tone="blue">{t('common.film')}</Badge>
             {m.genres.map((g) => (
               <Badge key={g}>{g}</Badge>
             ))}
@@ -93,19 +93,19 @@ function MovieBody({ m }: { m: PublicMovie }) {
         </div>
         {m.description && <Lead>{m.description}</Lead>}
         <Facts>
-          {fact('Regia', m.director)}
-          {fact('Cast', m.cast.join(', '))}
-          {fact('Durata', m.durationMinutes ? `${m.durationMinutes} min` : null)}
-          {fact('Uscita in Italia', m.italianReleaseDate ? formatDate(m.italianReleaseDate) : null)}
-          {fact('In programmazione dal', m.screeningStartDate ? formatDate(m.screeningStartDate) : null)}
-          {fact('Fino al', m.screeningEndDate ? formatDate(m.screeningEndDate) : null)}
-          {fact('Paese', m.productionCountry)}
-          {fact('Distribuzione', m.distributor)}
-          {fact('Classificazione', m.ageRating)}
+          {fact(t('catalog.detailPages.regia'), m.director)}
+          {fact(t('catalog.detailPages.cast'), m.cast.join(', '))}
+          {fact(t('catalog.detailPages.durata'), m.durationMinutes ? t('catalog.detailPages.durataMinuti', { minutes: m.durationMinutes }) : null)}
+          {fact(t('catalog.detailPages.uscitaInItalia'), m.italianReleaseDate ? formatDate(m.italianReleaseDate) : null)}
+          {fact(t('catalog.detailPages.inProgrammazioneDal'), m.screeningStartDate ? formatDate(m.screeningStartDate) : null)}
+          {fact(t('catalog.detailPages.finoAl'), m.screeningEndDate ? formatDate(m.screeningEndDate) : null)}
+          {fact(t('catalog.detailPages.paese'), m.productionCountry)}
+          {fact(t('catalog.detailPages.distribuzione'), m.distributor)}
+          {fact(t('catalog.detailPages.classificazione'), m.ageRating)}
         </Facts>
         {m.plot && (
           <div>
-            <h3 style={{ marginBottom: 6 }}>Trama</h3>
+            <h3 style={{ marginBottom: 6 }}>{t('catalog.detailPages.trama')}</h3>
             <Muted>{m.plot}</Muted>
           </div>
         )}
@@ -117,10 +117,10 @@ function MovieBody({ m }: { m: PublicMovie }) {
 }
 
 const SERIES_STATUS: Record<PublicSeries['seriesStatus'], string> = {
-  ANNOUNCED: 'Annunciata',
-  ONGOING: 'In corso',
-  ENDED: 'Conclusa',
-  CANCELLED: 'Cancellata',
+  ANNOUNCED: t('catalog.detailPages.annunciata'),
+  ONGOING: t('catalog.detailPages.inCorso'),
+  ENDED: t('catalog.detailPages.conclusa'),
+  CANCELLED: t('catalog.detailPages.cancellata'),
 };
 
 function SeriesBody({ s }: { s: PublicSeries }) {
@@ -134,7 +134,7 @@ function SeriesBody({ s }: { s: PublicSeries }) {
       <Stack $gap={18}>
         <div>
           <Stack $row $gap={6} $wrap style={{ marginBottom: 10 }}>
-            <Badge $tone="blue">Serie TV</Badge>
+            <Badge $tone="blue">{t('common.serieTv')}</Badge>
             {s.platforms.map((p) => (
               <Badge key={p} $tone="neutral">{p}</Badge>
             ))}
@@ -145,30 +145,29 @@ function SeriesBody({ s }: { s: PublicSeries }) {
         </div>
         {s.description && <Lead>{s.description}</Lead>}
         <Facts>
-          {fact('Ideata da', s.creator)}
-          {fact('Cast', s.cast.join(', '))}
-          {fact('Generi', s.genres.join(', '))}
-          {fact('Prima uscita', s.firstReleaseDate ? formatDate(s.firstReleaseDate) : null)}
-          {fact('Stagioni', s.seasonsCount)}
-          {fact('Episodi', s.episodesCount)}
-          {fact('Paese', s.productionCountry)}
-          {fact('Fonte dei dati', s.dataSource)}
+          {fact(t('catalog.detailPages.ideataDa'), s.creator)}
+          {fact(t('catalog.detailPages.cast'), s.cast.join(', '))}
+          {fact(t('catalog.detailPages.generi'), s.genres.join(', '))}
+          {fact(t('catalog.detailPages.primaUscita'), s.firstReleaseDate ? formatDate(s.firstReleaseDate) : null)}
+          {fact(t('catalog.detailPages.stagioni'), s.seasonsCount)}
+          {fact(t('catalog.detailPages.episodi'), s.episodesCount)}
+          {fact(t('catalog.detailPages.paese'), s.productionCountry)}
+          {fact(t('catalog.detailPages.fonteDeiDati'), s.dataSource)}
         </Facts>
         {seasons.length > 0 && (
           <div>
-            <h3 style={{ marginBottom: 10 }}>Stagioni</h3>
+            <h3 style={{ marginBottom: 10 }}>{t('catalog.detailPages.stagioni')}</h3>
             <Tabs>
               {seasons.map((x) => (
-                <Tab key={x.id} $active={x.id === seasonId} onClick={() => setSeasonId(x.id)}>
-                  Stagione {x.seasonNumber}
+                <Tab key={x.id} $active={x.id === seasonId} onClick={() => setSeasonId(x.id)}>{tx('catalog.detailPages.stagioneSeasonnumber', { seasonNumber: x.seasonNumber })}
                 </Tab>
               ))}
             </Tabs>
             {selected && (
               <Muted>
-                {selected.title ?? `Stagione ${selected.seasonNumber}`}
-                {selected.episodesCount ? ` · ${selected.episodesCount} episodi` : ''}
-                {selected.releaseDate ? ` · uscita ${formatDate(selected.releaseDate)}` : ''}
+                {selected.title ?? t('catalog.detailPages.stagioneSeasonnumber', { seasonNumber: selected.seasonNumber })}
+                {selected.episodesCount ? t('catalog.detailPages.episodescountEpisodi', { episodesCount: selected.episodesCount }) : ''}
+                {selected.releaseDate ? t('catalog.detailPages.uscitaReleasedate', { releaseDate: formatDate(selected.releaseDate) }) : ''}
               </Muted>
             )}
           </div>
@@ -182,16 +181,16 @@ function SeriesBody({ s }: { s: PublicSeries }) {
             kind="tv-series"
             contentId={s.id}
             seasonId={selected.id}
-            purchase={{ ...selected.purchase, message: selected.purchase.purchasable ? null : 'Gli acquisti per questa stagione non sono attivi' }}
-            label={`Stagione ${selected.seasonNumber}`}
+            purchase={{ ...selected.purchase, message: selected.purchase.purchasable ? null : t('catalog.detailPages.gliAcquistiPerQuestaStagione') }}
+            label={t('catalog.detailPages.stagioneSeasonnumber', { seasonNumber: selected.seasonNumber })}
           />
         ) : (
           <Card>
-            <Muted>Nessuna stagione disponibile per l’acquisto.</Muted>
+            <Muted>{t('catalog.detailPages.nessunaStagioneDisponibilePerL')}</Muted>
           </Card>
         )
       ) : (
-        <PurchasePanel kind="tv-series" contentId={s.id} purchase={s.purchase} label="Serie completa" />
+        <PurchasePanel kind="tv-series" contentId={s.id} purchase={s.purchase} label={t('catalog.detailPages.serieCompleta')} />
       )}
     </Layout>
   );
@@ -205,8 +204,7 @@ export function MovieDetailPage() {
   return (
     <>
       <Back to="/app/film">
-        <ArrowLeft size={16} /> Film
-      </Back>
+        <ArrowLeft size={16} />{' '}{t('common.film')}</Back>
       <MovieBody m={q.data} />
     </>
   );
@@ -220,8 +218,7 @@ export function SeriesDetailPage() {
   return (
     <>
       <Back to="/app/serie">
-        <ArrowLeft size={16} /> Serie TV
-      </Back>
+        <ArrowLeft size={16} />{' '}{t('common.serieTv')}</Back>
       <SeriesBody s={q.data} />
     </>
   );

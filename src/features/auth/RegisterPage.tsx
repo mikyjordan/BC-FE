@@ -6,6 +6,7 @@ import { ApiError, register as registerUser } from '../../api/client';
 import { Alert, Button, Checkbox, Field, FieldError, Input, Muted, Stack } from '../../components/ui';
 import { AuthLayout, TextLink } from './AuthLayout';
 import { registerSchema, type RegisterValues } from './schemas';
+import { t, tx } from '../../i18n';
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -25,47 +26,42 @@ export function RegisterPage() {
       if (err instanceof ApiError && err.code === 'USER_EXISTS') {
         setFieldError(err.message.includes('Email') ? 'email' : 'username', { message: err.message });
       } else {
-        setError(err instanceof Error ? err.message : 'Registrazione non riuscita');
+        setError(err instanceof Error ? err.message : t('auth.registerPage.registrazioneNonRiuscita'));
       }
     }
   });
 
   return (
     <AuthLayout
-      title="Crea il tuo account"
-      subtitle="Ricevi subito 1.000.000 di Bustercoin di benvenuto."
+      title={t('auth.registerPage.creaIlTuoAccount')}
+      subtitle={t('auth.registerPage.riceviSubito1000000')}
       footer={
-        <Muted>
-          Hai già un account? <TextLink to="/login">Accedi</TextLink>
+        <Muted>{t('auth.registerPage.haiGiaUnAccount')}{' '}<TextLink to="/login">{t('auth.registerPage.accedi')}</TextLink>
         </Muted>
       }
     >
       <form onSubmit={onSubmit} noValidate>
         <Stack $gap={14}>
           {error && <Alert $tone="error">{error}</Alert>}
-          <Field label="Email" error={e.email?.message}>
+          <Field label={t('common.email')} error={e.email?.message}>
             <Input type="email" autoComplete="email" aria-invalid={!!e.email} {...register('email')} />
           </Field>
-          <Field label="Nome utente" error={e.username?.message} hint="Visibile nelle classifiche">
+          <Field label={t('auth.registerPage.nomeUtente')} error={e.username?.message} hint={t('auth.registerPage.visibileNelleClassifiche')}>
             <Input autoComplete="username" aria-invalid={!!e.username} {...register('username')} />
           </Field>
-          <Field label="Password" error={e.password?.message} hint="Almeno 10 caratteri, con lettere e numeri">
+          <Field label={t('auth.registerPage.password')} error={e.password?.message} hint={t('auth.registerPage.almeno10CaratteriConLettere')}>
             <Input type="password" autoComplete="new-password" aria-invalid={!!e.password} {...register('password')} />
           </Field>
-          <Field label="Conferma password" error={e.confirm?.message}>
+          <Field label={t('auth.registerPage.confermaPassword')} error={e.confirm?.message}>
             <Input type="password" autoComplete="new-password" aria-invalid={!!e.confirm} {...register('confirm')} />
           </Field>
           <Checkbox>
             <input type="checkbox" {...register('acceptTerms')} />
-            <span>
-              Accetto i <Link to="/termini" target="_blank" style={{ textDecoration: 'underline' }}>termini e condizioni</Link> e ho letto
-              l’<Link to="/privacy" target="_blank" style={{ textDecoration: 'underline' }}>informativa privacy</Link>. So che Bustercoin è una
-              valuta virtuale di gioco.
-            </span>
+            <span>{tx('auth.registerPage.accettoILinkEHo', { link: <Link to="/termini" target="_blank" style={{ textDecoration: 'underline' }}>{t('auth.registerPage.terminiECondizioni')}</Link>, link2: <Link to="/privacy" target="_blank" style={{ textDecoration: 'underline' }}>{t('auth.registerPage.informativaPrivacy')}</Link> })}</span>
           </Checkbox>
           {e.acceptTerms && <FieldError>{e.acceptTerms.message}</FieldError>}
           <Button type="submit" $block disabled={formState.isSubmitting}>
-            {formState.isSubmitting ? 'Creazione account…' : 'Registrati'}
+            {formState.isSubmitting ? t('auth.registerPage.creazioneAccount') : t('auth.registerPage.registrati')}
           </Button>
         </Stack>
       </form>

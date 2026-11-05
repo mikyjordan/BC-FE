@@ -1,10 +1,11 @@
 import { useId } from 'react';
+import { t } from '../../i18n';
 
 /**
  * Moneta Bustercoin: oro metallico, bordo zigrinato, effetto tridimensionale
  * e ciak cinematografico stilizzato inciso a rilievo al centro.
  */
-export function CoinIcon({ size = 20, title = 'Bustercoin' }: { size?: number; title?: string }) {
+export function CoinIcon({ size = 20, title = t('components.coinIcon.bustercoin') }: { size?: number; title?: string }) {
   const id = useId().replace(/:/g, '');
   const ticks = Array.from({ length: 48 }, (_, i) => i * 7.5);
   return (

@@ -6,6 +6,7 @@ import { SiteFooter } from '../../components/layout/SiteChrome';
 import { Badge } from '../../components/ui';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
+import { t } from '../../i18n';
 
 const Shell = styled.div`
   min-height: 100vh;
@@ -66,18 +67,17 @@ export function AdminLayout() {
   return (
     <Shell>
       <Top>
-        <Link to="/admin" aria-label="Amministrazione"><Logo height={26} tone="light" /></Link>
-        <Badge $tone="neutral">{user?.role === 'SUPERADMIN' ? 'Superadmin' : 'Admin'}</Badge>
-        <Nav aria-label="Amministrazione">
-          {can('dashboard.view') && <Item to="/admin" end><LayoutDashboard size={16} /> Dashboard</Item>}
-          {canContent && <Item to="/admin/pubblicazione"><Eye size={16} /> Pubblicazione</Item>}
-          {(can('users.view') || user?.role === 'SUPERADMIN') && <Item to="/admin/utenti"><Users size={16} /> Utenti</Item>}
-          {can('audit.view') && <Item to="/admin/audit"><FileClock size={16} /> Audit log</Item>}
-          {user?.role === 'SUPERADMIN' && <Item to="/admin/impostazioni"><Settings size={16} /> Impostazioni</Item>}
+        <Link to="/admin" aria-label={t('admin.adminLayout.amministrazione')}><Logo height={26} tone="light" /></Link>
+        <Badge $tone="neutral">{user?.role === 'SUPERADMIN' ? t('admin.adminLayout.superadmin') : t('admin.adminLayout.admin')}</Badge>
+        <Nav aria-label={t('admin.adminLayout.amministrazione')}>
+          {can('dashboard.view') && <Item to="/admin" end><LayoutDashboard size={16} />{' '}{t('admin.adminLayout.dashboard')}</Item>}
+          {canContent && <Item to="/admin/pubblicazione"><Eye size={16} />{' '}{t('admin.adminLayout.pubblicazione')}</Item>}
+          {(can('users.view') || user?.role === 'SUPERADMIN') && <Item to="/admin/utenti"><Users size={16} />{' '}{t('admin.adminLayout.utenti')}</Item>}
+          {can('audit.view') && <Item to="/admin/audit"><FileClock size={16} />{' '}{t('admin.adminLayout.auditLog')}</Item>}
+          {user?.role === 'SUPERADMIN' && <Item to="/admin/impostazioni"><Settings size={16} />{' '}{t('admin.adminLayout.impostazioni')}</Item>}
         </Nav>
         <Link to="/app" style={{ display: 'inline-flex', gap: 6, alignItems: 'center', fontSize: '0.9rem' }}>
-          <ArrowLeft size={16} /> Torna all’app
-        </Link>
+          <ArrowLeft size={16} />{' '}{t('admin.adminLayout.tornaAllApp')}</Link>
       </Top>
       <Body>
         <Outlet />

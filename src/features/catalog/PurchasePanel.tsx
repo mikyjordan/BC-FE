@@ -9,6 +9,7 @@ import { formatBc } from '../../components/format';
 import { PurchaseBadge } from '../../components/PurchaseBadge';
 import { useAuthStore } from '../../store/auth';
 import { SuperadminNoPurchase } from '../../components/SuperadminNoPurchase';
+import { t } from '../../i18n';
 
 interface Props {
   kind: ContentKindPath;
@@ -41,15 +42,15 @@ export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Pr
   const errorMessage = useMemo(() => {
     const err = mutation.error;
     if (!err) return null;
-    return err instanceof ApiError ? err.message : 'Acquisto non riuscito';
+    return err instanceof ApiError ? err.message : t('catalog.purchasePanel.acquistoNonRiuscito');
   }, [mutation.error]);
 
   if (!purchase.purchasable) {
     return (
       <Card>
         <Stack $gap={8}>
-          <h3>Acquisto</h3>
-          <PurchaseBadge active={false} reason={purchase.message ?? 'Al momento non è possibile acquistare questo titolo.'} />
+          <h3>{t('catalog.purchasePanel.acquisto')}</h3>
+          <PurchaseBadge active={false} reason={purchase.message ?? t('catalog.purchasePanel.alMomentoNonEPossibile')} />
           {purchase.priceBc ? <Bc value={purchase.priceBc} size={20} /> : null}
         </Stack>
       </Card>
@@ -60,12 +61,12 @@ export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Pr
     return (
       <Card>
         <Stack $gap={10}>
-          <h3>Acquisto</h3>
+          <h3>{t('catalog.purchasePanel.acquisto')}</h3>
           <PurchaseBadge active />
           <Bc value={price} size={22} />
-          <Muted>Accedi per acquistare quote virtuali.</Muted>
+          <Muted>{t('catalog.purchasePanel.accediPerAcquistareQuoteVirtuali')}</Muted>
           <Link to="/login">
-            <Button $block>Accedi</Button>
+            <Button $block>{t('catalog.purchasePanel.accedi')}</Button>
           </Link>
         </Stack>
       </Card>
@@ -79,7 +80,7 @@ export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Pr
       { quantity, seasonId, idempotencyKey: idemKey },
       {
         onSuccess: (r) => {
-          setDone(`Acquistate ${r.units} quote per ${formatBc(r.amount)}. Nuovo saldo: ${formatBc(r.balanceAfter)}.`);
+          setDone(t('catalog.purchasePanel.acquistateUnitsQuotePerAmount', { units: r.units, amount: formatBc(r.amount), balanceAfter: formatBc(r.balanceAfter) }));
           setConfirming(false);
           setIdemKey(newIdempotencyKey());
         },
@@ -97,14 +98,14 @@ export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Pr
       <Stack $gap={14}>
         <PurchaseBadge active />
         <Stack $row $justify="space-between" $align="center">
-          <h3>Acquista quote</h3>
+          <h3>{t('catalog.purchasePanel.acquistaQuote')}</h3>
           <Muted $size="0.8rem">{label}</Muted>
         </Stack>
         <div>
-          <Muted $size="0.8rem">Prezzo per quota</Muted>
+          <Muted $size="0.8rem">{t('catalog.purchasePanel.prezzoPerQuota')}</Muted>
           <Bc value={price} size={22} />
         </div>
-        <Field label="Quantità">
+        <Field label={t('catalog.purchasePanel.quantita')}>
           <Input
             type="number"
             min={1}
@@ -117,31 +118,28 @@ export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Pr
           />
         </Field>
         <Stack $row $justify="space-between" $align="center">
-          <Muted>Totale</Muted>
+          <Muted>{t('catalog.purchasePanel.totale')}</Muted>
           <Bc value={total} size={17} />
         </Stack>
         <Stack $row $justify="space-between" $align="center">
-          <Muted $size="0.8rem">Saldo disponibile</Muted>
+          <Muted $size="0.8rem">{t('catalog.purchasePanel.saldoDisponibile')}</Muted>
           <Muted $size="0.8rem">{formatBc(balance)}</Muted>
         </Stack>
-        {insufficient && <Alert $tone="warning">Saldo Bustercoin insufficiente per questa quantità.</Alert>}
+        {insufficient && <Alert $tone="warning">{t('catalog.purchasePanel.saldoBustercoinInsufficientePerQuesta')}</Alert>}
         {errorMessage && <Alert $tone="error">{errorMessage}</Alert>}
         {done && <Alert $tone="success">{done}</Alert>}
         {!confirming ? (
           <Button $variant="gold" $block disabled={insufficient || mutation.isPending} onClick={() => { setDone(null); setConfirming(true); }}>
-            <ShoppingBag size={17} /> Acquista
-          </Button>
+            <ShoppingBag size={17} />{' '}{t('catalog.purchasePanel.acquista')}</Button>
         ) : (
           <Stack $row $gap={8}>
-            <Button $variant="secondary" $block onClick={() => setConfirming(false)} disabled={mutation.isPending}>
-              Annulla
-            </Button>
+            <Button $variant="secondary" $block onClick={() => setConfirming(false)} disabled={mutation.isPending}>{t('catalog.purchasePanel.annulla')}</Button>
             <Button $variant="gold" $block onClick={submit} disabled={mutation.isPending}>
-              {mutation.isPending ? 'Acquisto…' : `Conferma ${formatBc(total)}`}
+              {mutation.isPending ? t('catalog.purchasePanel.acquisto2') : t('catalog.purchasePanel.confermaTotal', { total: formatBc(total) })}
             </Button>
           </Stack>
         )}
-        <Muted $size="0.75rem">Le quote sono partecipazioni virtuali di gioco e non attribuiscono diritti reali sul contenuto.</Muted>
+        <Muted $size="0.75rem">{t('catalog.purchasePanel.leQuoteSonoPartecipazioniVirtuali')}</Muted>
       </Stack>
     </Card>
   );

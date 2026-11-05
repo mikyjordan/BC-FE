@@ -7,6 +7,7 @@ import { formatDateTime, formatPct, LEDGER_LABELS } from '../../components/forma
 import { hasWallet, useAuthStore } from '../../store/auth';
 import { ContentCard } from '../catalog/ContentCard';
 import { media } from '../../theme/theme';
+import { t, tx } from '../../i18n';
 
 const Stats = styled.div`
   display: grid;
@@ -74,28 +75,26 @@ export function HomePage() {
   return (
     <>
       <div style={{ marginBottom: 22 }}>
-        <h1>Ciao, {user?.profile?.displayName ?? user?.username}</h1>
-        <Muted style={{ marginTop: 6 }}>{withWallet ? 'Ecco come sta andando il tuo portafoglio virtuale.' : 'Il Superadmin gestisce la piattaforma: non ha saldo né portafoglio.'}</Muted>
+        <h1>{tx('home.homePage.ciaoDisplayname', { displayName: user?.profile?.displayName ?? user?.username })}</h1>
+        <Muted style={{ marginTop: 6 }}>{withWallet ? t('home.homePage.eccoComeStaAndandoIl') : t('home.homePage.ilSuperadminGestisceLaPiattaforma')}</Muted>
       </div>
 
       {welcome && (
-        <Alert $tone="success" style={{ marginBottom: 20 }}>
-          Benvenuto in BusterCinema! Ti abbiamo accreditato 1.000.000 di Bustercoin per iniziare.
-        </Alert>
+        <Alert $tone="success" style={{ marginBottom: 20 }}>{t('home.homePage.benvenutoInBustercinemaTiAbbiamo')}</Alert>
       )}
 
       {withWallet && (
       <Stats>
         <StatCard $hero>
-          <Muted $size="0.8rem">Saldo disponibile</Muted>
+          <Muted $size="0.8rem">{t('home.homePage.saldoDisponibile')}</Muted>
           {wallet.data ? <Bc value={wallet.data.balance} size={28} /> : <Muted>—</Muted>}
         </StatCard>
         <StatCard>
-          <Muted $size="0.8rem">Guadagni</Muted>
+          <Muted $size="0.8rem">{t('home.homePage.guadagni')}</Muted>
           {wallet.data ? <Gain value={wallet.data.totalGain} size={18} /> : <Muted>—</Muted>}
         </StatCard>
         <StatCard>
-          <Muted $size="0.8rem">Rendimento</Muted>
+          <Muted $size="0.8rem">{t('home.homePage.rendimento')}</Muted>
           <div style={{ fontSize: 18, fontWeight: 700 }}>{wallet.data ? formatPct(wallet.data.returnPct) : '—'}</div>
         </StatCard>
       </Stats>
@@ -105,17 +104,14 @@ export function HomePage() {
         <Spinner />
       ) : !hasContent ? (
         <Section>
-          <EmptyState icon={<Clapperboard size={34} />} title="Il sipario sta per alzarsi">
-            Non ci sono ancora titoli in programmazione. Torna presto: i nuovi film e serie compariranno qui.
-          </EmptyState>
+          <EmptyState icon={<Clapperboard size={34} />} title={t('home.homePage.ilSiparioStaPerAlzarsi')}>{t('home.homePage.nonCiSonoAncoraTitoli')}</EmptyState>
         </Section>
       ) : (
         <>
           {home.data!.featured.length > 0 && (
             <Section>
               <SectionTitle>
-                <Sparkles size={18} /> In evidenza
-              </SectionTitle>
+                <Sparkles size={18} />{' '}{t('home.homePage.inEvidenza')}</SectionTitle>
               <Grid $min={150} $gap={22}>
                 {home.data!.featured.map((c) => (
                   <ContentCard key={`${c.kind}-${c.id}`} item={c} />
@@ -126,7 +122,7 @@ export function HomePage() {
           {home.data!.movies.length > 0 && (
             <Section>
               <SectionTitle>
-                <Clapperboard size={18} /> Film disponibili <MoreLink to="/app/film">Vedi tutti</MoreLink>
+                <Clapperboard size={18} />{' '}{t('home.homePage.filmDisponibili')}{' '}<MoreLink to="/app/film">{t('home.homePage.vediTutti')}</MoreLink>
               </SectionTitle>
               <Grid $min={150} $gap={22}>
                 {home.data!.movies.map((c) => (
@@ -138,7 +134,7 @@ export function HomePage() {
           {home.data!.tvSeries.length > 0 && (
             <Section>
               <SectionTitle>
-                <Tv size={18} /> Serie TV disponibili <MoreLink to="/app/serie">Vedi tutte</MoreLink>
+                <Tv size={18} />{' '}{t('home.homePage.serieTvDisponibili')}{' '}<MoreLink to="/app/serie">{t('home.homePage.vediTutte')}</MoreLink>
               </SectionTitle>
               <Grid $min={150} $gap={22}>
                 {home.data!.tvSeries.map((c) => (
@@ -156,7 +152,7 @@ export function HomePage() {
             <Link to="/app/serie" style={{ flex: '1 1 200px' }}>
               <Card $padding="16px">
                 <Stack $row $gap={10} $align="center">
-                  <Tv size={18} /> <strong>Catalogo Serie TV</strong>
+                  <Tv size={18} /> <strong>{t('home.homePage.catalogoSerieTv')}</strong>
                 </Stack>
               </Card>
             </Link>
@@ -164,14 +160,14 @@ export function HomePage() {
           <Link to="/app/classifiche" style={{ flex: '1 1 200px' }}>
             <Card $padding="16px">
               <Stack $row $gap={10} $align="center">
-                <Trophy size={18} /> <strong>Classifiche</strong>
+                <Trophy size={18} /> <strong>{t('home.homePage.classifiche')}</strong>
               </Stack>
             </Card>
           </Link>
           <Link to="/app/premi" style={{ flex: '1 1 200px' }}>
             <Card $padding="16px">
               <Stack $row $gap={10} $align="center">
-                <Gift size={18} /> <strong>Premi e coppe</strong>
+                <Gift size={18} /> <strong>{t('home.homePage.premiECoppe')}</strong>
               </Stack>
             </Card>
           </Link>
@@ -180,38 +176,37 @@ export function HomePage() {
 
       {withWallet && (
       <Section>
-        <SectionTitle>
-          Attività recenti <MoreLink to="/app/movimenti">Storico</MoreLink>
+        <SectionTitle>{t('home.homePage.attivitaRecenti')}{' '}<MoreLink to="/app/movimenti">{t('home.homePage.storico')}</MoreLink>
         </SectionTitle>
         <Card $padding="4px 18px">
-          {activity.data?.items.slice(0, 5).map((t) => {
+          {activity.data?.items.slice(0, 5).map((tr) => {
             const body = (
               <div>
-                <div style={{ fontWeight: 600 }}>{LEDGER_LABELS[t.type] ?? t.type}</div>
+                <div style={{ fontWeight: 600 }}>{LEDGER_LABELS[tr.type] ?? tr.type}</div>
                 <Muted $size="0.8rem">
-                  {t.description} · {formatDateTime(t.createdAt)}
+                  {tr.description} · {formatDateTime(tr.createdAt)}
                 </Muted>
               </div>
             );
-            if (t.type === 'MOVIE_PURCHASE' && t.movieId && features?.movies !== false) {
+            if (tr.type === 'MOVIE_PURCHASE' && tr.movieId && features?.movies !== false) {
               return (
-                <ActivityLink key={t.id} to={`/app/film/${t.movieId}`} aria-label={`${LEDGER_LABELS[t.type]}: ${t.description} — apri la scheda del film`} data-testid="activity-movie-link">
+                <ActivityLink key={tr.id} to={`/app/film/${tr.movieId}`} aria-label={t('home.homePage.ledgerLabelsDescriptionApriLa', { label: LEDGER_LABELS[tr.type], description: tr.description })} data-testid="activity-movie-link">
                   {body}
                   <Stack $row $gap={6} $align="center">
-                    <Bc value={t.amount} signed size={14} />
+                    <Bc value={tr.amount} signed size={14} />
                     <ChevronRight size={16} aria-hidden />
                   </Stack>
                 </ActivityLink>
               );
             }
             return (
-              <ActivityRow key={t.id}>
+              <ActivityRow key={tr.id}>
                 {body}
-                <Bc value={t.amount} signed size={14} />
+                <Bc value={tr.amount} signed size={14} />
               </ActivityRow>
             );
           })}
-          {activity.data && activity.data.items.length === 0 && <Muted style={{ padding: 16 }}>Nessuna attività.</Muted>}
+          {activity.data && activity.data.items.length === 0 && <Muted style={{ padding: 16 }}>{t('home.homePage.nessunaAttivita')}</Muted>}
         </Card>
       </Section>
       )}

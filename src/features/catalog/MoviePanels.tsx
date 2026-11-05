@@ -11,6 +11,7 @@ import { SuperadminNoPurchase } from '../../components/SuperadminNoPurchase';
 import { MovieHoldingCard } from '../wallet/MovieHoldingCard';
 import { PurchaseBadge } from '../../components/PurchaseBadge';
 import { AutoRedeemNotice } from './AutoRedeemNotice';
+import { t, tx } from '../../i18n';
 
 /** Incasso attuale e storico delle rilevazioni inserite dal Superadmin (mai valori inventati). */
 export function BoxOfficeCard({ movie }: { movie: PublicMovie }) {
@@ -20,21 +21,21 @@ export function BoxOfficeCard({ movie }: { movie: PublicMovie }) {
     <Card>
       <Stack $row $gap={10} $align="center" style={{ marginBottom: 10 }}>
         <BarChart3 size={18} />
-        <h3>Box Office italiano</h3>
+        <h3>{t('catalog.moviePanels.boxOfficeItaliano')}</h3>
       </Stack>
       {movie.boxOffice.currentGross === null ? (
-        <Muted>Nessuna rilevazione d’incasso disponibile per questo film.</Muted>
+        <Muted>{t('catalog.moviePanels.nessunaRilevazioneDIncassoDisponibile')}</Muted>
       ) : (
         <Stack $gap={12}>
           <div>
-            <Muted $size="0.8rem">Incasso attuale</Muted>
+            <Muted $size="0.8rem">{t('catalog.moviePanels.incassoAttuale')}</Muted>
             <Bc value={movie.boxOffice.currentGross} size={22} />
-            <Muted $size="0.75rem">Aggiornato al {formatDateTime(movie.boxOffice.recordedAt)} · 1 € = 1 B</Muted>
+            <Muted $size="0.75rem">{tx('catalog.moviePanels.aggiornatoAlRecordedat11', { recordedAt: formatDateTime(movie.boxOffice.recordedAt) })}</Muted>
           </div>
           {items.length > 1 && (
             <Table>
               <thead>
-                <tr><th>Rilevazione</th><th style={{ textAlign: 'right' }}>Incasso</th><th style={{ textAlign: 'right' }}>Spettatori</th></tr>
+                <tr><th>{t('catalog.moviePanels.rilevazione')}</th><th style={{ textAlign: 'right' }}>{t('catalog.moviePanels.incasso')}</th><th style={{ textAlign: 'right' }}>{t('catalog.moviePanels.spettatori')}</th></tr>
               </thead>
               <tbody>
                 {items.slice(0, 8).map((r, i) => (
@@ -57,10 +58,8 @@ export function BoxOfficeCard({ movie }: { movie: PublicMovie }) {
 function PurchaseDeadline({ closesAt }: { closesAt: string | null }) {
   const lastDay = closesAt ? new Date(new Date(closesAt).getTime() - 1) : null;
   return (
-    <Alert $tone="info" data-testid="purchase-deadline">
-      Acquistabile fino alla mezzanotte del giorno prima dell’uscita nelle sale
-      {lastDay ? `: ultimo giorno ${formatDate(lastDay.toISOString())}, chiusura ${formatDateTime(closesAt)}.` : '.'}{' '}
-      <Link to="/come-funziona" style={{ textDecoration: 'underline' }}>Come funziona</Link>
+    <Alert $tone="info" data-testid="purchase-deadline">{tx('catalog.moviePanels.acquistabileFinoAllaMezzanotteDel', { v: lastDay ? t('catalog.moviePanels.ultimoGiornoFormatdateChiusuraClosesat', { formatDate: formatDate(lastDay.toISOString()), closesAt: formatDateTime(closesAt) }) : '.' })}{' '}
+      <Link to="/come-funziona" style={{ textDecoration: 'underline' }}>{t('catalog.moviePanels.comeFunziona')}</Link>
     </Alert>
   );
 }
@@ -84,9 +83,9 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
   if (owned) {
     return (
       <Stack $gap={10}>
-        <h3>{owned.status === 'REDEEMED' ? 'Film riscattato' : 'Il tuo investimento'}</h3>
+        <h3>{owned.status === 'REDEEMED' ? t('catalog.moviePanels.filmRiscattato') : t('catalog.moviePanels.ilTuoInvestimento')}</h3>
         <MovieHoldingCard h={owned} compact />
-        {owned.status === 'REDEEMED' && <Muted $size="0.8rem">Un film riscattato non può essere riacquistato.</Muted>}
+        {owned.status === 'REDEEMED' && <Muted $size="0.8rem">{t('catalog.moviePanels.unFilmRiscattatoNonPuo')}</Muted>}
       </Stack>
     );
   }
@@ -95,8 +94,8 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
     return (
       <Card>
         <Stack $gap={8}>
-          <h3>Acquisto</h3>
-          <PurchaseBadge active={false} reason={movie.purchase.message ?? 'Al momento non è possibile acquistare questo film.'} />
+          <h3>{t('catalog.moviePanels.acquisto')}</h3>
+          <PurchaseBadge active={false} reason={movie.purchase.message ?? t('catalog.moviePanels.alMomentoNonEPossibile')} />
           {movie.purchase.priceBc ? <Bc value={movie.purchase.priceBc} size={20} /> : null}
           <AutoRedeemNotice date={movie.autoRedeemAt} past={movie.outOfTheaters} />
         </Stack>
@@ -108,10 +107,10 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
     return (
       <Card>
         <Stack $gap={10}>
-          <h3>Acquisto</h3>
+          <h3>{t('catalog.moviePanels.acquisto')}</h3>
           <PurchaseBadge active />
           <Bc value={price} size={22} />
-          <Link to="/login"><Button $block>Accedi per acquistare</Button></Link>
+          <Link to="/login"><Button $block>{t('catalog.moviePanels.accediPerAcquistare')}</Button></Link>
           <AutoRedeemNotice date={movie.autoRedeemAt} />
         </Stack>
       </Card>
@@ -121,34 +120,31 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
   if (isSuperadmin) return <SuperadminNoPurchase priceBc={movie.purchase.priceBc} />;
 
   const insufficient = price > balance;
-  const err = purchase.error instanceof ApiError ? purchase.error.message : purchase.error ? 'Acquisto non riuscito' : null;
+  const err = purchase.error instanceof ApiError ? purchase.error.message : purchase.error ? t('catalog.moviePanels.acquistoNonRiuscito') : null;
 
   return (
     <Card>
       <Stack $gap={14}>
-        <h3>Investi in questo film</h3>
+        <h3>{t('catalog.moviePanels.investiInQuestoFilm')}</h3>
         <PurchaseBadge active />
         <div>
-          <Muted $size="0.8rem">Prezzo</Muted>
+          <Muted $size="0.8rem">{t('catalog.moviePanels.prezzo')}</Muted>
           <Bc value={price} size={24} />
         </div>
-        <Muted $size="0.82rem">
-          Paghi il prezzo una sola volta. Potrai riscattare il film quando vuoi: riceverai l’incasso attuale del film. Se l’incasso supera il prezzo pagato sei in guadagno.
-        </Muted>
+        <Muted $size="0.82rem">{t('catalog.moviePanels.paghiIlPrezzoUnaSola')}</Muted>
         <PurchaseDeadline closesAt={movie.purchase.closesAt ?? null} />
         <Stack $row $justify="space-between">
-          <Muted $size="0.8rem">Saldo disponibile</Muted>
+          <Muted $size="0.8rem">{t('catalog.moviePanels.saldoDisponibile')}</Muted>
           <Muted $size="0.8rem">{formatBc(balance)}</Muted>
         </Stack>
-        {insufficient && <Alert $tone="warning">Saldo Bustercoin insufficiente.</Alert>}
+        {insufficient && <Alert $tone="warning">{t('catalog.moviePanels.saldoBustercoinInsufficiente')}</Alert>}
         {err && <Alert $tone="error">{err}</Alert>}
         {!confirming ? (
           <Button $variant="gold" $block disabled={insufficient || purchase.isPending} onClick={() => setConfirming(true)}>
-            <ShoppingBag size={17} /> Acquista
-          </Button>
+            <ShoppingBag size={17} />{' '}{t('catalog.moviePanels.acquista')}</Button>
         ) : (
           <Stack $row $gap={8}>
-            <Button $variant="secondary" $block onClick={() => setConfirming(false)} disabled={purchase.isPending}>Annulla</Button>
+            <Button $variant="secondary" $block onClick={() => setConfirming(false)} disabled={purchase.isPending}>{t('catalog.moviePanels.annulla')}</Button>
             <Button
               $variant="gold"
               $block
@@ -163,12 +159,12 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
                 )
               }
             >
-              {purchase.isPending ? 'Acquisto…' : `Conferma ${formatBc(price)}`}
+              {purchase.isPending ? t('catalog.moviePanels.acquisto2') : t('catalog.moviePanels.confermaPrice', { price: formatBc(price) })}
             </Button>
           </Stack>
         )}
         <AutoRedeemNotice date={movie.autoRedeemAt} />
-        <Muted $size="0.75rem">Partecipazione virtuale di gioco: non attribuisce diritti reali sul film.</Muted>
+        <Muted $size="0.75rem">{t('catalog.moviePanels.partecipazioneVirtualeDiGiocoNon')}</Muted>
       </Stack>
     </Card>
   );

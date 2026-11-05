@@ -9,6 +9,7 @@ import { Alert, Button, Card, Field, Input, Muted, Stack } from '../../component
 import { formatBc, formatDateTime } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { fromLocalInput, toLocalInput } from './content-fields';
+import { t, tx } from '../../i18n';
 
 /**
  * Data di uscita dalle sale: a quella data il film viene riscattato automaticamente
@@ -32,49 +33,43 @@ export function AutoRedeemSection({ movie }: { movie: AdminContent }) {
 
   return (
     <Card>
-      <h3 style={{ marginBottom: 4 }}>Uscita dalle sale e riscatto automatico</h3>
-      <Muted $size="0.82rem" style={{ marginBottom: 14 }}>
-        Alla data indicata il film viene riscattato automaticamente a tutti gli utenti che lo possiedono, accreditando l’incasso in vigore. Da quel momento non è più acquistabile.
-      </Muted>
+      <h3 style={{ marginBottom: 4 }}>{t('admin.autoRedeemSection.uscitaDalleSaleERiscatto')}</h3>
+      <Muted $size="0.82rem" style={{ marginBottom: 14 }}>{t('admin.autoRedeemSection.allaDataIndicataIlFilm')}</Muted>
       <Stack $gap={12}>
         {summary.data && (
-          <Muted $size="0.85rem">
-            Partecipazioni aperte: <strong>{summary.data.open}</strong> · riscattate: {summary.data.redeemed}
-            {summary.data.redeemedAuto ? ` (di cui ${summary.data.redeemedAuto} automaticamente)` : ''}
+          <Muted $size="0.85rem">{tx('admin.autoRedeemSection.partecipazioniAperteStrongRiscattateRedeemed', { strong: <strong>{summary.data.open}</strong>, redeemed: summary.data.redeemed, v: summary.data.redeemedAuto ? t('admin.autoRedeemSection.diCuiRedeemedautoAutomaticamente', { redeemedAuto: summary.data.redeemedAuto }) : '' })}
           </Muted>
         )}
 
         {done ? (
-          <Alert $tone="success">
-            Riscatto automatico eseguito il {formatDateTime(movie.autoRedeemedAt)} (uscita dalle sale: {formatDateTime(movie.autoRedeemAt)}). La data non è più modificabile.
-          </Alert>
+          <Alert $tone="success">{tx('admin.autoRedeemSection.riscattoAutomaticoEseguitoIlAutoredeemedat', { autoRedeemedAt: formatDateTime(movie.autoRedeemedAt), autoRedeemAt: formatDateTime(movie.autoRedeemAt) })}</Alert>
         ) : (
           <>
             {movie.autoRedeemAt ? (
-              <Alert $tone="info">Uscita dalle sale impostata: {formatDateTime(movie.autoRedeemAt)}</Alert>
+              <Alert $tone="info">{tx('admin.autoRedeemSection.uscitaDalleSaleImpostataAutoredeemat', { autoRedeemAt: formatDateTime(movie.autoRedeemAt) })}</Alert>
             ) : (
-              <Muted $size="0.85rem">Nessuna data impostata.</Muted>
+              <Muted $size="0.85rem">{t('admin.autoRedeemSection.nessunaDataImpostata')}</Muted>
             )}
             {movie.autoRedeemAt && noGross && open > 0 && (
-              <Alert $tone="warning">Manca l’incasso del film: alla scadenza il riscatto automatico attenderà finché non verrà inserito.</Alert>
+              <Alert $tone="warning">{t('admin.autoRedeemSection.mancaLIncassoDelFilm')}</Alert>
             )}
             {can ? (
               <>
-                <Field label="Data e ora di uscita dalle sale">
+                <Field label={t('admin.autoRedeemSection.dataEOraDiUscita')}>
                   <Input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
                 </Field>
-                {mutation.error && <Alert $tone="error">{mutation.error instanceof ApiError ? mutation.error.message : 'Errore'}</Alert>}
+                {mutation.error && <Alert $tone="error">{mutation.error instanceof ApiError ? mutation.error.message : t('admin.autoRedeemSection.errore')}</Alert>}
                 <Stack $row $gap={8} $wrap>
                   <Button $variant="gold" disabled={!when || mutation.isPending} onClick={() => setConfirm('save')}>
-                    <CalendarX2 size={15} /> {movie.autoRedeemAt ? 'Aggiorna data' : 'Imposta data'}
+                    <CalendarX2 size={15} /> {movie.autoRedeemAt ? t('admin.autoRedeemSection.aggiornaData') : t('admin.autoRedeemSection.impostaData')}
                   </Button>
                   {movie.autoRedeemAt && (
-                    <Button $variant="secondary" disabled={mutation.isPending} onClick={() => setConfirm('clear')}>Rimuovi data</Button>
+                    <Button $variant="secondary" disabled={mutation.isPending} onClick={() => setConfirm('clear')}>{t('admin.autoRedeemSection.rimuoviData')}</Button>
                   )}
                 </Stack>
               </>
             ) : (
-              <Muted $size="0.85rem">Non hai il permesso di impostare l’uscita dalle sale (content.purchases).</Muted>
+              <Muted $size="0.85rem">{t('admin.autoRedeemSection.nonHaiIlPermessoDi')}</Muted>
             )}
           </>
         )}
@@ -82,18 +77,18 @@ export function AutoRedeemSection({ movie }: { movie: AdminContent }) {
 
       {confirm && (
         <ConfirmModal
-          title={confirm === 'save' ? 'Impostare l’uscita dalle sale?' : 'Rimuovere la data?'}
+          title={confirm === 'save' ? t('admin.autoRedeemSection.impostareLUscitaDalleSale') : t('admin.autoRedeemSection.rimuovereLaData')}
           message={
             confirm === 'save' ? (
               <Stack $gap={8}>
-                <span>Il <strong>{formatDateTime(fromLocalInput(when))}</strong> il film verrà riscattato automaticamente a tutti i possessori ({open} partecipazioni aperte ora).</span>
-                <span>Valore accreditato: l’incasso in vigore in quel momento{movie.latestGross ? ` (oggi ${formatBc(movie.latestGross)})` : ''}. Dopo quella data il film non sarà più acquistabile.</span>
+                <span>{tx('admin.autoRedeemSection.ilStrongIlFilmVerra', { strong: <strong>{formatDateTime(fromLocalInput(when))}</strong>, open })}</span>
+                <span>{tx('admin.autoRedeemSection.valoreAccreditatoLIncassoIn', { v: movie.latestGross ? t('admin.autoRedeemSection.oggi', { amount: formatBc(movie.latestGross) }) : '' })}</span>
               </Stack>
             ) : (
-              'Il film non verrà più riscattato automaticamente finché non imposterai una nuova data.'
+              t('admin.autoRedeemSection.ilFilmNonVerraPiu')
             )
           }
-          confirmLabel={confirm === 'save' ? 'Conferma data' : 'Rimuovi'}
+          confirmLabel={confirm === 'save' ? t('admin.autoRedeemSection.confermaData') : t('admin.autoRedeemSection.rimuovi')}
           pending={mutation.isPending}
           error={mutation.error?.message}
           onClose={() => setConfirm(null)}

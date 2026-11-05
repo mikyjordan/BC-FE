@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { X } from 'lucide-react';
 import { Button, FieldError, Stack } from './ui';
+import { t } from '../i18n';
 
 const Message = styled.div`
   color: ${({ theme }) => theme.colors.textSecondary};
@@ -44,7 +45,7 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
       <Dialog role="dialog" aria-modal="true" aria-label={title} $wide={wide}>
         <Stack $row $justify="space-between" $align="center" style={{ marginBottom: 16 }}>
           <h2>{title}</h2>
-          <Button $variant="ghost" $size="sm" onClick={onClose} aria-label="Chiudi">
+          <Button $variant="ghost" $size="sm" onClick={onClose} aria-label={t('components.modal.chiudi')}>
             <X size={18} />
           </Button>
         </Stack>
@@ -81,9 +82,9 @@ export function ConfirmModal({
         <Message>{message}</Message>
         {error && <FieldError role="alert">{error}</FieldError>}
         <Stack $row $gap={8} $justify="flex-end">
-          <Button $variant="secondary" onClick={onClose} disabled={pending}>Annulla</Button>
+          <Button $variant="secondary" onClick={onClose} disabled={pending}>{t('components.modal.annulla')}</Button>
           <Button $variant={danger ? 'danger' : 'primary'} onClick={onConfirm} disabled={pending}>
-            {pending ? 'Attendere…' : confirmLabel}
+            {pending ? t('components.modal.attendere') : confirmLabel}
           </Button>
         </Stack>
       </Stack>

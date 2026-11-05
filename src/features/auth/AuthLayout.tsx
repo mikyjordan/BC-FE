@@ -5,6 +5,7 @@ import { Logo } from '../../components/brand/Logo';
 import { CoinIcon } from '../../components/brand/CoinIcon';
 import { Card, Muted } from '../../components/ui';
 import { media } from '../../theme/theme';
+import { t } from '../../i18n';
 
 const Page = styled.div`
   min-height: 100vh;
@@ -60,14 +61,12 @@ export function AuthLayout({ title, subtitle, children, footer }: { title: strin
       <Showcase>
         <Logo height={40} tone="light" />
         <div>
-          <Headline>Investi virtualmente nei film e nelle serie che fanno parlare l’Italia.</Headline>
+          <Headline>{t('auth.authLayout.investiVirtualmenteNeiFilmE')}</Headline>
           <OnBrandText style={{ marginTop: 16, maxWidth: 440, display: 'flex', gap: 10, alignItems: 'center' }}>
-            <CoinIcon size={28} /> Ogni nuovo giocatore riceve 1.000.000 di Bustercoin di benvenuto.
-          </OnBrandText>
+            <CoinIcon size={28} />{' '}{t('auth.authLayout.ogniNuovoGiocatoreRiceve1')}</OnBrandText>
         </div>
-        <OnBrandText style={{ fontSize: '0.8rem' }}>
-          Bustercoin è una valuta virtuale di gioco: non è denaro, non è convertibile e non attribuisce diritti reali sui contenuti.{' '}
-          <Link to="/come-funziona" style={{ textDecoration: 'underline', fontWeight: 600 }}>Come funziona</Link>
+        <OnBrandText style={{ fontSize: '0.8rem' }}>{t('auth.authLayout.bustercoinEUnaValutaVirtuale')}{' '}
+          <Link to="/come-funziona" style={{ textDecoration: 'underline', fontWeight: 600 }}>{t('auth.authLayout.comeFunziona')}</Link>
         </OnBrandText>
       </Showcase>
       <FormSide>

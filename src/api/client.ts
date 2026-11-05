@@ -1,5 +1,6 @@
 import { useAuthStore } from '../store/auth';
 import type { Me, SessionResponse } from './types';
+import { t } from '../i18n';
 
 const BASE = '/api/v1';
 
@@ -96,7 +97,7 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
   const data = await res.json().catch(() => null);
   if (!res.ok) {
     const err = data?.error ?? {};
-    throw new ApiError(res.status, err.code ?? 'ERROR', err.message ?? 'Si è verificato un errore', err.details);
+    throw new ApiError(res.status, err.code ?? 'ERROR', err.message ?? t('api.client.siEVerificatoUnErrore'), err.details);
   }
   return data as T;
 }

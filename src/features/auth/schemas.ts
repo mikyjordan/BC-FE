@@ -1,30 +1,31 @@
 import { z } from 'zod';
+import { t } from '../../i18n';
 
 // Stesse regole del backend (che resta comunque l'unica validazione autorevole).
 export const passwordRule = z
   .string()
-  .min(10, 'Almeno 10 caratteri')
-  .max(128, 'Password troppo lunga')
-  .refine((p) => /[a-zA-Z]/.test(p) && /\d/.test(p), 'Deve contenere lettere e numeri');
+  .min(10, t('auth.schemas.almeno10Caratteri'))
+  .max(128, t('auth.schemas.passwordTroppoLunga'))
+  .refine((p) => /[a-zA-Z]/.test(p) && /\d/.test(p), t('auth.schemas.deveContenereLettereENumeri'));
 
 export const loginSchema = z.object({
-  email: z.email('Email non valida'),
-  password: z.string().min(1, 'Inserisci la password'),
+  email: z.email(t('auth.schemas.emailNonValida')),
+  password: z.string().min(1, t('auth.schemas.inserisciLaPassword')),
 });
 
 export const registerSchema = z
   .object({
-    email: z.email('Email non valida'),
+    email: z.email(t('auth.schemas.emailNonValida')),
     username: z
       .string()
-      .min(3, 'Almeno 3 caratteri')
-      .max(32, 'Massimo 32 caratteri')
-      .regex(/^[a-zA-Z0-9_.-]+$/, 'Solo lettere, numeri, punto, trattino e underscore'),
+      .min(3, t('auth.schemas.almeno3Caratteri'))
+      .max(32, t('auth.schemas.massimo32Caratteri'))
+      .regex(/^[a-zA-Z0-9_.-]+$/, t('auth.schemas.soloLettereNumeriPuntoTrattino')),
     password: passwordRule,
     confirm: z.string(),
-    acceptTerms: z.boolean().refine((v) => v, 'Devi accettare termini e condizioni'),
+    acceptTerms: z.boolean().refine((v) => v, t('auth.schemas.deviAccettareTerminiECondizioni')),
   })
-  .refine((v) => v.password === v.confirm, { path: ['confirm'], message: 'Le password non coincidono' });
+  .refine((v) => v.password === v.confirm, { path: ['confirm'], message: t('common.lePasswordNonCoincidono') });
 
 export type LoginValues = z.infer<typeof loginSchema>;
 export type RegisterValues = z.infer<typeof registerSchema>;

@@ -7,6 +7,7 @@ import type { Features } from '../../api/types';
 import { ConfirmModal } from '../../components/Modal';
 import { Alert, Badge, Button, Card, Muted, PageHeader, Spinner, Stack } from '../../components/ui';
 import { useAuthStore } from '../../store/auth';
+import { t } from '../../i18n';
 
 const Row = styled(Card)`
   display: flex;
@@ -18,8 +19,8 @@ const Row = styled(Card)`
 `;
 
 const SECTIONS: Array<{ key: keyof Features; label: string; icon: typeof Tv; description: string }> = [
-  { key: 'movies', label: 'Film', icon: Clapperboard, description: 'Catalogo film, schede, acquisti, incassi e riscatti visibili agli utenti.' },
-  { key: 'tvSeries', label: 'Serie TV', icon: Tv, description: 'Catalogo serie TV, schede, stagioni e acquisti visibili agli utenti.' },
+  { key: 'movies', label: t('common.film'), icon: Clapperboard, description: t('admin.settingsAdminPage.catalogoFilmSchedeAcquistiIncassi') },
+  { key: 'tvSeries', label: t('common.serieTv'), icon: Tv, description: t('admin.settingsAdminPage.catalogoSerieTvSchedeStagioni') },
 ];
 
 /** Impostazioni riservate al Superadmin: sezioni Film e Serie TV visibili agli utenti. */
@@ -36,40 +37,37 @@ export function SettingsAdminPage() {
 
   return (
     <>
-      <PageHeader title="Impostazioni" subtitle="Scegli quali sezioni sono visibili agli utenti. Solo il Superadmin può modificarle." />
+      <PageHeader title={t('admin.settingsAdminPage.impostazioni')} subtitle={t('admin.settingsAdminPage.scegliQualiSezioniSonoVisibili')} />
       <Stack $gap={12}>
         {SECTIONS.map(({ key, label: l, icon: Icon, description }) => (
-          <Row key={key} aria-label={`Sezione ${l}`}>
+          <Row key={key} aria-label={t('admin.settingsAdminPage.sezioneL', { l })}>
             <Stack $row $gap={14} $align="center" style={{ minWidth: 0, flex: '1 1 320px' }}>
               <Icon size={26} aria-hidden />
               <div>
                 <Stack $row $gap={8} $align="center">
                   <h2>{l}</h2>
-                  <Badge $tone={f[key] ? 'green' : 'red'}>{f[key] ? 'Attiva' : 'Disattivata'}</Badge>
+                  <Badge $tone={f[key] ? 'green' : 'red'}>{f[key] ? t('admin.settingsAdminPage.attiva') : t('admin.settingsAdminPage.disattivata')}</Badge>
                 </Stack>
                 <Muted $size="0.88rem">{description}</Muted>
               </div>
             </Stack>
             <Button $variant={f[key] ? 'danger' : 'primary'} onClick={() => { update.reset(); setPending({ key, value: !f[key] }); }}>
-              {f[key] ? `Disattiva ${l}` : `Attiva ${l}`}
+              {f[key] ? t('admin.settingsAdminPage.disattivaL', { l }) : t('admin.settingsAdminPage.attivaL', { l })}
             </Button>
           </Row>
         ))}
-        <Alert $tone="info">
-          Con una sezione disattivata spariscono menu, tab, home, ricerca e catalogo di quella sezione, e le relative API pubbliche non rispondono.
-          Le partecipazioni già acquistate restano nel portafoglio degli utenti e si possono riscattare. Puoi continuare a preparare i contenuti dall’area di amministrazione.
-        </Alert>
+        <Alert $tone="info">{t('admin.settingsAdminPage.conUnaSezioneDisattivataSpariscono')}</Alert>
       </Stack>
 
       {pending && (
         <ConfirmModal
-          title={`${pending.value ? 'Attivare' : 'Disattivare'} la sezione ${label(pending.key)}?`}
+          title={t('admin.settingsAdminPage.vLaSezioneKey', { v: pending.value ? t('admin.settingsAdminPage.attivare') : t('admin.settingsAdminPage.disattivare'), key: label(pending.key) })}
           message={
             pending.value
-              ? `La sezione ${label(pending.key)} diventerà visibile a tutti gli utenti (solo i titoli pubblicati).`
-              : `La sezione ${label(pending.key)} verrà nascosta a tutti gli utenti: menu, tab, catalogo, schede e acquisti non saranno più disponibili.`
+              ? t('admin.settingsAdminPage.laSezioneKeyDiventeraVisibile', { key: label(pending.key) })
+              : t('admin.settingsAdminPage.laSezioneKeyVerraNascosta', { key: label(pending.key) })
           }
-          confirmLabel={pending.value ? 'Attiva' : 'Disattiva'}
+          confirmLabel={pending.value ? t('admin.settingsAdminPage.attiva') : t('admin.settingsAdminPage.disattiva')}
           danger={!pending.value}
           pending={update.isPending}
           error={update.error?.message}

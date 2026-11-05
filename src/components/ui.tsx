@@ -3,6 +3,7 @@ import { cloneElement, isValidElement, useId, type ReactElement, type ReactNode 
 import { CoinIcon } from './brand/CoinIcon';
 import { formatBc } from './format';
 import { media } from '../theme/theme';
+import { t, tx, LOCALE } from '../i18n';
 
 /* ---------- Pulsanti ---------- */
 type Variant = 'primary' | 'secondary' | 'ghost' | 'gold' | 'danger';
@@ -345,15 +346,10 @@ export function Pagination({ page, totalPages, onChange }: { page: number; total
   if (totalPages <= 1) return null;
   return (
     <Stack $row $gap={8} $align="center" $justify="center" style={{ marginTop: 20 }}>
-      <Button $variant="secondary" $size="sm" disabled={page <= 1} onClick={() => onChange(page - 1)}>
-        Precedente
-      </Button>
-      <Muted>
-        Pagina {page} di {totalPages}
+      <Button $variant="secondary" $size="sm" disabled={page <= 1} onClick={() => onChange(page - 1)}>{t('components.ui.precedente')}</Button>
+      <Muted>{tx('components.ui.paginaPageDiTotalpages', { page, totalPages })}
       </Muted>
-      <Button $variant="secondary" $size="sm" disabled={page >= totalPages} onClick={() => onChange(page + 1)}>
-        Successiva
-      </Button>
+      <Button $variant="secondary" $size="sm" disabled={page >= totalPages} onClick={() => onChange(page + 1)}>{t('components.ui.successiva')}</Button>
     </Stack>
   );
 }
@@ -371,12 +367,12 @@ const GainWrap = styled.span<{ $tone: 'up' | 'down' | 'even'; $size: number }>`
 
 /** Guadagno in verde, perdita in rosso (in Bustercoin, con segno). */
 export function Gain({ value, size = 15, pct }: { value: number | null; size?: number; pct?: number }) {
-  if (value === null) return <Muted as="span" $size={`${size * 0.9}px`}>In attesa dell’incasso</Muted>;
+  if (value === null) return <Muted as="span" $size={`${size * 0.9}px`}>{t('components.ui.inAttesaDellIncasso')}</Muted>;
   const tone = value > 0 ? 'up' : value < 0 ? 'down' : 'even';
   return (
     <GainWrap $tone={tone} $size={size} data-trend={tone}>
       {tone === 'up' ? '▲' : tone === 'down' ? '▼' : '='} {formatBc(value, true)}
-      {pct !== undefined && <span style={{ fontWeight: 600, opacity: 0.85 }}>({pct > 0 ? '+' : ''}{pct.toLocaleString('it-IT', { maximumFractionDigits: 1 })}%)</span>}
+      {pct !== undefined && <span style={{ fontWeight: 600, opacity: 0.85 }}>({pct > 0 ? '+' : ''}{t('components.format.percentuale', { sign: '', value: pct.toLocaleString(LOCALE, { maximumFractionDigits: 1 }) })})</span>}
     </GainWrap>
   );
 }

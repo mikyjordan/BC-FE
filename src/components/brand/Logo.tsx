@@ -1,3 +1,5 @@
+import { t } from '../../i18n';
+
 /**
  * Logo BusterCinema: scritta con una striscia di pellicola perforata che la incornicia.
  * Monocromatico (l'oro è riservato alla moneta): "light" = bianco per header/footer blu,
@@ -8,7 +10,7 @@ export function Logo({ height = 34, compact = false, tone = 'light' }: { height?
 
   if (compact) {
     return (
-      <svg height={height} viewBox="0 0 48 48" role="img" aria-label="BusterCinema">
+      <svg height={height} viewBox="0 0 48 48" role="img" aria-label={t('components.logo.bustercinema')}>
         <rect x="3" y="3" width="42" height="42" rx="10" fill="none" stroke={fill} strokeWidth="2" />
         {[9, 17, 25, 33].map((x) => (
           <g key={x} fill={fill}>
@@ -16,16 +18,14 @@ export function Logo({ height = 34, compact = false, tone = 'light' }: { height?
             <rect x={x} y="37.5" width="5" height="3.5" rx="1" />
           </g>
         ))}
-        <text x="24" y="31.5" textAnchor="middle" fontFamily="Georgia, 'Times New Roman', serif" fontWeight="700" fontSize="17" fill={fill}>
-          BC
-        </text>
+        <text x="24" y="31.5" textAnchor="middle" fontFamily="Georgia, 'Times New Roman', serif" fontWeight="700" fontSize="17" fill={fill}>{t('components.logo.bc')}</text>
       </svg>
     );
   }
 
   const perfs = Array.from({ length: 22 }, (_, i) => 6 + i * 10);
   return (
-    <svg height={height} viewBox="0 0 232 48" role="img" aria-label="BusterCinema">
+    <svg height={height} viewBox="0 0 232 48" role="img" aria-label={t('components.logo.bustercinema')}>
       <g fill={fill} opacity="0.85">
         <rect x="0" y="1" width="232" height="2" rx="1" />
         <rect x="0" y="45" width="232" height="2" rx="1" />
@@ -45,8 +45,7 @@ export function Logo({ height = 34, compact = false, tone = 'light' }: { height?
         fontSize="24"
         letterSpacing="0.5"
         fill={fill}
-      >
-        Buster<tspan fontStyle="italic" fontWeight="600">Cinema</tspan>
+      >{t('components.logo.buster')}<tspan fontStyle="italic" fontWeight="600">{t('components.logo.cinema')}</tspan>
       </text>
     </svg>
   );

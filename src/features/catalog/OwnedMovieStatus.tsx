@@ -3,6 +3,7 @@ import { BadgeCheck, Lock } from 'lucide-react';
 import type { Holding } from '../../api/types';
 import { Bc, Gain, Muted } from '../../components/ui';
 import { formatDate } from '../../components/format';
+import { t, tx } from '../../i18n';
 
 const Pill = styled.span<{ $tone: 'owned' | 'redeemed' }>`
   display: inline-flex;
@@ -43,14 +44,11 @@ export function OwnedMovieStatus({ h }: { h: Holding }) {
     return (
       <Box data-testid="owned-status" data-status="REDEEMED">
         <Pill $tone="redeemed">
-          <Lock size={12} aria-hidden strokeWidth={3} /> Non acquistabile
-        </Pill>
-        <Muted $size="0.8rem">
-          Già riscattato il {formatDate(h.redeemedAt)}
-          {h.redeemedBy === 'AUTO' ? ' (riscatto automatico)' : ''}
+          <Lock size={12} aria-hidden strokeWidth={3} />{' '}{t('catalog.ownedMovieStatus.nonAcquistabile')}</Pill>
+        <Muted $size="0.8rem">{tx('catalog.ownedMovieStatus.giaRiscattatoIlRedeemedatV', { redeemedAt: formatDate(h.redeemedAt), v: h.redeemedBy === 'AUTO' ? t('catalog.ownedMovieStatus.riscattoAutomatico') : '' })}
         </Muted>
         <Line>
-          <Muted as="span" $size="0.8rem">Rendita</Muted>
+          <Muted as="span" $size="0.8rem">{t('catalog.ownedMovieStatus.rendita')}</Muted>
           <Bc value={redeemed} size={13} />
           <Gain value={redeemed - h.purchasePrice} size={12} />
         </Line>
@@ -60,15 +58,14 @@ export function OwnedMovieStatus({ h }: { h: Holding }) {
   return (
     <Box data-testid="owned-status" data-status="OPEN">
       <Pill $tone="owned">
-        <BadgeCheck size={12} aria-hidden strokeWidth={3} /> Già acquistato
-      </Pill>
+        <BadgeCheck size={12} aria-hidden strokeWidth={3} />{' '}{t('catalog.ownedMovieStatus.giaAcquistato')}</Pill>
       <Line>
-        <Muted as="span" $size="0.8rem">Incasso corrente</Muted>
-        {h.currentGross !== null ? <Bc value={h.currentGross} size={13} /> : <Muted as="span" $size="0.8rem">non ancora disponibile</Muted>}
+        <Muted as="span" $size="0.8rem">{t('catalog.ownedMovieStatus.incassoCorrente')}</Muted>
+        {h.currentGross !== null ? <Bc value={h.currentGross} size={13} /> : <Muted as="span" $size="0.8rem">{t('catalog.ownedMovieStatus.nonAncoraDisponibile')}</Muted>}
       </Line>
       {h.currentGross !== null && (
         <Line>
-          <Muted as="span" $size="0.8rem">Pagato</Muted>
+          <Muted as="span" $size="0.8rem">{t('catalog.ownedMovieStatus.pagato')}</Muted>
           <Bc value={h.purchasePrice} size={12} />
           <Gain value={h.profit} size={12} />
         </Line>

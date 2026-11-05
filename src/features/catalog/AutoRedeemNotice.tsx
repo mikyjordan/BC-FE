@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { CalendarClock } from 'lucide-react';
 import { formatDateTime } from '../../components/format';
+import { t } from '../../i18n';
 
 const Note = styled.p`
   display: flex;
@@ -19,10 +20,10 @@ export function AutoRedeemNotice({ date, past }: { date: string | null; past?: b
       <CalendarClock size={13} aria-hidden />
       <span>
         {past
-          ? `Il film è uscito dalle sale il ${formatDateTime(date)}.`
+          ? t('catalog.autoRedeemNotice.ilFilmEUscitoDalle', { date: formatDateTime(date) })
           : date
-            ? `Il film verrà riscattato automaticamente all’uscita dalle sale: ${formatDateTime(date)}.`
-            : 'Il film verrà riscattato automaticamente quando uscirà dalle sale (data non ancora definita).'}
+            ? t('catalog.autoRedeemNotice.ilFilmVerraRiscattatoAutomaticamente', { date: formatDateTime(date) })
+            : t('catalog.autoRedeemNotice.ilFilmVerraRiscattatoAutomaticamente2')}
       </span>
     </Note>
   );

@@ -9,6 +9,7 @@ import { Poster } from '../../components/Poster';
 import { Alert, Badge, Bc, Button, Gain, Muted, Stack } from '../../components/ui';
 import { formatBc, formatDate, formatDateTime } from '../../components/format';
 import { AutoRedeemNotice } from '../catalog/AutoRedeemNotice';
+import { t, tx } from '../../i18n';
 
 type Tone = 'up' | 'down' | 'neutral';
 
@@ -52,7 +53,7 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
   const title = <strong style={{ fontSize: '0.98rem' }}>{h.title}</strong>;
 
   return (
-    <Wrap $tone={tone} data-testid={`holding-${h.contentId}`} aria-label={`Film ${h.title}`}>
+    <Wrap $tone={tone} data-testid={`holding-${h.contentId}`} aria-label={t('wallet.movieHoldingCard.filmTitle', { title: h.title })}>
       <Stack $row $gap={12} $align="flex-start">
         {!compact && (
           <div style={{ width: 64, flexShrink: 0 }}>
@@ -61,36 +62,36 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
         )}
         <Stack $gap={4} style={{ minWidth: 0, flex: 1 }}>
           {h.available && moviesEnabled ? <Link to={`/app/film/${h.contentId}`}>{title}</Link> : title}
-          <Muted $size="0.78rem">Acquistato il {formatDate(h.firstPurchasedAt)}</Muted>
+          <Muted $size="0.78rem">{tx('wallet.movieHoldingCard.acquistatoIlFirstpurchasedat', { firstPurchasedAt: formatDate(h.firstPurchasedAt) })}</Muted>
           <Stack $row $gap={6} $wrap>
-            {redeemed && <Badge $tone="neutral">Riscattato</Badge>}
-            {!h.available && !redeemed && <Badge $tone="amber">Non più in catalogo</Badge>}
+            {redeemed && <Badge $tone="neutral">{t('wallet.movieHoldingCard.riscattato')}</Badge>}
+            {!h.available && !redeemed && <Badge $tone="amber">{t('wallet.movieHoldingCard.nonPiuInCatalogo')}</Badge>}
           </Stack>
         </Stack>
       </Stack>
 
       <Stack $gap={6}>
         <Row>
-          <Muted>Prezzo d’acquisto</Muted>
+          <Muted>{t('wallet.movieHoldingCard.prezzoDAcquisto')}</Muted>
           <Bc value={h.purchasePrice} size={13} />
         </Row>
         {redeemed ? (
           <Row>
-            <Muted>Riscattato per</Muted>
+            <Muted>{t('wallet.movieHoldingCard.riscattatoPer')}</Muted>
             <Bc value={h.redeemedAmount ?? 0} size={13} />
           </Row>
         ) : (
           <Row>
-            <Muted>Incasso attuale</Muted>
-            {h.currentGross !== null ? <Bc value={h.currentGross} size={13} /> : <Muted $size="0.85rem">Non ancora disponibile</Muted>}
+            <Muted>{t('wallet.movieHoldingCard.incassoAttuale')}</Muted>
+            {h.currentGross !== null ? <Bc value={h.currentGross} size={13} /> : <Muted $size="0.85rem">{t('wallet.movieHoldingCard.nonAncoraDisponibile')}</Muted>}
           </Row>
         )}
         <Row>
-          <Muted>{redeemed ? 'Risultato' : h.trend === 'DOWN' ? 'Perdita' : 'Guadagno'}</Muted>
+          <Muted>{redeemed ? t('wallet.movieHoldingCard.risultato') : h.trend === 'DOWN' ? t('wallet.movieHoldingCard.perdita') : t('wallet.movieHoldingCard.guadagno')}</Muted>
           <Gain value={h.profit} size={14} pct={pct} />
         </Row>
-        {!redeemed && h.currentGrossAt && <Muted $size="0.72rem">Incasso aggiornato al {formatDateTime(h.currentGrossAt)}</Muted>}
-        {redeemed && h.redeemedAt && <Muted $size="0.72rem">Riscattato il {formatDateTime(h.redeemedAt)}</Muted>}
+        {!redeemed && h.currentGrossAt && <Muted $size="0.72rem">{tx('wallet.movieHoldingCard.incassoAggiornatoAlCurrentgrossat', { currentGrossAt: formatDateTime(h.currentGrossAt) })}</Muted>}
+        {redeemed && h.redeemedAt && <Muted $size="0.72rem">{tx('wallet.movieHoldingCard.riscattatoIlRedeemedat', { redeemedAt: formatDateTime(h.redeemedAt) })}</Muted>}
       </Stack>
 
       {done && <Alert $tone="success">{done}</Alert>}
@@ -98,29 +99,27 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
 
       {!redeemed && (
         <Button $variant="gold" $block disabled={!h.redeemable || redeem.isPending} onClick={() => { redeem.reset(); setConfirm(true); }}>
-          <HandCoins size={16} /> Riscatta
-        </Button>
+          <HandCoins size={16} />{' '}{t('wallet.movieHoldingCard.riscatta')}</Button>
       )}
-      {!redeemed && !h.redeemable && <Muted $size="0.75rem" style={{ textAlign: 'center' }}>Disponibile quando verrà inserito l’incasso del film</Muted>}
+      {!redeemed && !h.redeemable && <Muted $size="0.75rem" style={{ textAlign: 'center' }}>{t('wallet.movieHoldingCard.disponibileQuandoVerraInseritoL')}</Muted>}
       {redeemed ? (
-        h.redeemedBy === 'AUTO' && <Muted $size="0.76rem">Riscattato automaticamente all’uscita dalle sale.</Muted>
+        h.redeemedBy === 'AUTO' && <Muted $size="0.76rem">{t('wallet.movieHoldingCard.riscattatoAutomaticamenteAllUscitaDalle')}</Muted>
       ) : (
         <AutoRedeemNotice date={h.autoRedeemAt} />
       )}
 
       {confirm && h.currentGross !== null && (
         <ConfirmModal
-          title={`Riscattare “${h.title}”?`}
+          title={t('wallet.movieHoldingCard.riscattareTitle', { title: h.title })}
           message={
             <Stack $gap={8}>
-              <span>Riceverai <strong>{formatBc(h.currentGross)}</strong> sul tuo wallet (incasso attuale del film).</span>
-              <span>
-                Rispetto al prezzo pagato ({formatBc(h.purchasePrice)}): <Gain value={h.profit} size={14} />
+              <span>{tx('wallet.movieHoldingCard.riceveraiStrongSulTuoWallet', { strong: <strong>{formatBc(h.currentGross)}</strong> })}</span>
+              <span>{tx('wallet.movieHoldingCard.rispettoAlPrezzoPagatoPurchaseprice', { purchasePrice: formatBc(h.purchasePrice) })}{' '}<Gain value={h.profit} size={14} />
               </span>
-              <span>Dopo il riscatto il film esce dal portafoglio e <strong>non potrai più riacquistarlo</strong>.</span>
+              <span>{tx('wallet.movieHoldingCard.dopoIlRiscattoIlFilm', { strong: <strong>{t('wallet.movieHoldingCard.nonPotraiPiuRiacquistarlo')}</strong> })}</span>
             </Stack>
           }
-          confirmLabel={`Riscatta ${formatBc(h.currentGross)}`}
+          confirmLabel={t('wallet.movieHoldingCard.riscattaCurrentgross', { currentGross: formatBc(h.currentGross) })}
           pending={redeem.isPending}
           error={redeem.error?.message}
           onClose={() => setConfirm(false)}
@@ -128,7 +127,7 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
             redeem.mutate(h.id, {
               onSuccess: (r) => {
                 setConfirm(false);
-                setDone(`Accreditati ${formatBc(r.grossAmount)}. Nuovo saldo: ${formatBc(r.balanceAfter)}.`);
+                setDone(t('wallet.movieHoldingCard.accreditatiGrossamountNuovoSaldoBalanceafter', { grossAmount: formatBc(r.grossAmount), balanceAfter: formatBc(r.balanceAfter) }));
               },
             })
           }

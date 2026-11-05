@@ -7,12 +7,13 @@ import { api } from '../../api/client';
 import { Alert, Button, Field, Input, Muted, Stack } from '../../components/ui';
 import { AuthLayout, TextLink } from './AuthLayout';
 import { passwordRule } from './schemas';
+import { t } from '../../i18n';
 
 export function ForgotPasswordPage() {
   const [done, setDone] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, formState } = useForm<{ email: string }>({
-    resolver: zodResolver(z.object({ email: z.email('Email non valida') })),
+    resolver: zodResolver(z.object({ email: z.email(t('auth.passwordPages.emailNonValida')) })),
   });
 
   const onSubmit = handleSubmit(async ({ email }) => {
@@ -21,24 +22,22 @@ export function ForgotPasswordPage() {
       const res = await api<{ message: string }>('/auth/forgot-password', { method: 'POST', body: { email } });
       setDone(res.message);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Richiesta non riuscita');
+      setError(e instanceof Error ? e.message : t('auth.passwordPages.richiestaNonRiuscita'));
     }
   });
 
   return (
-    <AuthLayout title="Recupera la password" subtitle="Ti invieremo un link valido per 60 minuti." footer={<TextLink to="/login">Torna all’accesso</TextLink>}>
+    <AuthLayout title={t('auth.passwordPages.recuperaLaPassword')} subtitle={t('auth.passwordPages.tiInvieremoUnLinkValido')} footer={<TextLink to="/login">{t('auth.passwordPages.tornaAllAccesso')}</TextLink>}>
       {done ? (
         <Alert $tone="success">{done}</Alert>
       ) : (
         <form onSubmit={onSubmit} noValidate>
           <Stack $gap={14}>
             {error && <Alert $tone="error">{error}</Alert>}
-            <Field label="Email" error={formState.errors.email?.message}>
+            <Field label={t('common.email')} error={formState.errors.email?.message}>
               <Input type="email" autoComplete="email" {...register('email')} />
             </Field>
-            <Button type="submit" $block disabled={formState.isSubmitting}>
-              Invia link
-            </Button>
+            <Button type="submit" $block disabled={formState.isSubmitting}>{t('auth.passwordPages.inviaLink')}</Button>
           </Stack>
         </form>
       )}
@@ -48,7 +47,7 @@ export function ForgotPasswordPage() {
 
 const resetSchema = z.object({ password: passwordRule, confirm: z.string() }).refine((v) => v.password === v.confirm, {
   path: ['confirm'],
-  message: 'Le password non coincidono',
+  message: t('common.lePasswordNonCoincidono'),
 });
 
 export function ResetPasswordPage() {
@@ -64,30 +63,28 @@ export function ResetPasswordPage() {
       await api('/auth/reset-password', { method: 'POST', body: { token, password } });
       setDone(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Operazione non riuscita');
+      setError(e instanceof Error ? e.message : t('auth.passwordPages.operazioneNonRiuscita'));
     }
   });
 
   return (
-    <AuthLayout title="Nuova password" footer={<TextLink to="/login">Vai all’accesso</TextLink>}>
+    <AuthLayout title={t('auth.passwordPages.nuovaPassword')} footer={<TextLink to="/login">{t('auth.passwordPages.vaiAllAccesso')}</TextLink>}>
       {!token ? (
-        <Alert $tone="error">Link non valido.</Alert>
+        <Alert $tone="error">{t('auth.passwordPages.linkNonValido')}</Alert>
       ) : done ? (
-        <Alert $tone="success">Password aggiornata. Ora puoi accedere.</Alert>
+        <Alert $tone="success">{t('auth.passwordPages.passwordAggiornataOraPuoiAccedere')}</Alert>
       ) : (
         <form onSubmit={onSubmit} noValidate>
           <Stack $gap={14}>
             {error && <Alert $tone="error">{error}</Alert>}
-            <Field label="Nuova password" error={formState.errors.password?.message}>
+            <Field label={t('auth.passwordPages.nuovaPassword')} error={formState.errors.password?.message}>
               <Input type="password" autoComplete="new-password" {...register('password')} />
             </Field>
-            <Field label="Conferma password" error={formState.errors.confirm?.message}>
+            <Field label={t('auth.passwordPages.confermaPassword')} error={formState.errors.confirm?.message}>
               <Input type="password" autoComplete="new-password" {...register('confirm')} />
             </Field>
-            <Muted $size="0.8rem">Per sicurezza verranno chiuse tutte le sessioni attive.</Muted>
-            <Button type="submit" $block disabled={formState.isSubmitting}>
-              Salva password
-            </Button>
+            <Muted $size="0.8rem">{t('auth.passwordPages.perSicurezzaVerrannoChiuseTutte')}</Muted>
+            <Button type="submit" $block disabled={formState.isSubmitting}>{t('auth.passwordPages.salvaPassword')}</Button>
           </Stack>
         </form>
       )}

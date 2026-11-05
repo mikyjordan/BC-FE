@@ -6,38 +6,39 @@ import type { AdminContent, ContentKindPath, PublicationStatus } from '../../api
 import { ConfirmModal } from '../../components/Modal';
 import { Button, Stack } from '../../components/ui';
 import { hasPermission, useAuthStore } from '../../store/auth';
+import { t } from '../../i18n';
 
 type Action = 'publish' | 'hide' | 'archive' | 'revert-to-draft';
 
-const ACTIONS: Record<Action, { label: string; from: PublicationStatus[]; permission: string; danger?: boolean; icon: typeof Send; describe: (t: string) => string }> = {
+const ACTIONS: Record<Action, { label: string; from: PublicationStatus[]; permission: string; danger?: boolean; icon: typeof Send; describe: (title: string) => string }> = {
   publish: {
-    label: 'Pubblica',
+    label: t('admin.publicationActions.pubblica'),
     from: ['DRAFT', 'HIDDEN', 'ARCHIVED'],
     permission: 'content.publish',
     icon: Send,
-    describe: (t) => `“${t}” diventerà visibile a tutti gli utenti nel catalogo, nella ricerca e — se abilitato — nella homepage.`,
+    describe: (title) => t('admin.publicationActions.tDiventeraVisibileATutti', { title }),
   },
   hide: {
-    label: 'Nascondi',
+    label: t('admin.publicationActions.nascondi'),
     from: ['DRAFT', 'PUBLISHED'],
     permission: 'content.publish',
     icon: EyeOff,
-    describe: (t) => `“${t}” verrà rimosso da tutte le sezioni pubbliche. Acquisti, storico e partecipazioni restano intatti.`,
+    describe: (title) => t('admin.publicationActions.tVerraRimossoDaTutte', { title }),
   },
   archive: {
-    label: 'Archivia',
+    label: t('admin.publicationActions.archivia'),
     from: ['DRAFT', 'PUBLISHED', 'HIDDEN'],
     permission: 'content.archive',
     danger: true,
     icon: Archive,
-    describe: (t) => `“${t}” sarà archiviato: non più visibile e gli acquisti verranno chiusi definitivamente. Le partecipazioni esistenti restano.`,
+    describe: (title) => t('admin.publicationActions.tSaraArchiviatoNonPiu', { title }),
   },
   'revert-to-draft': {
-    label: 'Riporta in bozza',
+    label: t('admin.publicationActions.riportaInBozza'),
     from: ['HIDDEN', 'ARCHIVED'],
     permission: 'content.publish',
     icon: RotateCcw,
-    describe: (t) => `“${t}” tornerà in bozza (non visibile).`,
+    describe: (title) => t('admin.publicationActions.tTorneraInBozzaNon', { title }),
   },
 };
 

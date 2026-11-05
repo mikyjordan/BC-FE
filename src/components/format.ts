@@ -1,32 +1,34 @@
-const nf = new Intl.NumberFormat('it-IT');
-const df = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
-const dtf = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+import { LOCALE, t } from '../i18n';
+
+const nf = new Intl.NumberFormat(LOCALE);
+const df = new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: 'short', year: 'numeric' });
+const dtf = new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 export const formatNumber = (n: number) => nf.format(n);
 /** Importo Bustercoin, con segno opzionale per i movimenti. */
-export const formatBc = (n: number, signed = false) => `${signed && n > 0 ? '+' : ''}${nf.format(n)} B`;
-export const formatPct = (n: number) => `${n > 0 ? '+' : ''}${n.toLocaleString('it-IT', { maximumFractionDigits: 2 })}%`;
+export const formatBc = (n: number, signed = false) => t('components.format.importoBc', { sign: signed && n > 0 ? '+' : '', amount: nf.format(n) });
+export const formatPct = (n: number) => t('components.format.percentuale', { sign: n > 0 ? '+' : '', value: n.toLocaleString(LOCALE, { maximumFractionDigits: 2 }) });
 export const formatDate = (d: string | null | undefined) => (d ? df.format(new Date(d)) : '—');
 export const formatDateTime = (d: string | null | undefined) => (d ? dtf.format(new Date(d)) : '—');
 
 export const LEDGER_LABELS: Record<string, string> = {
-  INITIAL_BONUS: 'Bonus di benvenuto',
-  WEEKLY_BONUS: 'Bonus settimanale',
-  MOVIE_PURCHASE: 'Acquisto film',
-  TV_SERIES_PURCHASE: 'Acquisto serie TV',
-  BOX_OFFICE_REWARD: 'Riscatto film',
-  TV_SERIES_REWARD: 'Rendimento serie TV',
-  COIN_PURCHASE: 'Acquisto Bustercoin',
-  PROMOTIONAL_BONUS: 'Bonus promozionale',
-  COMPETITION_REWARD: 'Premio competizione',
-  ADMIN_ADJUSTMENT: 'Rettifica',
-  REFUND: 'Rimborso',
-  OTHER_REWARD: 'Altro premio',
+  INITIAL_BONUS: t('components.format.bonusDiBenvenuto'),
+  WEEKLY_BONUS: t('components.format.bonusSettimanale'),
+  MOVIE_PURCHASE: t('components.format.acquistoFilm'),
+  TV_SERIES_PURCHASE: t('components.format.acquistoSerieTv'),
+  BOX_OFFICE_REWARD: t('components.format.riscattoFilm'),
+  TV_SERIES_REWARD: t('components.format.rendimentoSerieTv'),
+  COIN_PURCHASE: t('components.format.acquistoBustercoin'),
+  PROMOTIONAL_BONUS: t('components.format.bonusPromozionale'),
+  COMPETITION_REWARD: t('components.format.premioCompetizione'),
+  ADMIN_ADJUSTMENT: t('components.format.rettifica'),
+  REFUND: t('components.format.rimborso'),
+  OTHER_REWARD: t('components.format.altroPremio'),
 };
 
 export const STATUS_LABELS: Record<string, string> = {
-  DRAFT: 'Bozza',
-  PUBLISHED: 'Pubblicato',
-  HIDDEN: 'Nascosto',
-  ARCHIVED: 'Archiviato',
+  DRAFT: t('components.format.bozza'),
+  PUBLISHED: t('components.format.pubblicato'),
+  HIDDEN: t('components.format.nascosto'),
+  ARCHIVED: t('components.format.archiviato'),
 };

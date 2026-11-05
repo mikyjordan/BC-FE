@@ -6,6 +6,7 @@ import { login } from '../../api/client';
 import { Alert, Button, Field, Input, Muted, Stack } from '../../components/ui';
 import { AuthLayout, TextLink } from './AuthLayout';
 import { loginSchema, type LoginValues } from './schemas';
+import { t } from '../../i18n';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -20,36 +21,33 @@ export function LoginPage() {
       const from = (location.state as { from?: string } | null)?.from;
       navigate(from && from.startsWith('/') ? from : '/app', { replace: true });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Accesso non riuscito');
+      setError(e instanceof Error ? e.message : t('auth.loginPage.accessoNonRiuscito'));
     }
   });
 
   return (
     <AuthLayout
-      title="Bentornato"
-      subtitle="Accedi al tuo portafoglio BusterCinema."
+      title={t('auth.loginPage.bentornato')}
+      subtitle={t('auth.loginPage.accediAlTuoPortafoglioBustercinema')}
       footer={
-        <Muted>
-          Non hai un account? <TextLink to="/registrazione">Registrati</TextLink>
+        <Muted>{t('auth.loginPage.nonHaiUnAccount')}{' '}<TextLink to="/registrazione">{t('auth.loginPage.registrati')}</TextLink>
         </Muted>
       }
     >
       <form onSubmit={onSubmit} noValidate>
         <Stack $gap={14}>
           {error && <Alert $tone="error">{error}</Alert>}
-          <Field label="Email" error={formState.errors.email?.message}>
+          <Field label={t('common.email')} error={formState.errors.email?.message}>
             <Input type="email" autoComplete="email" aria-invalid={!!formState.errors.email} {...register('email')} />
           </Field>
-          <Field label="Password" error={formState.errors.password?.message}>
+          <Field label={t('auth.loginPage.password')} error={formState.errors.password?.message}>
             <Input type="password" autoComplete="current-password" aria-invalid={!!formState.errors.password} {...register('password')} />
           </Field>
           <div style={{ textAlign: 'right' }}>
-            <TextLink to="/recupero-password" style={{ fontSize: '0.85rem' }}>
-              Password dimenticata?
-            </TextLink>
+            <TextLink to="/recupero-password" style={{ fontSize: '0.85rem' }}>{t('auth.loginPage.passwordDimenticata')}</TextLink>
           </div>
           <Button type="submit" $block disabled={formState.isSubmitting}>
-            {formState.isSubmitting ? 'Accesso…' : 'Accedi'}
+            {formState.isSubmitting ? t('auth.loginPage.accesso') : t('auth.loginPage.accedi')}
           </Button>
         </Stack>
       </form>

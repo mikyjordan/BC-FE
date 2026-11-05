@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { Check, X } from 'lucide-react';
 import type { AdminContent } from '../api/types';
+import { t } from '../i18n';
 
 const Pill = styled.span<{ $active: boolean }>`
   display: inline-flex;
@@ -37,7 +38,7 @@ export function PurchaseBadge({ active, reason, showReason = true }: { active: b
     <Wrap data-testid="purchase-badge" data-active={active}>
       <Pill $active={active}>
         {active ? <Check size={13} aria-hidden strokeWidth={3} /> : <X size={13} aria-hidden strokeWidth={3} />}
-        {active ? 'Acquisti attivi' : 'Acquisti non attivi'}
+        {active ? t('components.purchaseBadge.acquistiAttivi') : t('components.purchaseBadge.acquistiNonAttivi')}
       </Pill>
       {!active && showReason && reason && <Reason>{reason}</Reason>}
     </Wrap>
@@ -49,12 +50,12 @@ export function PurchaseBadge({ active, reason, showReason = true }: { active: b
  * pubblicato, acquisti abilitati, prezzo, finestra valida e, per i film, non uscito dalle sale.
  */
 export function adminPurchaseState(c: AdminContent, now = Date.now()): { active: boolean; reason: string | null } {
-  if (c.publicationStatus !== 'PUBLISHED') return { active: false, reason: 'Titolo non pubblicato' };
-  if (c.availableFrom && new Date(c.availableFrom).getTime() > now) return { active: false, reason: 'Non ancora disponibile' };
-  if (!c.purchasesEnabled) return { active: false, reason: 'Acquisti disattivati' };
-  if (!c.priceBc) return { active: false, reason: 'Prezzo non impostato' };
-  if (c.purchaseOpensAt && new Date(c.purchaseOpensAt).getTime() > now) return { active: false, reason: 'Acquisti non ancora aperti' };
-  if (c.purchaseClosesAt && new Date(c.purchaseClosesAt).getTime() <= now) return { active: false, reason: 'Acquisti chiusi' };
-  if (c.autoRedeemAt && new Date(c.autoRedeemAt).getTime() <= now) return { active: false, reason: 'Uscito dalle sale' };
+  if (c.publicationStatus !== 'PUBLISHED') return { active: false, reason: t('components.purchaseBadge.titoloNonPubblicato') };
+  if (c.availableFrom && new Date(c.availableFrom).getTime() > now) return { active: false, reason: t('components.purchaseBadge.nonAncoraDisponibile') };
+  if (!c.purchasesEnabled) return { active: false, reason: t('components.purchaseBadge.acquistiDisattivati') };
+  if (!c.priceBc) return { active: false, reason: t('components.purchaseBadge.prezzoNonImpostato') };
+  if (c.purchaseOpensAt && new Date(c.purchaseOpensAt).getTime() > now) return { active: false, reason: t('components.purchaseBadge.acquistiNonAncoraAperti') };
+  if (c.purchaseClosesAt && new Date(c.purchaseClosesAt).getTime() <= now) return { active: false, reason: t('components.purchaseBadge.acquistiChiusi') };
+  if (c.autoRedeemAt && new Date(c.autoRedeemAt).getTime() <= now) return { active: false, reason: t('components.purchaseBadge.uscitoDalleSale') };
   return { active: true, reason: null };
 }

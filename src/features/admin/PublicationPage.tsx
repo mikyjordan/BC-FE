@@ -12,12 +12,13 @@ import { PublicationActions } from './publication-actions';
 import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadge';
 import { PreviewModal } from './PreviewModal';
 import { media } from '../../theme/theme';
+import { t, tx } from '../../i18n';
 
 const STATUS_TABS: Array<{ key: PublicationStatus; label: string }> = [
-  { key: 'DRAFT', label: 'Bozze' },
-  { key: 'PUBLISHED', label: 'Pubblicati' },
-  { key: 'HIDDEN', label: 'Nascosti' },
-  { key: 'ARCHIVED', label: 'Archiviati' },
+  { key: 'DRAFT', label: t('admin.publicationPage.bozze') },
+  { key: 'PUBLISHED', label: t('admin.publicationPage.pubblicati') },
+  { key: 'HIDDEN', label: t('admin.publicationPage.nascosti') },
+  { key: 'ARCHIVED', label: t('admin.publicationPage.archiviati') },
 ];
 
 export const statusTone = (s: PublicationStatus) => (({ DRAFT: 'neutral', PUBLISHED: 'green', HIDDEN: 'amber', ARCHIVED: 'red' }) as const)[s];
@@ -47,23 +48,23 @@ function ContentRow({ kind, item, onPreview }: { kind: ContentKindPath; item: Ad
         <Stack $row $gap={8} $align="center" $wrap>
           <strong>{item.title}</strong>
           <Badge $tone={statusTone(item.publicationStatus)}>{STATUS_LABELS[item.publicationStatus]}</Badge>
-          {item.source !== 'MANUAL' && <Badge>Importato · {item.source}</Badge>}
+          {item.source !== 'MANUAL' && <Badge>{tx('admin.publicationPage.importatoSource', { source: item.source })}</Badge>}
         </Stack>
         <Stack $row $gap={10} $wrap $align="center">
           <PurchaseBadge {...adminPurchaseState(item)} />
-          {item.priceBc ? <Bc value={item.priceBc} size={12} /> : <Muted $size="0.8rem">Prezzo non impostato</Muted>}
-          {item.showOnHomepage && <Badge $tone="blue"><Home size={11} /> Homepage</Badge>}
-          {item.featured && <Badge $tone="blue"><Star size={11} /> Evidenza</Badge>}
-          {item.scheduledPublishAt && <Badge $tone="amber"><CalendarClock size={11} /> Programmato {formatDateTime(item.scheduledPublishAt)}</Badge>}
+          {item.priceBc ? <Bc value={item.priceBc} size={12} /> : <Muted $size="0.8rem">{t('admin.publicationPage.prezzoNonImpostato')}</Muted>}
+          {item.showOnHomepage && <Badge $tone="blue"><Home size={11} />{' '}{t('admin.publicationPage.homepage')}</Badge>}
+          {item.featured && <Badge $tone="blue"><Star size={11} />{' '}{t('admin.publicationPage.evidenza')}</Badge>}
+          {item.scheduledPublishAt && <Badge $tone="amber"><CalendarClock size={11} />{' '}{tx('admin.publicationPage.programmatoScheduledpublishat', { scheduledPublishAt: formatDateTime(item.scheduledPublishAt) })}</Badge>}
         </Stack>
         <Muted $size="0.78rem">
-          {item.publishedAt ? `Pubblicato il ${formatDateTime(item.publishedAt)}` : 'Mai pubblicato'} · aggiornato {formatDateTime(item.updatedAt)}
+          {tx('admin.publicationPage.vAggiornatoUpdatedat', { v: item.publishedAt ? t('admin.publicationPage.pubblicatoIlPublishedat', { publishedAt: formatDateTime(item.publishedAt) }) : t('admin.publicationPage.maiPubblicato'), updatedAt: formatDateTime(item.updatedAt) })}
         </Muted>
       </Stack>
       <Actions>
-        <Button $size="sm" $variant="ghost" onClick={onPreview}><Eye size={14} /> Anteprima</Button>
+        <Button $size="sm" $variant="ghost" onClick={onPreview}><Eye size={14} />{' '}{t('admin.publicationPage.anteprima')}</Button>
         <Link to={`/admin/contenuti/${kind}/${item.id}`}>
-          <Button $size="sm" $variant="secondary"><Pencil size={14} /> Gestisci</Button>
+          <Button $size="sm" $variant="secondary"><Pencil size={14} />{' '}{t('admin.publicationPage.gestisci')}</Button>
         </Link>
         <PublicationActions kind={kind} item={item} />
       </Actions>
@@ -96,26 +97,24 @@ export function PublicationPage() {
   return (
     <>
       <PageHeader
-        title="Pubblicazione contenuti"
-        subtitle="Nessun titolo è visibile agli utenti finché non lo pubblichi esplicitamente."
+        title={t('admin.publicationPage.pubblicazioneContenuti')}
+        subtitle={t('admin.publicationPage.nessunTitoloEVisibileAgli')}
         actions={
           hasPermission(user, 'content.create') && (
             <Link to={`/admin/contenuti/${kind}/nuovo`}>
-              <Button><Plus size={16} /> {kind === 'movies' ? 'Nuovo film' : 'Nuova serie'}</Button>
+              <Button><Plus size={16} /> {kind === 'movies' ? t('admin.publicationPage.nuovoFilm') : t('admin.publicationPage.nuovaSerie')}</Button>
             </Link>
           )
         }
       />
 
       {features && !features[kind === 'movies' ? 'movies' : 'tvSeries'] && (
-        <Alert $tone="warning" style={{ marginBottom: 14 }}>
-          La sezione {kind === 'movies' ? 'Film' : 'Serie TV'} è disattivata: i titoli non sono visibili agli utenti anche se pubblicati.
-          {user?.role === 'SUPERADMIN' && <> Puoi attivarla da <Link to="/admin/impostazioni" style={{ textDecoration: 'underline' }}>Impostazioni</Link>.</>}
+        <Alert $tone="warning" style={{ marginBottom: 14 }}>{tx('admin.publicationPage.laSezioneVEDisattivata', { v: kind === 'movies' ? t('common.film') : t('common.serieTv'), v2: user?.role === 'SUPERADMIN' && <>{' '}{tx('admin.publicationPage.puoiAttivarlaDaLink', { link: <Link to="/admin/impostazioni" style={{ textDecoration: 'underline' }}>{t('admin.publicationPage.impostazioni')}</Link> })}</> })}
         </Alert>
       )}
       <Stack $row $gap={8} $wrap style={{ marginBottom: 14 }}>
-        <Tab $active={kind === 'movies'} onClick={() => update({ tipo: 'movies' })}>Film</Tab>
-        <Tab $active={kind === 'tv-series'} onClick={() => update({ tipo: 'tv-series' })}>Serie TV</Tab>
+        <Tab $active={kind === 'movies'} onClick={() => update({ tipo: 'movies' })}>{t('common.film')}</Tab>
+        <Tab $active={kind === 'tv-series'} onClick={() => update({ tipo: 'tv-series' })}>{t('common.serieTv')}</Tab>
       </Stack>
 
       <Tabs>
@@ -135,13 +134,13 @@ export function PublicationPage() {
         style={{ marginBottom: 16, position: 'relative', maxWidth: 420 }}
       >
         <Search size={16} style={{ position: 'absolute', left: 12, top: 13, opacity: 0.5 }} />
-        <Input placeholder="Cerca per titolo…" value={q} onChange={(e) => setQ(e.target.value)} style={{ paddingLeft: 36 }} aria-label="Cerca" />
+        <Input placeholder={t('admin.publicationPage.cercaPerTitolo')} value={q} onChange={(e) => setQ(e.target.value)} style={{ paddingLeft: 36 }} aria-label={t('admin.publicationPage.cerca')} />
       </form>
 
       {list.isLoading ? (
         <Spinner />
       ) : !list.data?.items.length ? (
-        <EmptyState title={`Nessun contenuto in “${STATUS_TABS.find((t) => t.key === status)!.label}”`} />
+        <EmptyState title={t('admin.publicationPage.nessunContenutoInLabel', { label: STATUS_TABS.find((t) => t.key === status)!.label })} />
       ) : (
         <Stack $gap={10}>
           {list.data.items.map((item) => (

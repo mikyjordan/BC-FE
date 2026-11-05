@@ -7,6 +7,7 @@ import { ConfirmModal } from '../../components/Modal';
 import { Badge, Button, FieldError, Input, Muted, Stack } from '../../components/ui';
 import { formatBc, formatDateTime, formatNumber } from '../../components/format';
 import { fromLocalInput, toLocalInput } from './content-fields';
+import { t, tx } from '../../i18n';
 
 /**
  * Riga dello storico incassi con modifica in linea ed eliminazione.
@@ -47,18 +48,18 @@ export function BoxOfficeReadingRow({
 
   const save = () => {
     const n = Number(gross);
-    if (gross === '' || !Number.isInteger(n) || n < 0) return setError('Incasso obbligatorio (numero intero ≥ 0)');
-    if (!when) return setError('Data di rilevazione obbligatoria');
-    if (new Date(when).getTime() > Date.now() + 60_000) return setError('La data di rilevazione non può essere futura');
+    if (gross === '' || !Number.isInteger(n) || n < 0) return setError(t('admin.boxOfficeReadingRow.incassoObbligatorioNumeroIntero0'));
+    if (!when) return setError(t('admin.boxOfficeReadingRow.dataDiRilevazioneObbligatoria'));
+    if (new Date(when).getTime() > Date.now() + 60_000) return setError(t('admin.boxOfficeReadingRow.laDataDiRilevazioneNon'));
     setError(null);
     update.mutate(
       { grossAmount: n, recordedAt: fromLocalInput(when), ...(spectators ? { spectators: Number(spectators) } : {}), ...(notes.trim() ? { notes: notes.trim() } : {}) },
       {
         onSuccess: (r) => {
           setEditing(false);
-          onChanged(`Rilevazione aggiornata. Incasso in vigore: ${r.currentGross !== null ? formatBc(r.currentGross) : 'nessuno'}.`);
+          onChanged(t('admin.boxOfficeReadingRow.rilevazioneAggiornataIncassoInVigore', { v: r.currentGross !== null ? formatBc(r.currentGross) : t('admin.boxOfficeReadingRow.nessuno') }));
         },
-        onError: (e) => setError(e instanceof ApiError ? e.message : 'Salvataggio non riuscito'),
+        onError: (e) => setError(e instanceof ApiError ? e.message : t('admin.boxOfficeReadingRow.salvataggioNonRiuscito')),
       },
     );
   };
@@ -66,19 +67,19 @@ export function BoxOfficeReadingRow({
   if (editing) {
     return (
       <tr>
-        <td><Input type="datetime-local" aria-label="Data rilevazione" value={when} onChange={(e) => setWhen(e.target.value)} style={{ minWidth: 190 }} /></td>
-        <td><Input type="number" min={0} aria-label="Incasso" value={gross} onChange={(e) => setGross(e.target.value)} style={{ minWidth: 120, textAlign: 'right' }} /></td>
-        <td><Input type="number" min={0} aria-label="Spettatori" value={spectators} onChange={(e) => setSpectators(e.target.value)} style={{ minWidth: 100, textAlign: 'right' }} /></td>
+        <td><Input type="datetime-local" aria-label={t('admin.boxOfficeReadingRow.dataRilevazione')} value={when} onChange={(e) => setWhen(e.target.value)} style={{ minWidth: 190 }} /></td>
+        <td><Input type="number" min={0} aria-label={t('admin.boxOfficeReadingRow.incasso')} value={gross} onChange={(e) => setGross(e.target.value)} style={{ minWidth: 120, textAlign: 'right' }} /></td>
+        <td><Input type="number" min={0} aria-label={t('admin.boxOfficeReadingRow.spettatori')} value={spectators} onChange={(e) => setSpectators(e.target.value)} style={{ minWidth: 100, textAlign: 'right' }} /></td>
         <td>
           <Stack $gap={6}>
-            <Input aria-label="Note" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <Input aria-label={t('admin.boxOfficeReadingRow.note')} value={notes} onChange={(e) => setNotes(e.target.value)} />
             {error && <FieldError role="alert">{error}</FieldError>}
           </Stack>
         </td>
         <td>
           <Stack $row $gap={4} $justify="flex-end">
-            <Button $size="sm" onClick={save} disabled={update.isPending} aria-label="Salva rilevazione"><Check size={14} /></Button>
-            <Button $size="sm" $variant="ghost" onClick={() => setEditing(false)} disabled={update.isPending} aria-label="Annulla modifica"><X size={14} /></Button>
+            <Button $size="sm" onClick={save} disabled={update.isPending} aria-label={t('admin.boxOfficeReadingRow.salvaRilevazione')}><Check size={14} /></Button>
+            <Button $size="sm" $variant="ghost" onClick={() => setEditing(false)} disabled={update.isPending} aria-label={t('admin.boxOfficeReadingRow.annullaModifica')}><X size={14} /></Button>
           </Stack>
         </td>
       </tr>
@@ -89,32 +90,32 @@ export function BoxOfficeReadingRow({
     <tr>
       <td>
         <Muted $size="0.85rem">{formatDateTime(reading.recordedAt)}</Muted>
-        {isCurrent && <Badge $tone="gold" style={{ marginTop: 4 }}>In vigore</Badge>}
+        {isCurrent && <Badge $tone="gold" style={{ marginTop: 4 }}>{t('admin.boxOfficeReadingRow.inVigore')}</Badge>}
       </td>
       <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{formatBc(reading.grossAmount)}</td>
       <td style={{ textAlign: 'right' }}><Muted $size="0.85rem">{reading.spectators !== null ? formatNumber(reading.spectators) : '—'}</Muted></td>
       <td>
         <Muted $size="0.8rem">{reading.notes ?? ''}</Muted>
-        {reading.updatedAt && <Muted $size="0.72rem">Modificata il {formatDateTime(reading.updatedAt)}</Muted>}
+        {reading.updatedAt && <Muted $size="0.72rem">{tx('admin.boxOfficeReadingRow.modificataIlUpdatedat', { updatedAt: formatDateTime(reading.updatedAt) })}</Muted>}
       </td>
       <td>
         {canManage && (
           <Stack $row $gap={4} $justify="flex-end">
-            <Button $size="sm" $variant="ghost" onClick={startEdit} aria-label={`Modifica rilevazione del ${formatDateTime(reading.recordedAt)}`}><Pencil size={14} /></Button>
-            <Button $size="sm" $variant="ghost" onClick={() => { remove.reset(); setConfirmDelete(true); }} aria-label={`Elimina rilevazione del ${formatDateTime(reading.recordedAt)}`}><Trash2 size={14} /></Button>
+            <Button $size="sm" $variant="ghost" onClick={startEdit} aria-label={t('admin.boxOfficeReadingRow.modificaRilevazioneDelRecordedat', { recordedAt: formatDateTime(reading.recordedAt) })}><Pencil size={14} /></Button>
+            <Button $size="sm" $variant="ghost" onClick={() => { remove.reset(); setConfirmDelete(true); }} aria-label={t('admin.boxOfficeReadingRow.eliminaRilevazioneDelRecordedat', { recordedAt: formatDateTime(reading.recordedAt) })}><Trash2 size={14} /></Button>
           </Stack>
         )}
         {confirmDelete && (
           <ConfirmModal
-            title="Eliminare questa rilevazione?"
+            title={t('admin.boxOfficeReadingRow.eliminareQuestaRilevazione')}
             message={
               <Stack $gap={8}>
-                <span>Rilevazione del {formatDateTime(reading.recordedAt)}: <strong>{formatBc(reading.grossAmount)}</strong>.</span>
-                {isCurrent && <span>È l’incasso in vigore: tornerà in vigore la rilevazione precedente (o nessun incasso, se non ce ne sono altre).</span>}
-                <span>I riscatti già effettuati non cambiano. L’operazione resta registrata nell’audit log.</span>
+                <span>{tx('admin.boxOfficeReadingRow.rilevazioneDelRecordedatStrong', { recordedAt: formatDateTime(reading.recordedAt), strong: <strong>{formatBc(reading.grossAmount)}</strong> })}</span>
+                {isCurrent && <span>{t('admin.boxOfficeReadingRow.eLIncassoInVigore')}</span>}
+                <span>{t('admin.boxOfficeReadingRow.iRiscattiGiaEffettuatiNon')}</span>
               </Stack>
             }
-            confirmLabel="Elimina"
+            confirmLabel={t('admin.boxOfficeReadingRow.elimina')}
             danger
             pending={remove.isPending}
             error={remove.error?.message}
@@ -123,7 +124,7 @@ export function BoxOfficeReadingRow({
               remove.mutate(undefined, {
                 onSuccess: (r) => {
                   setConfirmDelete(false);
-                  onChanged(`Rilevazione eliminata. Incasso in vigore: ${r.currentGross !== null ? formatBc(r.currentGross) : 'nessuno'}.`);
+                  onChanged(t('admin.boxOfficeReadingRow.rilevazioneEliminataIncassoInVigore', { v: r.currentGross !== null ? formatBc(r.currentGross) : t('admin.boxOfficeReadingRow.nessuno') }));
                 },
               })
             }

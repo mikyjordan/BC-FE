@@ -4,6 +4,7 @@ import { useAuditLogs } from '../../api/hooks';
 import type { AuditEntry } from '../../api/types';
 import { Badge, Card, Input, Muted, PageHeader, Pagination, Select, Spinner, Stack, Table, TableScroll } from '../../components/ui';
 import { formatDateTime } from '../../components/format';
+import { t } from '../../i18n';
 
 const Pre = styled.pre`
   margin: 0;
@@ -36,23 +37,23 @@ export function AuditPage() {
 
   return (
     <>
-      <PageHeader title="Audit log" subtitle="Registro immutabile delle operazioni amministrative, economiche e di pubblicazione." />
+      <PageHeader title={t('admin.auditPage.auditLog')} subtitle={t('admin.auditPage.registroImmutabileDelleOperazioniAmministrative')} />
       <Stack $row $gap={10} $wrap style={{ marginBottom: 16 }}>
-        <Select value={entityType} onChange={(e) => { setEntityType(e.target.value); setPage(1); }} style={{ maxWidth: 200 }} aria-label="Entità">
-          <option value="">Tutte le entità</option>
-          <option value="movie">Film</option>
-          <option value="tv_series">Serie TV</option>
-          <option value="tv_season">Stagioni</option>
-          <option value="user">Utenti</option>
-          <option value="wallet_transaction">Movimenti</option>
+        <Select value={entityType} onChange={(e) => { setEntityType(e.target.value); setPage(1); }} style={{ maxWidth: 200 }} aria-label={t('admin.auditPage.entita')}>
+          <option value="">{t('admin.auditPage.tutteLeEntita')}</option>
+          <option value="movie">{t('common.film')}</option>
+          <option value="tv_series">{t('common.serieTv')}</option>
+          <option value="tv_season">{t('admin.auditPage.stagioni')}</option>
+          <option value="user">{t('admin.auditPage.utenti')}</option>
+          <option value="wallet_transaction">{t('admin.auditPage.movimenti')}</option>
         </Select>
-        <Input placeholder="Azione (es. movie.publish)" value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }} style={{ maxWidth: 260 }} aria-label="Azione" />
+        <Input placeholder={t('admin.auditPage.azioneEsMoviePublish')} value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }} style={{ maxWidth: 260 }} aria-label={t('admin.auditPage.azione')} />
       </Stack>
       <Card $padding="6px 10px">
         {logs.isLoading ? <Spinner /> : (
           <TableScroll>
             <Table>
-              <thead><tr><th>Data</th><th>Azione</th><th>Entità</th><th>Attore</th><th>IP</th></tr></thead>
+              <thead><tr><th>{t('admin.auditPage.data')}</th><th>{t('admin.auditPage.azione')}</th><th>{t('admin.auditPage.entita')}</th><th>{t('admin.auditPage.attore')}</th><th>{t('admin.auditPage.ip')}</th></tr></thead>
               <tbody>
                 {logs.data?.items.map((e) => (
                   <Fragment key={e.id}>

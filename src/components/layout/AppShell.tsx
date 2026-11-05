@@ -10,6 +10,7 @@ import type { Features } from '../../api/types';
 import { logout } from '../../api/client';
 import { hasWallet, isStaff, useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
+import { t } from '../../i18n';
 
 /* ---------- Header blu a tutta larghezza ---------- */
 const Header = styled.header`
@@ -147,14 +148,14 @@ const BottomLink = styled(NavLink)`
 
 type NavItem = { to: string; label: string; icon: typeof Home; end?: boolean; feature?: keyof Features; wallet?: boolean };
 const nav: NavItem[] = [
-  { to: '/app', label: 'Dashboard', icon: Home, end: true },
-  { to: '/app/film', label: 'Film', icon: Clapperboard, feature: 'movies' },
-  { to: '/app/serie', label: 'Serie TV', icon: Tv, feature: 'tvSeries' },
-  { to: '/app/portafoglio', label: 'Portafoglio', icon: Wallet, wallet: true },
-  { to: '/app/classifiche', label: 'Classifiche', icon: Trophy },
-  { to: '/app/premi', label: 'Premi', icon: Gift },
-  { to: '/app/coppe', label: 'Coppe', icon: Award },
-  { to: '/app/profilo', label: 'Profilo', icon: User },
+  { to: '/app', label: t('components.appShell.dashboard'), icon: Home, end: true },
+  { to: '/app/film', label: t('common.film'), icon: Clapperboard, feature: 'movies' },
+  { to: '/app/serie', label: t('common.serieTv'), icon: Tv, feature: 'tvSeries' },
+  { to: '/app/portafoglio', label: t('components.appShell.portafoglio'), icon: Wallet, wallet: true },
+  { to: '/app/classifiche', label: t('components.appShell.classifiche'), icon: Trophy },
+  { to: '/app/premi', label: t('common.premi'), icon: Gift },
+  { to: '/app/coppe', label: t('components.appShell.coppe'), icon: Award },
+  { to: '/app/profilo', label: t('components.appShell.profilo'), icon: User },
 ];
 
 export function AppShell() {
@@ -166,16 +167,16 @@ export function AppShell() {
   const withWallet = hasWallet(user);
   const visibleNav = nav.filter((n) => (!n.feature || !!features?.[n.feature]) && (!n.wallet || withWallet));
   const catalogTab = features?.movies
-    ? { to: '/app/film', label: 'Film', icon: Clapperboard }
+    ? { to: '/app/film', label: t('common.film'), icon: Clapperboard }
     : features?.tvSeries
-      ? { to: '/app/serie', label: 'Serie TV', icon: Tv }
+      ? { to: '/app/serie', label: t('common.serieTv'), icon: Tv }
       : null;
   const bottomTabs: NavItem[] = [
-    { to: '/app', label: 'Home', icon: Home, end: true },
+    { to: '/app', label: t('components.appShell.home'), icon: Home, end: true },
     ...(catalogTab ? [catalogTab] : []),
-    ...(withWallet ? [{ to: '/app/portafoglio', label: 'Portafoglio', icon: Wallet }] : []),
-    { to: '/app/classifiche', label: 'Classifiche', icon: Trophy },
-    { to: '/app/profilo', label: 'Profilo', icon: User },
+    ...(withWallet ? [{ to: '/app/portafoglio', label: t('components.appShell.portafoglio'), icon: Wallet }] : []),
+    { to: '/app/classifiche', label: t('components.appShell.classifiche'), icon: Trophy },
+    { to: '/app/profilo', label: t('components.appShell.profilo'), icon: User },
   ];
 
   const onLogout = async () => {
@@ -186,48 +187,45 @@ export function AppShell() {
   return (
     <>
       <Header>
-        <Link to="/app" aria-label="BusterCinema, home">
+        <Link to="/app" aria-label={t('components.appShell.bustercinemaHome')}>
           <Logo height={28} tone="light" />
         </Link>
         <HeaderRight>
           {wallet.data && (
-            <BalancePill to="/app/portafoglio" aria-label="Saldo Bustercoin">
+            <BalancePill to="/app/portafoglio" aria-label={t('components.appShell.saldoBustercoin')}>
               <Bc value={wallet.data.balance} size={14} />
             </BalancePill>
           )}
           {isStaff(user) && (
-            <HeaderIconLink to="/admin" aria-label="Amministrazione">
+            <HeaderIconLink to="/admin" aria-label={t('components.appShell.amministrazione')}>
               <LayoutDashboard size={22} />
             </HeaderIconLink>
           )}
-          <Link to="/app/profilo" aria-label="Profilo">
+          <Link to="/app/profilo" aria-label={t('components.appShell.profilo')}>
             <Avatar user={user} size={34} />
           </Link>
         </HeaderRight>
       </Header>
 
       <Body>
-        <Sidebar aria-label="Navigazione principale">
+        <Sidebar aria-label={t('components.appShell.navigazionePrincipale')}>
           {visibleNav.map(({ to, label, icon: Icon, end }) => (
             <SideLink key={to} to={to} end={end}>
               <Icon size={18} aria-hidden /> {label}
             </SideLink>
           ))}
           <SideLink to="/come-funziona">
-            <Info size={18} aria-hidden /> Come funziona
-          </SideLink>
+            <Info size={18} aria-hidden />{' '}{t('components.appShell.comeFunziona')}</SideLink>
           {isStaff(user) && (
             <>
               <Divider />
               <SideLink to="/admin">
-                <Shield size={18} aria-hidden /> Amministrazione
-              </SideLink>
+                <Shield size={18} aria-hidden />{' '}{t('components.appShell.amministrazione')}</SideLink>
             </>
           )}
           <div style={{ flex: 1 }} />
           <LogoutButton onClick={onLogout}>
-            <LogOut size={18} aria-hidden /> Esci
-          </LogoutButton>
+            <LogOut size={18} aria-hidden />{' '}{t('components.appShell.esci')}</LogoutButton>
         </Sidebar>
 
         <Main>
@@ -238,7 +236,7 @@ export function AppShell() {
         </Main>
       </Body>
 
-      <BottomNav aria-label="Navigazione" style={{ gridTemplateColumns: `repeat(${bottomTabs.length}, 1fr)` }}>
+      <BottomNav aria-label={t('components.appShell.navigazione')} style={{ gridTemplateColumns: `repeat(${bottomTabs.length}, 1fr)` }}>
         {bottomTabs.map(({ to, label, icon: Icon, end }) => (
           <BottomLink key={to} to={to} end={end}>
             <Icon size={20} aria-hidden /> {label}

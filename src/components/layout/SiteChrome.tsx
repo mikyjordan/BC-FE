@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Logo } from '../brand/Logo';
 import { useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
+import { t } from '../../i18n';
 
 /** Header blu delle pagine pubbliche (Come funziona, Termini, Privacy). */
 const HeaderBar = styled.header`
@@ -22,10 +23,10 @@ export function PublicHeader() {
   const authed = useAuthStore((s) => s.status === 'authenticated');
   return (
     <HeaderBar>
-      <Link to={authed ? '/app' : '/login'} aria-label="BusterCinema, home">
+      <Link to={authed ? '/app' : '/login'} aria-label={t('components.siteChrome.bustercinemaHome')}>
         <Logo height={28} tone="light" />
       </Link>
-      <Link to={authed ? '/app' : '/login'}>{authed ? 'Torna all’app' : 'Accedi'}</Link>
+      <Link to={authed ? '/app' : '/login'}>{authed ? t('components.siteChrome.tornaAllApp') : t('components.siteChrome.accedi')}</Link>
     </HeaderBar>
   );
 }
@@ -45,12 +46,12 @@ const FooterBar = styled.footer`
 export function SiteFooter() {
   return (
     <FooterBar>
-      <nav aria-label="Informazioni">
-        <Link to="/come-funziona">Come funziona</Link>
-        <Link to="/termini">Termini e condizioni</Link>
-        <Link to="/privacy">Privacy</Link>
+      <nav aria-label={t('components.siteChrome.informazioni')}>
+        <Link to="/come-funziona">{t('components.siteChrome.comeFunziona')}</Link>
+        <Link to="/termini">{t('components.siteChrome.terminiECondizioni')}</Link>
+        <Link to="/privacy">{t('components.siteChrome.privacy')}</Link>
       </nav>
-      <p>Bustercoin è una valuta virtuale di gioco: non è denaro, non è convertibile e non attribuisce diritti reali sui contenuti.</p>
+      <p>{t('components.siteChrome.bustercoinEUnaValutaVirtuale')}</p>
     </FooterBar>
   );
 }

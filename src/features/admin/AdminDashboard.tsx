@@ -5,6 +5,7 @@ import { Alert, Bc, Button, Card, Grid, Muted, PageHeader, Spinner, Stack } from
 import { formatDateTime, formatNumber, STATUS_LABELS } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import type { PublicationStatus } from '../../api/types';
+import { t, tx } from '../../i18n';
 
 const Big = styled.div`
   font-size: 1.6rem;
@@ -22,27 +23,27 @@ export function AdminDashboard() {
 
   if (!canView) return <Navigate to="/admin/pubblicazione" replace />;
   if (dash.isLoading) return <Spinner />;
-  if (!dash.data) return <Alert $tone="error">Impossibile caricare la dashboard.</Alert>;
+  if (!dash.data) return <Alert $tone="error">{t('admin.adminDashboard.impossibileCaricareLaDashboard')}</Alert>;
   const d = dash.data;
 
   return (
     <>
-      <PageHeader title="Dashboard" subtitle="Stato della piattaforma" />
+      <PageHeader title={t('admin.adminDashboard.dashboard')} subtitle={t('admin.adminDashboard.statoDellaPiattaforma')} />
       <Grid $min={210} $gap={14}>
         <Card>
-          <Muted $size="0.8rem">Utenti registrati</Muted>
+          <Muted $size="0.8rem">{t('admin.adminDashboard.utentiRegistrati')}</Muted>
           <Big>{formatNumber(d.users.total)}</Big>
-          <Muted $size="0.8rem">+{d.users.last7Days} negli ultimi 7 giorni · {d.users.admins} admin</Muted>
+          <Muted $size="0.8rem">{tx('admin.adminDashboard.last7daysNegliUltimi7Giorni', { last7Days: d.users.last7Days, admins: d.users.admins })}</Muted>
         </Card>
         <Card>
-          <Muted $size="0.8rem">Bustercoin in circolazione</Muted>
+          <Muted $size="0.8rem">{t('admin.adminDashboard.bustercoinInCircolazione')}</Muted>
           <Bc value={d.economy.totalBalance} size={20} />
-          <Muted $size="0.8rem">{formatNumber(d.economy.wallets)} wallet</Muted>
+          <Muted $size="0.8rem">{tx('admin.adminDashboard.walletsWallet', { wallets: formatNumber(d.economy.wallets) })}</Muted>
         </Card>
         <Card>
-          <Muted $size="0.8rem">Ultime 24 ore</Muted>
+          <Muted $size="0.8rem">{t('admin.adminDashboard.ultime24Ore')}</Muted>
           <Big>{formatNumber(d.last24h.transactions)}</Big>
-          <Muted $size="0.8rem">movimenti · {d.last24h.purchases} acquisti</Muted>
+          <Muted $size="0.8rem">{tx('admin.adminDashboard.movimentiPurchasesAcquisti', { purchases: d.last24h.purchases })}</Muted>
         </Card>
       </Grid>
 
@@ -50,9 +51,9 @@ export function AdminDashboard() {
         {(['movies', 'tvSeries'] as const).map((k) => (
           <Card key={k}>
             <Stack $row $justify="space-between" $align="center" style={{ marginBottom: 12 }}>
-              <h3>{k === 'movies' ? 'Film' : 'Serie TV'}</h3>
+              <h3>{k === 'movies' ? t('common.film') : t('common.serieTv')}</h3>
               <Link to={`/admin/pubblicazione?tipo=${k === 'movies' ? 'movies' : 'tv-series'}`}>
-                <Button $size="sm" $variant="secondary">Gestisci</Button>
+                <Button $size="sm" $variant="secondary">{t('admin.adminDashboard.gestisci')}</Button>
               </Link>
             </Stack>
             <Grid $min={110} $gap={10}>
@@ -71,18 +72,18 @@ export function AdminDashboard() {
         <Card style={{ marginTop: 14 }}>
           <Stack $row $justify="space-between" $align="center" $wrap $gap={10}>
             <div>
-              <h3>Riconciliazione wallet / ledger</h3>
-              <Muted $size="0.85rem">Verifica che ogni saldo coincida con la somma dei movimenti registrati.</Muted>
+              <h3>{t('admin.adminDashboard.riconciliazioneWalletLedger')}</h3>
+              <Muted $size="0.85rem">{t('admin.adminDashboard.verificaCheOgniSaldoCoincida')}</Muted>
             </div>
             <Button $variant="secondary" onClick={() => recon.refetch()} disabled={recon.isFetching}>
-              {recon.isFetching ? 'Verifica…' : 'Esegui verifica'}
+              {recon.isFetching ? t('admin.adminDashboard.verifica') : t('admin.adminDashboard.eseguiVerifica')}
             </Button>
           </Stack>
           {recon.data && (
             <Alert $tone={recon.data.mismatches === 0 ? 'success' : 'error'} style={{ marginTop: 14 }}>
               {recon.data.mismatches === 0
-                ? `Tutti i wallet sono coerenti con il ledger (${formatDateTime(recon.data.checkedAt)}).`
-                : `${recon.data.mismatches} wallet incoerenti: verificare immediatamente.`}
+                ? t('admin.adminDashboard.tuttiIWalletSonoCoerenti', { checkedAt: formatDateTime(recon.data.checkedAt) })
+                : t('admin.adminDashboard.mismatchesWalletIncoerentiVerificareImmediatamente', { mismatches: recon.data.mismatches })}
             </Alert>
           )}
         </Card>

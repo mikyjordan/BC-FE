@@ -6,6 +6,7 @@ import { CoinIcon } from '../../components/brand/CoinIcon';
 import { Alert, Card } from '../../components/ui';
 import { PublicHeader, SiteFooter } from '../../components/layout/SiteChrome';
 import { useFeatures } from '../../api/hooks';
+import { t, tx } from '../../i18n';
 
 const Wrap = styled.div`
   max-width: 820px;
@@ -51,55 +52,45 @@ export function HowItWorksPage() {
     <>
     <PublicHeader />
     <Wrap>
-      <h1>Come funziona</h1>
-      <p>BusterCinema è un gioco di investimento virtuale sui film in uscita nelle sale italiane.</p>
+      <h1>{t('info.howItWorksPage.comeFunziona')}</h1>
+      <p>{t('info.howItWorksPage.bustercinemaEUnGiocoDi')}</p>
 
-      <S icon={<CoinIcon size={30} />} title="I Bustercoin">
-        <p>Alla registrazione ricevi 1.000.000 di Bustercoin. Sono una valuta virtuale di gioco: non sono denaro, non sono convertibili e non danno diritti reali sui film.</p>
+      <S icon={<CoinIcon size={30} />} title={t('info.howItWorksPage.iBustercoin')}>
+        <p>{t('info.howItWorksPage.allaRegistrazioneRicevi1000')}</p>
       </S>
 
       {movies && (
       <>
-      <S icon={<Ticket size={28} />} title="Acquista un film prima che esca">
+      <S icon={<Ticket size={28} />} title={t('info.howItWorksPage.acquistaUnFilmPrimaChe')}>
         <ul>
-          <li>Ogni film si acquista <strong>una sola volta</strong>, al prezzo stabilito dalla piattaforma.</li>
+          <li>{tx('info.howItWorksPage.ogniFilmSiAcquistaStrong', { strong: <strong>{t('info.howItWorksPage.unaSolaVolta')}</strong> })}</li>
           <li>
-            <strong>La possibilità di acquistare un film termina alla mezzanotte del giorno prima della sua uscita nelle sale</strong>. Esempio: se il film esce
-            giovedì, puoi comprarlo fino alle 23:59 di mercoledì.
-          </li>
-          <li>Sulla scheda di ogni film trovi la data e l’ora esatte di chiusura degli acquisti.</li>
+            <strong>{t('info.howItWorksPage.laPossibilitaDiAcquistareUn')}</strong>{t('info.howItWorksPage.esempioSeIlFilmEsce')}</li>
+          <li>{t('info.howItWorksPage.sullaSchedaDiOgniFilm')}</li>
         </ul>
       </S>
 
-      <S icon={<TrendingUp size={28} />} title="Segui l’incasso">
-        <p>
-          Durante la programmazione la piattaforma aggiorna l’incasso del film (1 € = 1 Bustercoin). Sul tuo portafoglio vedi prezzo pagato e incasso attuale:
-          in <Up>verde</Up> se sei in guadagno, in <Down>rosso</Down> se sei in perdita.
-        </p>
+      <S icon={<TrendingUp size={28} />} title={t('info.howItWorksPage.seguiLIncasso')}>
+        <p>{tx('info.howItWorksPage.duranteLaProgrammazioneLaPiattaforma', { up: <Up>{t('info.howItWorksPage.verde')}</Up>, down: <Down>{t('info.howItWorksPage.rosso')}</Down> })}</p>
       </S>
 
-      <S icon={<HandCoins size={28} />} title="Riscatta quando vuoi">
-        <p>
-          Con il pulsante <strong>Riscatta</strong> ricevi sul wallet l’incasso attuale del film. Esempio: hai pagato 500.000 B e l’incasso è 600.000 → ricevi
-          600.000 B e hai guadagnato 100.000 B. Dopo il riscatto il film non può più essere riacquistato.
-        </p>
+      <S icon={<HandCoins size={28} />} title={t('info.howItWorksPage.riscattaQuandoVuoi')}>
+        <p>{tx('info.howItWorksPage.conIlPulsanteStrongRicevi', { strong: <strong>{t('info.howItWorksPage.riscatta')}</strong> })}</p>
       </S>
 
-      <S icon={<CalendarClock size={28} />} title="Riscatto automatico all’uscita dalle sale">
-        <p>Quando il film viene tolto dalle sale (data indicata sotto ogni film), viene riscattato automaticamente a tutti coloro che lo possiedono, con l’incasso in vigore in quel momento.</p>
+      <S icon={<CalendarClock size={28} />} title={t('info.howItWorksPage.riscattoAutomaticoAllUscitaDalle')}>
+        <p>{t('info.howItWorksPage.quandoIlFilmVieneTolto')}</p>
       </S>
       </>
       )}
 
       {tvSeries && (
-        <S icon={<Clapperboard size={28} />} title="Serie TV">
-          <p>Le serie TV si acquistano a quote; le regole di rendimento verranno pubblicate quando la sezione sarà completa.</p>
+        <S icon={<Clapperboard size={28} />} title={t('common.serieTv')}>
+          <p>{t('info.howItWorksPage.leSerieTvSiAcquistano')}</p>
         </S>
       )}
 
-      <Alert $tone="info" style={{ marginTop: 18 }}>
-        Consulta anche i <Link to="/termini" style={{ textDecoration: 'underline' }}>termini e condizioni</Link>.
-      </Alert>
+      <Alert $tone="info" style={{ marginTop: 18 }}>{tx('info.howItWorksPage.consultaAncheILink', { link: <Link to="/termini" style={{ textDecoration: 'underline' }}>{t('info.howItWorksPage.terminiECondizioni')}</Link> })}</Alert>
     </Wrap>
     <SiteFooter />
     </>

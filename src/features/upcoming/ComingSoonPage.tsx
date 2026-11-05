@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Award, Bell, Coins, Gift, Trophy } from 'lucide-react';
 import { EmptyState, PageHeader } from '../../components/ui';
+import { t } from '../../i18n';
 
 /**
  * Sezioni previste ma non ancora implementate: sono dichiarate esplicitamente come
@@ -10,7 +11,7 @@ function ComingSoon({ title, icon, phase, children }: { title: string; icon: Rea
   return (
     <>
       <PageHeader title={title} />
-      <EmptyState icon={icon} title={`In sviluppo — ${phase}`}>
+      <EmptyState icon={icon} title={t('upcoming.comingSoonPage.inSviluppoPhase', { phase })}>
         {children}
       </EmptyState>
     </>
@@ -18,27 +19,17 @@ function ComingSoon({ title, icon, phase, children }: { title: string; icon: Rea
 }
 
 export const LeaderboardsPage = () => (
-  <ComingSoon title="Classifiche" icon={<Trophy size={34} />} phase="Fase 9">
-    Classifiche settimanali, mensili e stagionali per rendimento e guadagni, con filtri Film / Serie TV.
-  </ComingSoon>
+  <ComingSoon title={t('upcoming.comingSoonPage.classifiche')} icon={<Trophy size={34} />} phase={t('upcoming.comingSoonPage.fase9')}>{t('upcoming.comingSoonPage.classificheSettimanaliMensiliEStagionali')}</ComingSoon>
 );
 export const RewardsPage = () => (
-  <ComingSoon title="Premi" icon={<Gift size={34} />} phase="Fase 9">
-    Voucher cinema, biglietti e premi promozionali con stato di consegna.
-  </ComingSoon>
+  <ComingSoon title={t('common.premi')} icon={<Gift size={34} />} phase={t('upcoming.comingSoonPage.fase9')}>{t('upcoming.comingSoonPage.voucherCinemaBigliettiEPremi')}</ComingSoon>
 );
 export const TrophiesPage = () => (
-  <ComingSoon title="Coppe e Hall of Fame" icon={<Award size={34} />} phase="Fase 9">
-    Riconoscimenti permanenti: Miglior Strategia, Miglior Rendimento, Campione del Mese e della Stagione.
-  </ComingSoon>
+  <ComingSoon title={t('upcoming.comingSoonPage.coppeEHallOfFame')} icon={<Award size={34} />} phase={t('upcoming.comingSoonPage.fase9')}>{t('upcoming.comingSoonPage.riconoscimentiPermanentiMigliorStrategiaMiglior')}</ComingSoon>
 );
 export const NotificationsPage = () => (
-  <ComingSoon title="Notifiche" icon={<Bell size={34} />} phase="Fase 10">
-    Avvisi su bonus, acquisti, accrediti e nuovi contenuti pubblicati.
-  </ComingSoon>
+  <ComingSoon title={t('upcoming.comingSoonPage.notifiche')} icon={<Bell size={34} />} phase={t('upcoming.comingSoonPage.fase10')}>{t('upcoming.comingSoonPage.avvisiSuBonusAcquistiAccrediti')}</ComingSoon>
 );
 export const BuyCoinsPage = () => (
-  <ComingSoon title="Acquista Bustercoin" icon={<Coins size={34} />} phase="Fase 8">
-    I pacchetti Bustercoin con pagamento Stripe saranno attivati dopo la configurazione di Stripe e la verifica legale e fiscale.
-  </ComingSoon>
+  <ComingSoon title={t('upcoming.comingSoonPage.acquistaBustercoin')} icon={<Coins size={34} />} phase={t('upcoming.comingSoonPage.fase8')}>{t('upcoming.comingSoonPage.iPacchettiBustercoinConPagamento')}</ComingSoon>
 );

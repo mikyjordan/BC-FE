@@ -1,4 +1,5 @@
 import type { AdminContent, ContentKindPath } from '../../api/types';
+import { t } from '../../i18n';
 
 export type FieldType = 'text' | 'textarea' | 'list' | 'int' | 'date' | 'select' | 'image';
 
@@ -13,15 +14,15 @@ export interface FieldDef {
 }
 
 const common = {
-  title: { name: 'title', label: 'Titolo', type: 'text', required: true },
-  originalTitle: { name: 'originalTitle', label: 'Titolo originale', type: 'text' },
-  posterUrl: { name: 'posterUrl', label: 'Locandina', type: 'image', wide: true, hint: 'Carica un’immagine dal computer oppure incolla un link https://… (formato verticale)' },
-  coverUrl: { name: 'coverUrl', label: 'URL immagine di copertina', type: 'text', hint: 'https://… (immagine orizzontale)' },
-  description: { name: 'description', label: 'Descrizione', type: 'textarea', wide: true },
-  genres: { name: 'genres', label: 'Generi', type: 'list', hint: 'Separati da virgola' },
-  castMembers: { name: 'castMembers', label: 'Cast', type: 'list', hint: 'Separati da virgola', wide: true },
-  productionCountry: { name: 'productionCountry', label: 'Paese di produzione', type: 'text' },
-  adminNotes: { name: 'adminNotes', label: 'Note amministrative (mai pubbliche)', type: 'textarea', wide: true },
+  title: { name: 'title', label: t('admin.contentFields.titolo'), type: 'text', required: true },
+  originalTitle: { name: 'originalTitle', label: t('admin.contentFields.titoloOriginale'), type: 'text' },
+  posterUrl: { name: 'posterUrl', label: t('admin.contentFields.locandina'), type: 'image', wide: true, hint: t('admin.contentFields.caricaUnImmagineDalComputer') },
+  coverUrl: { name: 'coverUrl', label: t('admin.contentFields.urlImmagineDiCopertina'), type: 'text', hint: t('admin.contentFields.httpsImmagineOrizzontale') },
+  description: { name: 'description', label: t('admin.contentFields.descrizione'), type: 'textarea', wide: true },
+  genres: { name: 'genres', label: t('admin.contentFields.generi'), type: 'list', hint: t('admin.contentFields.separatiDaVirgola') },
+  castMembers: { name: 'castMembers', label: t('admin.contentFields.cast'), type: 'list', hint: t('admin.contentFields.separatiDaVirgola'), wide: true },
+  productionCountry: { name: 'productionCountry', label: t('admin.contentFields.paeseDiProduzione'), type: 'text' },
+  adminNotes: { name: 'adminNotes', label: t('admin.contentFields.noteAmministrativeMaiPubbliche'), type: 'textarea', wide: true },
 } satisfies Record<string, FieldDef>;
 
 export const FIELDS: Record<ContentKindPath, FieldDef[]> = {
@@ -29,17 +30,17 @@ export const FIELDS: Record<ContentKindPath, FieldDef[]> = {
   movies: [
     common.title,
     common.posterUrl,
-    { name: 'plot', label: 'Trama', type: 'textarea', wide: true },
+    { name: 'plot', label: t('admin.contentFields.trama'), type: 'textarea', wide: true },
     common.genres,
-    { name: 'director', label: 'Regista', type: 'text' },
+    { name: 'director', label: t('admin.contentFields.regista'), type: 'text' },
     common.castMembers,
-    { name: 'durationMinutes', label: 'Durata (minuti)', type: 'int' },
-    { name: 'italianReleaseDate', label: 'Uscita italiana', type: 'date' },
-    { name: 'screeningStartDate', label: 'Inizio programmazione', type: 'date' },
-    { name: 'screeningEndDate', label: 'Fine programmazione', type: 'date' },
+    { name: 'durationMinutes', label: t('admin.contentFields.durataMinuti'), type: 'int' },
+    { name: 'italianReleaseDate', label: t('admin.contentFields.uscitaItaliana'), type: 'date' },
+    { name: 'screeningStartDate', label: t('admin.contentFields.inizioProgrammazione'), type: 'date' },
+    { name: 'screeningEndDate', label: t('admin.contentFields.fineProgrammazione'), type: 'date' },
     common.productionCountry,
-    { name: 'distributor', label: 'Distribuzione', type: 'text' },
-    { name: 'ageRating', label: 'Classificazione', type: 'text' },
+    { name: 'distributor', label: t('admin.contentFields.distribuzione'), type: 'text' },
+    { name: 'ageRating', label: t('admin.contentFields.classificazione'), type: 'text' },
     common.adminNotes,
   ],
   'tv-series': [
@@ -49,34 +50,34 @@ export const FIELDS: Record<ContentKindPath, FieldDef[]> = {
     common.coverUrl,
     common.description,
     common.genres,
-    { name: 'creator', label: 'Creatore', type: 'text' },
+    { name: 'creator', label: t('admin.contentFields.creatore'), type: 'text' },
     common.castMembers,
-    { name: 'platforms', label: 'Piattaforme / canali', type: 'list', hint: 'Separati da virgola' },
-    { name: 'firstReleaseDate', label: 'Prima pubblicazione', type: 'date' },
+    { name: 'platforms', label: t('admin.contentFields.piattaformeCanali'), type: 'list', hint: t('admin.contentFields.separatiDaVirgola') },
+    { name: 'firstReleaseDate', label: t('admin.contentFields.primaPubblicazione'), type: 'date' },
     {
       name: 'seriesStatus',
-      label: 'Stato della serie',
+      label: t('admin.contentFields.statoDellaSerie'),
       type: 'select',
       options: [
-        ['ONGOING', 'In corso'],
-        ['ANNOUNCED', 'Annunciata'],
-        ['ENDED', 'Conclusa'],
-        ['CANCELLED', 'Cancellata'],
+        ['ONGOING', t('admin.contentFields.inCorso')],
+        ['ANNOUNCED', t('admin.contentFields.annunciata')],
+        ['ENDED', t('admin.contentFields.conclusa')],
+        ['CANCELLED', t('admin.contentFields.cancellata')],
       ],
     },
-    { name: 'seasonsCount', label: 'Numero di stagioni', type: 'int' },
-    { name: 'episodesCount', label: 'Numero di episodi', type: 'int' },
+    { name: 'seasonsCount', label: t('admin.contentFields.numeroDiStagioni'), type: 'int' },
+    { name: 'episodesCount', label: t('admin.contentFields.numeroDiEpisodi'), type: 'int' },
     {
       name: 'holdingScope',
-      label: 'Partecipazione su',
+      label: t('admin.contentFields.partecipazioneSu'),
       type: 'select',
       options: [
-        ['SERIES', 'Intera serie'],
-        ['SEASON', 'Singola stagione'],
+        ['SERIES', t('admin.contentFields.interaSerie')],
+        ['SEASON', t('admin.contentFields.singolaStagione')],
       ],
     },
     common.productionCountry,
-    { name: 'dataSource', label: 'Fonte dei dati', type: 'text', hint: 'Es. Auditel, inserimento manuale' },
+    { name: 'dataSource', label: t('admin.contentFields.fonteDeiDati'), type: 'text', hint: t('admin.contentFields.esAuditelInserimentoManuale') },
     common.adminNotes,
   ],
 };

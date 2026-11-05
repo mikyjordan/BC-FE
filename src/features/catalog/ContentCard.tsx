@@ -8,6 +8,7 @@ import { Poster } from '../../components/Poster';
 import { Badge, Bc, Muted } from '../../components/ui';
 import { AutoRedeemNotice } from './AutoRedeemNotice';
 import { PurchaseBadge } from '../../components/PurchaseBadge';
+import { t } from '../../i18n';
 
 const CardLink = styled(Link)`
   display: flex;
@@ -44,8 +45,7 @@ export function ContentCard({ item }: { item: PublicContent }) {
         <Poster src={item.posterUrl} alt={item.title} kind={item.kind} />
         {item.featured && (
           <Badge $tone="blue" style={{ position: 'absolute', top: 8, left: 8 }}>
-            <Star size={11} /> In evidenza
-          </Badge>
+            <Star size={11} />{' '}{t('catalog.contentCard.inEvidenza')}</Badge>
         )}
       </div>
       <div>
@@ -62,7 +62,7 @@ export function ContentCard({ item }: { item: PublicContent }) {
           {item.purchase.priceBc ? (
             <Bc value={item.purchase.priceBc} size={13} />
           ) : (
-            <Muted $size="0.8rem">Prezzo non ancora definito</Muted>
+            <Muted $size="0.8rem">{t('catalog.contentCard.prezzoNonAncoraDefinito')}</Muted>
           )}
           <PurchaseBadge active={item.purchase.purchasable} reason={item.purchase.message} showReason={false} />
           {item.kind === 'MOVIE' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
