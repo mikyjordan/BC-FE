@@ -65,6 +65,13 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     // Pubblicato e acquistabile: ovale verde "Acquisti attivi"
     await expect(page.getByTestId('purchase-badge').first()).toHaveAttribute('data-active', 'true');
     await expect(page.getByText('Acquisti attivi', { exact: true }).first()).toBeVisible();
+
+    // Il Superadmin vede il film ma non può acquistarlo
+    await page.goto('/app/film');
+    await page.getByText(title).first().click();
+    await expect(page.getByRole('heading', { name: title })).toBeVisible();
+    await expect(page.getByTestId('superadmin-no-purchase')).toContainText('Il Superadmin non può effettuare acquisti');
+    await expect(page.getByRole('button', { name: 'Acquista' })).toHaveCount(0);
   });
 
   test('un utente compra il film, vede incasso e guadagno in verde, riscatta e non può ricomprarlo', async ({ page, browser }) => {

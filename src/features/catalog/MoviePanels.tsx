@@ -7,6 +7,7 @@ import type { PublicMovie } from '../../api/types';
 import { Alert, Bc, Button, Card, Muted, Stack, Table } from '../../components/ui';
 import { formatBc, formatDate, formatDateTime, formatNumber } from '../../components/format';
 import { useAuthStore } from '../../store/auth';
+import { SuperadminNoPurchase } from '../../components/SuperadminNoPurchase';
 import { MovieHoldingCard } from '../wallet/MovieHoldingCard';
 import { PurchaseBadge } from '../../components/PurchaseBadge';
 import { AutoRedeemNotice } from './AutoRedeemNotice';
@@ -70,6 +71,7 @@ function PurchaseDeadline({ closesAt }: { closesAt: string | null }) {
  */
 export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
   const status = useAuthStore((s) => s.status);
+  const isSuperadmin = useAuthStore((s) => s.user?.role === 'SUPERADMIN');
   const holdings = useHoldings();
   const wallet = useWallet();
   const purchase = usePurchase('movies', movie.id);
@@ -115,6 +117,8 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
       </Card>
     );
   }
+
+  if (isSuperadmin) return <SuperadminNoPurchase priceBc={movie.purchase.priceBc} />;
 
   const insufficient = price > balance;
   const err = purchase.error instanceof ApiError ? purchase.error.message : purchase.error ? 'Acquisto non riuscito' : null;

@@ -8,6 +8,7 @@ import { Alert, Bc, Button, Card, Field, Input, Muted, Stack } from '../../compo
 import { formatBc } from '../../components/format';
 import { PurchaseBadge } from '../../components/PurchaseBadge';
 import { useAuthStore } from '../../store/auth';
+import { SuperadminNoPurchase } from '../../components/SuperadminNoPurchase';
 
 interface Props {
   kind: ContentKindPath;
@@ -23,6 +24,7 @@ interface Props {
  */
 export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Props) {
   const status = useAuthStore((s) => s.status);
+  const isSuperadmin = useAuthStore((s) => s.user?.role === 'SUPERADMIN');
   const wallet = useWallet();
   const mutation = usePurchase(kind, contentId);
   const [quantity, setQuantity] = useState(1);
@@ -69,6 +71,8 @@ export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Pr
       </Card>
     );
   }
+
+  if (isSuperadmin) return <SuperadminNoPurchase priceBc={purchase.priceBc} />;
 
   const submit = () => {
     mutation.mutate(
