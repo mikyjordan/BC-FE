@@ -4,7 +4,7 @@ import { api } from '../../api/client';
 import { useAdminMutation } from '../../api/hooks';
 import type { AdminContent, ContentKindPath, PublicationStatus } from '../../api/types';
 import { ConfirmModal } from '../../components/Modal';
-import { Button, Stack } from '../../components/ui';
+import { Button, Checkbox, Stack } from '../../components/ui';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { t } from '../../i18n';
 
@@ -46,7 +46,11 @@ const ACTIONS: Record<Action, { label: string; from: PublicationStatus[]; permis
 export function PublicationActions({ kind, item, size = 'sm' }: { kind: ContentKindPath; item: AdminContent; size?: 'sm' | 'md' }) {
   const user = useAuthStore((s) => s.user);
   const [pending, setPending] = useState<Action | null>(null);
-  const mutation = useAdminMutation((a: Action) => api<AdminContent>(`/admin/${kind}/${item.id}/${a}`, { method: 'POST' }));
+  const [notify, setNotify] = useState(item.notifyOnPublish);
+  const canNotify = !item.notificationQueuedAt;
+  const mutation = useAdminMutation((a: Action) =>
+    api<AdminContent>(`/admin/${kind}/${item.id}/${a}`, { method: 'POST', body: a === 'publish' && canNotify ? { notifyUsers: notify } : undefined }),
+  );
 
   const available = (Object.keys(ACTIONS) as Action[]).filter(
     (a) => ACTIONS[a].from.includes(item.publicationStatus) && hasPermission(user, ACTIONS[a].permission),
@@ -59,7 +63,7 @@ export function PublicationActions({ kind, item, size = 'sm' }: { kind: ContentK
         {available.map((a) => {
           const { icon: Icon, label, danger } = ACTIONS[a];
           return (
-            <Button key={a} $size={size} $variant={a === 'publish' ? 'primary' : danger ? 'danger' : 'secondary'} onClick={() => { mutation.reset(); setPending(a); }}>
+            <Button key={a} $size={size} $variant={a === 'publish' ? 'primary' : danger ? 'danger' : 'secondary'} onClick={() => { mutation.reset(); setNotify(item.notifyOnPublish); setPending(a); }}>
               <Icon size={14} /> {label}
             </Button>
           );
@@ -75,7 +79,14 @@ export function PublicationActions({ kind, item, size = 'sm' }: { kind: ContentK
           error={mutation.error?.message}
           onClose={() => setPending(null)}
           onConfirm={() => mutation.mutate(pending, { onSuccess: () => setPending(null) })}
-        />
+        >
+          {pending === 'publish' && canNotify && (
+            <Checkbox data-testid="publish-notify">
+              <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} />
+              <span>{t('admin.publicationActions.inviaEmail')}</span>
+            </Checkbox>
+          )}
+        </ConfirmModal>
       )}
     </>
   );

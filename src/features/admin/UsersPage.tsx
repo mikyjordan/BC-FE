@@ -119,7 +119,10 @@ export function UsersPage() {
               <tbody>
                 {users.data?.items.map((u) => (
                   <tr key={u.id}>
-                    <td><strong>{u.username}</strong><Muted $size="0.8rem">{u.email}</Muted></td>
+                    <td>
+                      <strong>{u.username}</strong><Muted $size="0.8rem">{u.email}</Muted>
+                      {!u.emailVerifiedAt && <Badge $tone="amber" style={{ marginTop: 4 }}>{t('admin.usersPage.emailDaConfermare')}</Badge>}
+                    </td>
                     <td>
                       {isSuper && u.role !== 'SUPERADMIN' && u.id !== me?.id ? (
                         <Select value={u.role} onChange={(e) => setRoleM.mutate({ id: u.id, role: e.target.value as 'USER' | 'ADMIN' })} style={{ maxWidth: 120, padding: '6px 8px' }} aria-label={t('admin.usersPage.ruoloDiUsername', { username: u.username })}>

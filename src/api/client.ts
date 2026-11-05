@@ -106,8 +106,20 @@ export async function login(email: string, password: string) {
   applySession(await api<SessionResponse>('/auth/login', { method: 'POST', body: { email, password } }));
 }
 
+/** Registrazione: l'account va poi confermato dal link ricevuto via email (nessuna sessione qui). */
 export async function register(body: { email: string; username: string; password: string; acceptTerms: true }) {
-  applySession(await api<SessionResponse>('/auth/register', { method: 'POST', body }));
+  return api<{ email: string; verificationRequired: true }>('/auth/register', { method: 'POST', body });
+}
+
+/** Conferma dell'email: attiva l'account e apre la sessione. Restituisce il bonus accreditato. */
+export async function verifyEmail(token: string): Promise<number> {
+  const res = await api<SessionResponse & { welcomeBonus: number }>('/auth/verify-email', { method: 'POST', body: { token } });
+  applySession(res);
+  return res.welcomeBonus;
+}
+
+export async function resendVerification(email: string) {
+  await api('/auth/resend-verification', { method: 'POST', body: { email } });
 }
 
 export async function logout() {

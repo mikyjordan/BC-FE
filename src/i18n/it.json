@@ -287,7 +287,9 @@
       "nuovoLabel": "Nuovo {label}",
       "idIdFonteSourceV": "ID {id} · fonte {source}{v}",
       "anteprimaPubblica": "Anteprima pubblica",
-      "film": "film"
+      "film": "film",
+      "avvisaUtenti": "Invia un’email di avviso a tutti gli utenti quando il titolo verrà pubblicato",
+      "avvisaUtentiNota": "Il titolo nasce in bozza: nessuna email parte finché non viene pubblicato."
     },
     "posterField": {
       "formatiAmmessiPngJpegWebp": "Formati ammessi: PNG, JPEG, WEBP",
@@ -403,7 +405,8 @@
       "rettificaSaldo": "Rettifica saldo",
       "sospendi": "Sospendi",
       "riattiva": "Riattiva",
-      "lengthPermessi": "{length} permessi"
+      "lengthPermessi": "{length} permessi",
+      "emailDaConfermare": "Email da confermare"
     },
     "contentFields": {
       "titolo": "Titolo",
@@ -450,7 +453,24 @@
       "archivia": "Archivia",
       "tSaraArchiviatoNonPiu": "“{title}” sarà archiviato: non più visibile e gli acquisti verranno chiusi definitivamente. Le partecipazioni esistenti restano.",
       "riportaInBozza": "Riporta in bozza",
-      "tTorneraInBozzaNon": "“{title}” tornerà in bozza (non visibile)."
+      "tTorneraInBozzaNon": "“{title}” tornerà in bozza (non visibile).",
+      "inviaEmail": "Invia un’email di avviso a tutti gli utenti (parte appena il titolo è visibile)"
+    },
+    "notificationSection": {
+      "titolo": "Avviso email agli utenti",
+      "spiegazione": "Puoi avvisare via email tutti gli utenti (con email confermata e notifiche attive) dell’arrivo di questo titolo. L’email non parte mai per un titolo in bozza: viene inviata quando il titolo diventa visibile agli utenti.",
+      "casella": "Invia un’email di avviso a tutti gli utenti alla pubblicazione",
+      "inAttesa": "L’email partirà automaticamente quando il titolo verrà pubblicato (anche se la pubblicazione è programmata).",
+      "inAttesaDisponibilita": "Il titolo è pubblicato ma non ancora disponibile: l’email partirà alla data di disponibilità.",
+      "inviato": "Avviso partito il {date} per {recipients} utenti.",
+      "inviate": "Inviate: {n}",
+      "inCoda": "In coda: {n}",
+      "saltate": "Saltate: {n}",
+      "fallite": "Non riuscite: {n}",
+      "nonHaiIlPermesso": "Non hai il permesso di modificare questa impostazione (content.edit).",
+      "confermaTitolo": "Inviare ora l’avviso?",
+      "confermaMessaggio": "“{title}” è già pubblicato: l’email di avviso partirà subito verso tutti gli utenti. L’operazione non si può annullare.",
+      "confermaPulsante": "Invia ora"
     }
   },
   "auth": {
@@ -490,7 +510,7 @@
     "registerPage": {
       "registrazioneNonRiuscita": "Registrazione non riuscita",
       "creaIlTuoAccount": "Crea il tuo account",
-      "riceviSubito1000000": "Ricevi subito 1.000.000 di Bustercoin di benvenuto.",
+      "riceviSubito1000000": "Conferma la tua email e ricevi 1.000.000 di Bustercoin di benvenuto.",
       "haiGiaUnAccount": "Hai già un account?",
       "accedi": "Accedi",
       "nomeUtente": "Nome utente",
@@ -502,7 +522,12 @@
       "accettoILinkEHo": "Accetto i {link} e ho letto l’{link2}. So che Bustercoin è una valuta virtuale di gioco.",
       "creazioneAccount": "Creazione account…",
       "registrati": "Registrati",
-      "terminiECondizioni": "termini e condizioni"
+      "terminiECondizioni": "termini e condizioni",
+      "controllaLaTuaEmail": "Controlla la tua email",
+      "ultimoPasso": "Ultimo passo per attivare il tuo account.",
+      "emailInviata": "Ti abbiamo inviato un’email a {email}. Apri il link “Conferma email” per attivare l’account e ricevere i Bustercoin di benvenuto.",
+      "nonTrovi": "Non la trovi? Controlla anche la cartella spam, oppure fatti inviare un nuovo link.",
+      "giaConfermato": "Hai già confermato?"
     },
     "schemas": {
       "almeno10Caratteri": "Almeno 10 caratteri",
@@ -514,6 +539,23 @@
       "massimo32Caratteri": "Massimo 32 caratteri",
       "soloLettereNumeriPuntoTrattino": "Solo lettere, numeri, punto, trattino e underscore",
       "deviAccettareTerminiECondizioni": "Devi accettare termini e condizioni"
+    },
+    "resendVerification": {
+      "reinvia": "Reinvia email di conferma",
+      "invio": "Invio…",
+      "inviata": "Se l’account {email} è in attesa di conferma, ti abbiamo inviato un nuovo link. Controlla anche la cartella spam.",
+      "errore": "Invio non riuscito, riprova tra qualche minuto."
+    },
+    "verifyEmailPage": {
+      "titolo": "Conferma dell’email",
+      "attendi": "Stiamo attivando il tuo account…",
+      "linkMancante": "Il link di conferma è incompleto.",
+      "erroreGenerico": "Conferma non riuscita, riprova.",
+      "giaConfermata": "Email già confermata",
+      "vaiAllAccesso": "Vai all’accesso",
+      "linkNonValido": "Link non valido",
+      "richiediNuovoLink": "Inserisci la tua email per ricevere un nuovo link di conferma.",
+      "tornaAllAccesso": "Torna all’accesso"
     }
   },
   "catalog": {
@@ -643,7 +685,7 @@
       "ciaoDisplayname": "Ciao, {displayName}",
       "eccoComeStaAndandoIl": "Ecco come sta andando il tuo portafoglio virtuale.",
       "ilSuperadminGestisceLaPiattaforma": "Il Superadmin gestisce la piattaforma: non ha saldo né portafoglio.",
-      "benvenutoInBustercinemaTiAbbiamo": "Benvenuto in BusterCinema! Ti abbiamo accreditato 1.000.000 di Bustercoin per iniziare.",
+      "benvenutoInBustercinemaTiAbbiamo": "Account attivato, benvenuto in BusterCinema! Ti abbiamo accreditato {amount} Bustercoin per iniziare.",
       "saldoDisponibile": "Saldo disponibile",
       "guadagni": "Guadagni",
       "rendimento": "Rendimento",
@@ -660,7 +702,8 @@
       "attivitaRecenti": "Attività recenti",
       "storico": "Storico",
       "ledgerLabelsDescriptionApriLa": "{label}: {description} — apri la scheda del film",
-      "nessunaAttivita": "Nessuna attività."
+      "nessunaAttivita": "Nessuna attività.",
+      "accountAttivato": "Account attivato, benvenuto in BusterCinema!"
     }
   },
   "info": {

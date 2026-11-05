@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ChevronRight, Clapperboard, Gift, Sparkles, Trophy, Tv } from 'lucide-react';
 import { useHome, useTransactions, useWallet } from '../../api/hooks';
 import { Alert, Bc, Card, Gain, EmptyState, Grid, Muted, SectionTitle, Spinner, Stack } from '../../components/ui';
-import { formatDateTime, formatPct, LEDGER_LABELS } from '../../components/format';
+import { formatDateTime, formatNumber, formatPct, LEDGER_LABELS } from '../../components/format';
 import { hasWallet, useAuthStore } from '../../store/auth';
 import { ContentCard } from '../catalog/ContentCard';
 import { media } from '../../theme/theme';
@@ -64,7 +64,7 @@ export function HomePage() {
   const user = useAuthStore((s) => s.user);
   const withWallet = hasWallet(user);
   const location = useLocation();
-  const welcome = (location.state as { welcome?: boolean } | null)?.welcome;
+  const welcomeBonus = (location.state as { welcomeBonus?: number } | null)?.welcomeBonus;
   const home = useHome();
   const features = home.data?.features;
   const wallet = useWallet();
@@ -79,8 +79,10 @@ export function HomePage() {
         <Muted style={{ marginTop: 6 }}>{withWallet ? t('home.homePage.eccoComeStaAndandoIl') : t('home.homePage.ilSuperadminGestisceLaPiattaforma')}</Muted>
       </div>
 
-      {welcome && (
-        <Alert $tone="success" style={{ marginBottom: 20 }}>{t('home.homePage.benvenutoInBustercinemaTiAbbiamo')}</Alert>
+      {welcomeBonus !== undefined && (
+        <Alert $tone="success" style={{ marginBottom: 20 }} data-testid="welcome">
+          {welcomeBonus > 0 ? t('home.homePage.benvenutoInBustercinemaTiAbbiamo', { amount: formatNumber(welcomeBonus) }) : t('home.homePage.accountAttivato')}
+        </Alert>
       )}
 
       {withWallet && (

@@ -18,6 +18,7 @@ import { SeasonsSection } from './SeasonsSection';
 import { BoxOfficeSection } from './BoxOfficeSection';
 import { PosterField } from './PosterField';
 import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadge';
+import { NotificationSection } from './NotificationSection';
 import { AutoRedeemSection } from './AutoRedeemSection';
 import { t, tx } from '../../i18n';
 
@@ -55,6 +56,7 @@ function EditorialForm({ kind, item }: { kind: ContentKindPath; item?: AdminCont
   const user = useAuthStore((s) => s.user);
   const canEdit = item ? hasPermission(user, 'content.edit') : hasPermission(user, 'content.create');
   const [saved, setSaved] = useState(false);
+  const [notify, setNotify] = useState(false);
   const { register, handleSubmit, reset, formState, watch, setValue } = useForm<FormValues>({ defaultValues: toFormValues(kind, item) });
   useEffect(() => reset(toFormValues(kind, item)), [item, kind, reset]);
 
@@ -66,7 +68,7 @@ function EditorialForm({ kind, item }: { kind: ContentKindPath; item?: AdminCont
 
   const onSubmit = handleSubmit((values) => {
     setSaved(false);
-    mutation.mutate(toPayload(kind, values), {
+    mutation.mutate(item ? toPayload(kind, values) : { ...toPayload(kind, values), notifyOnPublish: notify }, {
       onSuccess: (res) => {
         const created = res as AdminContent;
         if (!item) navigate(`/admin/contenuti/${kind}/${created.id}`, { replace: true });
@@ -107,6 +109,15 @@ function EditorialForm({ kind, item }: { kind: ContentKindPath; item?: AdminCont
               </div>
             ))}
           </FormGrid>
+          {!item && (
+            <Stack $gap={4} style={{ marginTop: 16 }}>
+              <Checkbox data-testid="create-notify">
+                <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} />
+                <span>{t('admin.contentEditorPage.avvisaUtenti')}</span>
+              </Checkbox>
+              <Muted $size="0.8rem">{t('admin.contentEditorPage.avvisaUtentiNota')}</Muted>
+            </Stack>
+          )}
         </fieldset>
         <Stack $gap={10} style={{ marginTop: 16 }}>
           {mutation.error && <Alert $tone="error">{errorText(mutation.error)}</Alert>}
@@ -368,6 +379,7 @@ export function ContentEditorPage() {
         {item && (
           <Stack $gap={18}>
             <PublicationSection kind={kind} item={item} />
+            <NotificationSection kind={kind} item={item} />
             <VisibilitySection kind={kind} item={item} />
             <PurchaseSection kind={kind} item={item} />
             {kind === 'movies' && <AutoRedeemSection movie={item} />}

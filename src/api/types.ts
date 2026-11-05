@@ -239,6 +239,9 @@ export interface AdminContent {
   latestGrossReadingId?: string | null;
   autoRedeemAt?: string | null;
   autoRedeemedAt?: string | null;
+  notifyOnPublish: boolean;
+  notificationQueuedAt: string | null;
+  notificationRecipients: number | null;
   // serie
   creator?: string | null;
   platforms?: string[];
@@ -269,8 +272,19 @@ export interface AdminUserRow {
   status: 'ACTIVE' | 'SUSPENDED';
   createdAt: string;
   lastLoginAt: string | null;
+  emailVerifiedAt: string | null;
   balance: number | null;
   permissions: string[];
+}
+
+export interface ContentNotificationStats {
+  notifyOnPublish: boolean;
+  queuedAt: string | null;
+  recipients: number | null;
+  pending: number;
+  sent: number;
+  skipped: number;
+  failed: number;
 }
 
 export interface AuditEntry {

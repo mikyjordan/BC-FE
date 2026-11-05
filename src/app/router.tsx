@@ -5,6 +5,7 @@ import { RedirectIfAuthenticated, RequireAuth, RequireStaff } from '../component
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { ForgotPasswordPage, ResetPasswordPage } from '../features/auth/PasswordPages';
+import { VerifyEmailPage } from '../features/auth/VerifyEmailPage';
 import { HomePage } from '../features/home/HomePage';
 import { MoviesPage, SeriesPage } from '../features/catalog/CatalogPage';
 import { MovieDetailPage, SeriesDetailPage } from '../features/catalog/DetailPages';
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       { path: '/registrazione', element: <RegisterPage /> },
     ],
   },
+  { path: '/verifica-email', element: <VerifyEmailPage /> },
   { path: '/recupero-password', element: <ForgotPasswordPage /> },
   { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/privacy', element: <PrivacyPage /> },

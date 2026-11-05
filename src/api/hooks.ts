@@ -1,25 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, newIdempotencyKey } from './client';
-import type {
-  AdminContent,
-  AdminSeason,
-  AdminUserRow,
-  AuditEntry,
-  BoxOfficeReading,
-  Features,
-  RedeemResult,
-  ContentKindPath,
-  Holding,
-  HomeResponse,
-  LedgerEntry,
-  Me,
-  Paginated,
-  PublicMovie,
-  PublicSeries,
-  PublicationStatus,
-  PurchaseResult,
-  WalletSummary,
-} from './types';
+import type { AdminContent, AdminSeason, AdminUserRow, AuditEntry, BoxOfficeReading, ContentKindPath, ContentNotificationStats, Features, Holding, HomeResponse, LedgerEntry, Me, Paginated, PublicMovie, PublicSeries, PublicationStatus, PurchaseResult, RedeemResult, WalletSummary } from './types';
 import { useAuthStore } from '../store/auth';
 
 const authed = () => useAuthStore.getState().status === 'authenticated';
@@ -147,6 +128,14 @@ export const useAdminContentList = (kind: ContentKindPath, status: PublicationSt
 
 export const useAdminContent = (kind: ContentKindPath, id: string | undefined) =>
   useQuery({ queryKey: ['admin', kind, id], queryFn: () => api<AdminContent>(`/admin/${kind}/${id}`), enabled: !!id });
+
+export const useAdminNotifications = (kind: ContentKindPath, id: string) =>
+  useQuery({
+    queryKey: ['admin', kind, id, 'notifications'],
+    queryFn: () => api<ContentNotificationStats>(`/admin/${kind}/${id}/notifications`),
+    // mentre le email partono, l'avanzamento si aggiorna da solo
+    refetchInterval: (q) => ((q.state.data?.pending ?? 0) > 0 ? 10_000 : false),
+  });
 
 export const useAdminSeasons = (seriesId: string | undefined) =>
   useQuery({ queryKey: ['admin', 'seasons', seriesId], queryFn: () => api<{ items: AdminSeason[] }>(`/admin/tv-series/${seriesId}/seasons`), enabled: !!seriesId });

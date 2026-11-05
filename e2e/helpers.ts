@@ -1,4 +1,35 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, type Page } from '@playwright/test';
+
+/**
+ * Senza SMTP il backend di sviluppo salva ogni email come file .html in backend/tmp/mails
+ * (MAIL_PREVIEW_DIR): i test leggono da lì il link di conferma, come farebbe l'utente.
+ */
+export const MAIL_DIR = process.env.E2E_MAIL_DIR ?? fileURLToPath(new URL('../../backend/tmp/mails', import.meta.url));
+
+/** Email ricevute da un indirizzo (contenuto HTML), dalla più recente. */
+export function mailsTo(email: string): string[] {
+  let files: string[] = [];
+  try { files = readdirSync(MAIL_DIR); } catch { return []; }
+  return files
+    .filter((f) => f.endsWith(`_${email}.html`))
+    .sort()
+    .reverse()
+    .map((f) => readFileSync(path.join(MAIL_DIR, f), 'utf8'));
+}
+
+/** Percorso del link di conferma contenuto nell'ultima email ricevuta. */
+export async function verificationPath(email: string): Promise<string> {
+  let link: string | undefined;
+  await expect.poll(() => {
+    link = mailsTo(email).map((h) => /href="([^"]*\/verifica-email\?token=[^"]+)"/.exec(h)?.[1]).find(Boolean);
+    return !!link;
+  }, { timeout: 10_000 }).toBe(true);
+  const url = new URL(link!.replace(/&amp;/g, '&'));
+  return url.pathname + url.search;
+}
 
 export const SUPERADMIN = {
   email: process.env.E2E_SUPERADMIN_EMAIL ?? 'admin@bustercinema.local',
@@ -25,6 +56,9 @@ export async function registerNewUser(page: Page) {
   await page.getByLabel('Conferma password').fill(user.password);
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Registrati' }).click();
+  await expect(page.getByTestId('registration-pending')).toBeVisible();
+  // Apertura del link ricevuto via email: account attivato e accesso diretto
+  await page.goto(await verificationPath(user.email));
   await expect(page).toHaveURL(/\/app$/);
   return user;
 }

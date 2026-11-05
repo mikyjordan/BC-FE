@@ -66,9 +66,12 @@ export function ConfirmModal({
   error,
   onConfirm,
   onClose,
+  children,
 }: {
   title: string;
   message: ReactNode;
+  /** Opzioni aggiuntive mostrate sotto il messaggio (es. caselle di scelta). */
+  children?: ReactNode;
   confirmLabel: string;
   danger?: boolean;
   pending?: boolean;
@@ -80,6 +83,7 @@ export function ConfirmModal({
     <Modal title={title} onClose={onClose}>
       <Stack $gap={16}>
         <Message>{message}</Message>
+        {children}
         {error && <FieldError role="alert">{error}</FieldError>}
         <Stack $row $gap={8} $justify="flex-end">
           <Button $variant="secondary" onClick={onClose} disabled={pending}>{t('components.modal.annulla')}</Button>

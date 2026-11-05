@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { ApiError, register as registerUser } from '../../api/client';
 import { Alert, Button, Checkbox, Field, FieldError, Input, Muted, Stack } from '../../components/ui';
+import { ResendVerification } from './ResendVerification';
 import { AuthLayout, TextLink } from './AuthLayout';
 import { registerSchema, type RegisterValues } from './schemas';
 import { t, tx } from '../../i18n';
 
 export function RegisterPage() {
-  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const { register, handleSubmit, formState, setError: setFieldError } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: { acceptTerms: false },
@@ -20,8 +21,8 @@ export function RegisterPage() {
   const onSubmit = handleSubmit(async (v) => {
     setError(null);
     try {
-      await registerUser({ email: v.email, username: v.username, password: v.password, acceptTerms: true });
-      navigate('/app', { replace: true, state: { welcome: true } });
+      const res = await registerUser({ email: v.email, username: v.username, password: v.password, acceptTerms: true });
+      setPendingEmail(res.email);
     } catch (err) {
       if (err instanceof ApiError && err.code === 'USER_EXISTS') {
         setFieldError(err.message.includes('Email') ? 'email' : 'username', { message: err.message });
@@ -30,6 +31,22 @@ export function RegisterPage() {
       }
     }
   });
+
+  if (pendingEmail) {
+    return (
+      <AuthLayout
+        title={t('auth.registerPage.controllaLaTuaEmail')}
+        subtitle={t('auth.registerPage.ultimoPasso')}
+        footer={<Muted>{t('auth.registerPage.giaConfermato')}{' '}<TextLink to="/login">{t('auth.registerPage.accedi')}</TextLink></Muted>}
+      >
+        <Stack $gap={14} data-testid="registration-pending">
+          <Alert $tone="success">{tx('auth.registerPage.emailInviata', { email: <strong>{pendingEmail}</strong> })}</Alert>
+          <Muted>{t('auth.registerPage.nonTrovi')}</Muted>
+          <ResendVerification email={pendingEmail} />
+        </Stack>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout
