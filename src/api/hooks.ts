@@ -137,7 +137,7 @@ export const useStatusCounts = (kind: ContentKindPath) =>
   useQuery({ queryKey: ['admin', kind, 'counts'], queryFn: () => api<Record<PublicationStatus, number>>(`/admin/${kind}/status-counts`) });
 
 /** Mutazione amministrativa generica che invalida tutto ciò che riguarda i contenuti. */
-export function useAdminMutation<TVars>(fn: (v: TVars) => Promise<unknown>) {
+export function useAdminMutation<TVars, TResult = unknown>(fn: (v: TVars) => Promise<TResult>) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: fn,

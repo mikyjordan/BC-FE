@@ -84,6 +84,18 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await admin.getByLabel('Nuovo incasso totale (€)').fill('600000');
     await admin.getByRole('button', { name: /Registra incasso/ }).click();
     await expect(admin.getByText('Incasso aggiornato a 600.000 B.')).toBeVisible();
+    // Una rilevazione errata (999.999) si corregge eliminandola: torna in vigore 600.000
+    await admin.getByLabel('Nuovo incasso totale (€)').fill('999999');
+    await admin.getByRole('button', { name: /Registra incasso/ }).click();
+    await expect(admin.getByText('Incasso aggiornato a 999.999 B.')).toBeVisible();
+    await admin.getByRole('row', { name: /999\.999 B/ }).getByRole('button', { name: /^Elimina rilevazione/ }).click();
+    await admin.getByRole('dialog').getByRole('button', { name: 'Elimina', exact: true }).click();
+    await expect(admin.getByText('Rilevazione eliminata. Incasso in vigore: 600.000 B.')).toBeVisible();
+    // Modifica in linea della rilevazione in vigore (stesso valore, nota aggiunta)
+    await admin.getByRole('row', { name: /600\.000 B/ }).getByRole('button', { name: /^Modifica rilevazione/ }).click();
+    await admin.getByRole('textbox', { name: 'Note', exact: true }).fill('Fonte: verifica E2E');
+    await admin.getByRole('button', { name: 'Salva rilevazione' }).click();
+    await expect(admin.getByText('Rilevazione aggiornata. Incasso in vigore: 600.000 B.')).toBeVisible();
     await admin.close();
 
     await page.goto('/app/portafoglio');

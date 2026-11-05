@@ -3,9 +3,10 @@ import { api, ApiError } from '../../api/client';
 import { useAdminBoxOffice, useAdminMutation } from '../../api/hooks';
 import type { AdminContent } from '../../api/types';
 import { Alert, Bc, Button, Card, Field, Input, Muted, Stack, Table, TableScroll } from '../../components/ui';
-import { formatBc, formatDateTime, formatNumber } from '../../components/format';
+import { formatBc, formatDateTime } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { fromLocalInput, toLocalInput } from './content-fields';
+import { BoxOfficeReadingRow } from './BoxOfficeReadingRow';
 
 /**
  * Inserimento dell'incasso del film (1 € = 1 B). Ogni inserimento è una nuova rilevazione
@@ -76,6 +77,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
       <h3 style={{ marginBottom: 4 }}>Incasso del film</h3>
       <Muted $size="0.82rem" style={{ marginBottom: 14 }}>
         Inserisci l’incasso totale attuale in euro: vale 1 € = 1 Bustercoin. È l’importo che ogni utente riceve quando riscatta il film.
+        Le rilevazioni si possono modificare o eliminare: i riscatti già effettuati non cambiano.
       </Muted>
       <Stack $gap={12}>
         <Stack $row $justify="space-between" $align="center">
@@ -120,15 +122,20 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
         {(history.data?.items.length ?? 0) > 0 && (
           <TableScroll>
             <Table>
-              <thead><tr><th>Rilevazione</th><th style={{ textAlign: 'right' }}>Incasso</th><th style={{ textAlign: 'right' }}>Spettatori</th><th>Note</th></tr></thead>
+              <thead><tr><th>Rilevazione</th><th style={{ textAlign: 'right' }}>Incasso</th><th style={{ textAlign: 'right' }}>Spettatori</th><th>Note</th><th /></tr></thead>
               <tbody>
                 {history.data!.items.map((r) => (
-                  <tr key={r.id}>
-                    <td><Muted $size="0.85rem">{formatDateTime(r.recordedAt)}</Muted></td>
-                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{formatBc(r.grossAmount)}</td>
-                    <td style={{ textAlign: 'right' }}><Muted $size="0.85rem">{r.spectators !== null ? formatNumber(r.spectators) : '—'}</Muted></td>
-                    <td><Muted $size="0.8rem">{r.notes ?? ''}</Muted></td>
-                  </tr>
+                  <BoxOfficeReadingRow
+                    key={r.id}
+                    movieId={movie.id}
+                    reading={r}
+                    isCurrent={r.id === movie.latestGrossReadingId}
+                    canManage={can}
+                    onChanged={(msg) => {
+                      setSaved(msg);
+                      void history.refetch();
+                    }}
+                  />
                 ))}
               </tbody>
             </Table>

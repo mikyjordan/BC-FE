@@ -80,6 +80,7 @@ export interface BoxOfficeReading {
   source: string;
   notes?: string | null;
   createdAt?: string;
+  updatedAt?: string | null;
 }
 
 export interface PublicSeason {
@@ -228,6 +229,7 @@ export interface AdminContent {
   ageRating?: string | null;
   latestGross?: number | null;
   latestGrossAt?: string | null;
+  latestGrossReadingId?: string | null;
   autoRedeemAt?: string | null;
   autoRedeemedAt?: string | null;
   // serie
