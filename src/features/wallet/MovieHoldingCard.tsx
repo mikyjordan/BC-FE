@@ -8,6 +8,7 @@ import { ConfirmModal } from '../../components/Modal';
 import { Poster } from '../../components/Poster';
 import { Alert, Badge, Bc, Button, Gain, Muted, Stack } from '../../components/ui';
 import { formatBc, formatDate, formatDateTime } from '../../components/format';
+import { AutoRedeemNotice } from '../catalog/AutoRedeemNotice';
 
 type Tone = 'up' | 'down' | 'neutral';
 
@@ -100,6 +101,11 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
         </Button>
       )}
       {!redeemed && !h.redeemable && <Muted $size="0.75rem" style={{ textAlign: 'center' }}>Disponibile quando verrà inserito l’incasso del film</Muted>}
+      {redeemed ? (
+        h.redeemedBy === 'AUTO' && <Muted $size="0.76rem">Riscattato automaticamente all’uscita dalle sale.</Muted>
+      ) : (
+        <AutoRedeemNotice date={h.autoRedeemAt} />
+      )}
 
       {confirm && h.currentGross !== null && (
         <ConfirmModal

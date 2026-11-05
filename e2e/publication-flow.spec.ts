@@ -59,6 +59,10 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await admin.getByPlaceholder('Cerca per titolo…').fill(title);
     await admin.keyboard.press('Enter');
     await admin.getByRole('button', { name: 'Gestisci' }).first().click();
+    // La data di rilevazione è precompilata con oggi ed è modificabile
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const d = new Date();
+    await expect(admin.getByLabel('Data rilevazione')).toHaveValue(new RegExp(`^${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T`));
     await admin.getByLabel('Nuovo incasso totale (€)').fill('600000');
     await admin.getByRole('button', { name: /Registra incasso/ }).click();
     await expect(admin.getByText('Incasso aggiornato a 600.000 B.')).toBeVisible();
@@ -69,6 +73,7 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     const card = page.getByRole('article', { name: `Film ${title}` });
     await expect(card.getByText('600.000 B')).toBeVisible();
     await expect(card.locator('[data-trend="up"]')).toContainText('+100.000 B');
+    await expect(card.getByTestId('auto-redeem-notice')).toContainText('riscattato automaticamente');
 
     await card.getByRole('button', { name: 'Riscatta' }).click();
     await page.getByRole('dialog').getByRole('button', { name: /Riscatta 600\.000 B/ }).click();

@@ -16,6 +16,7 @@ import { PreviewModal } from './PreviewModal';
 import { statusTone } from './PublicationPage';
 import { SeasonsSection } from './SeasonsSection';
 import { BoxOfficeSection } from './BoxOfficeSection';
+import { AutoRedeemSection } from './AutoRedeemSection';
 
 const FormGrid = styled.div`
   display: grid;
@@ -299,6 +300,7 @@ export function ContentEditorPage() {
         <Stack $gap={18}>
           <EditorialForm kind={kind} item={item} />
           {item && kind === 'movies' && <BoxOfficeSection movie={item} />}
+          {item && kind === 'movies' && <AutoRedeemSection movie={item} />}
           {item && kind === 'tv-series' && <SeasonsSection seriesId={item.id} />}
         </Stack>
         {item && (

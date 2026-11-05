@@ -67,6 +67,9 @@ export interface PublicMovie extends PublicContentBase {
   distributor: string | null;
   ageRating: string | null;
   boxOffice: { currentGross: number | null; recordedAt: string | null };
+  /** Uscita dalle sale: a questa data il film viene riscattato automaticamente. */
+  autoRedeemAt: string | null;
+  outOfTheaters: boolean;
 }
 
 export interface BoxOfficeReading {
@@ -148,6 +151,8 @@ export interface Holding {
   redeemable: boolean;
   redeemedAt: string | null;
   redeemedAmount: number | null;
+  redeemedBy: 'USER' | 'AUTO' | null;
+  autoRedeemAt: string | null;
   firstPurchasedAt: string;
   lastPurchaseAt: string | null;
 }
@@ -223,6 +228,8 @@ export interface AdminContent {
   ageRating?: string | null;
   latestGross?: number | null;
   latestGrossAt?: string | null;
+  autoRedeemAt?: string | null;
+  autoRedeemedAt?: string | null;
   // serie
   creator?: string | null;
   platforms?: string[];

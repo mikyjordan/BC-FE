@@ -4,6 +4,7 @@ import { Star } from 'lucide-react';
 import type { PublicContent } from '../../api/types';
 import { Poster } from '../../components/Poster';
 import { Badge, Bc, Muted } from '../../components/ui';
+import { AutoRedeemNotice } from './AutoRedeemNotice';
 
 const CardLink = styled(Link)`
   display: flex;
@@ -51,6 +52,7 @@ export function ContentCard({ item }: { item: PublicContent }) {
       ) : (
         <Muted $size="0.8rem">Prezzo non ancora definito</Muted>
       )}
+      {item.kind === 'MOVIE' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
     </CardLink>
   );
 }

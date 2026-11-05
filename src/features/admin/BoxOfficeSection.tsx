@@ -5,7 +5,7 @@ import type { AdminContent } from '../../api/types';
 import { Alert, Bc, Button, Card, Field, Input, Muted, Stack, Table, TableScroll } from '../../components/ui';
 import { formatBc, formatDateTime, formatNumber } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
-import { fromLocalInput } from './content-fields';
+import { fromLocalInput, toLocalInput } from './content-fields';
 
 /**
  * Inserimento dell'incasso del film (1 € = 1 B). Ogni inserimento è una nuova rilevazione
@@ -19,7 +19,10 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
   const history = useAdminBoxOffice(movie.id);
   const [gross, setGross] = useState('');
   const [spectators, setSpectators] = useState('');
-  const [when, setWhen] = useState('');
+  // La data di rilevazione parte sempre da "adesso" ed è modificabile.
+  const [when, setWhen] = useState(() => toLocalInput(new Date().toISOString()));
+  // Se l'operatore non modifica la data si usa l'istante esatto dell'invio (il campo ha precisione al minuto).
+  const [whenTouched, setWhenTouched] = useState(false);
   const [notes, setNotes] = useState('');
   const [saved, setSaved] = useState<string | null>(null);
   const mutation = useAdminMutation((body: Record<string, unknown>) => api<{ becomesCurrent: boolean }>(`/admin/movies/${movie.id}/box-office`, { method: 'POST', body }));
@@ -34,7 +37,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
       {
         grossAmount: amount,
         ...(spectators ? { spectators: Number(spectators) } : {}),
-        ...(when ? { recordedAt: fromLocalInput(when) } : {}),
+        recordedAt: whenTouched && when ? fromLocalInput(when) : new Date().toISOString(),
         ...(notes.trim() ? { notes: notes.trim() } : {}),
       },
       {
@@ -43,7 +46,8 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
           setSaved(res.becomesCurrent ? `Incasso aggiornato a ${formatBc(amount)}.` : 'Rilevazione salvata nello storico (data precedente all’incasso in vigore).');
           setGross('');
           setSpectators('');
-          setWhen('');
+          setWhen(toLocalInput(new Date().toISOString()));
+          setWhenTouched(false);
           setNotes('');
           void history.refetch();
         },
@@ -76,8 +80,8 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
                 </Field>
               </div>
               <div style={{ flex: '1 1 200px' }}>
-                <Field label="Data rilevazione (facoltativa)" hint="Vuota = adesso">
-                  <Input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
+                <Field label="Data rilevazione" hint="Precompilata con la data e l’ora attuali">
+                  <Input type="datetime-local" value={when} onChange={(e) => { setWhen(e.target.value); setWhenTouched(true); }} />
                 </Field>
               </div>
             </Stack>

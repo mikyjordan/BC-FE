@@ -8,6 +8,7 @@ import { Alert, Bc, Button, Card, Muted, Stack, Table } from '../../components/u
 import { formatBc, formatDate, formatDateTime, formatNumber } from '../../components/format';
 import { useAuthStore } from '../../store/auth';
 import { MovieHoldingCard } from '../wallet/MovieHoldingCard';
+import { AutoRedeemNotice } from './AutoRedeemNotice';
 
 /** Incasso attuale e storico delle rilevazioni inserite dal Superadmin (mai valori inventati). */
 export function BoxOfficeCard({ movie }: { movie: PublicMovie }) {
@@ -82,6 +83,7 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
           <h3>Acquisto</h3>
           {movie.purchase.priceBc ? <Bc value={movie.purchase.priceBc} size={20} /> : null}
           <Muted>{movie.purchase.message ?? 'Al momento non è possibile acquistare questo film.'}</Muted>
+          <AutoRedeemNotice date={movie.autoRedeemAt} past={movie.outOfTheaters} />
         </Stack>
       </Card>
     );
@@ -94,6 +96,7 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
           <h3>Acquisto</h3>
           <Bc value={price} size={22} />
           <Link to="/login"><Button $block>Accedi per acquistare</Button></Link>
+          <AutoRedeemNotice date={movie.autoRedeemAt} />
         </Stack>
       </Card>
     );
@@ -144,6 +147,7 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
             </Button>
           </Stack>
         )}
+        <AutoRedeemNotice date={movie.autoRedeemAt} />
         <Muted $size="0.75rem">Partecipazione virtuale di gioco: non attribuisce diritti reali sul film.</Muted>
       </Stack>
     </Card>

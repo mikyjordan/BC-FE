@@ -73,7 +73,10 @@ export function WalletPage() {
   if (wallet.isLoading) return <Spinner />;
   const w = wallet.data;
   const all = holdings.data?.items ?? [];
-  const movies = all.filter((h) => h.contentType === 'MOVIE' && (filter === 'REDEEMED' ? h.status === 'REDEEMED' : h.status === 'OPEN'));
+  // "Tutti": film aperti e poi riscattati (l'ordine arriva dal server); "Film": solo aperti; "Riscattati": solo chiusi.
+  const movies = all.filter(
+    (h) => h.contentType === 'MOVIE' && (filter === 'all' || (filter === 'REDEEMED' ? h.status === 'REDEEMED' : h.status === 'OPEN')),
+  );
   const series = all.filter((h) => h.contentType === 'TV_SERIES');
   const showMovies = filter === 'all' || filter === 'MOVIE' || filter === 'REDEEMED';
   const showSeries = filter === 'all' || filter === 'TV_SERIES';
