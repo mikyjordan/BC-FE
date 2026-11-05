@@ -23,6 +23,7 @@ import type {
 import { useAuthStore } from '../store/auth';
 
 const authed = () => useAuthStore.getState().status === 'authenticated';
+const walletUser = () => authed() && useAuthStore.getState().user?.role !== 'SUPERADMIN';
 
 /* ---------- Sezioni attive ---------- */
 /** Film e Serie TV sono visibili solo se abilitati dal Superadmin (il backend lo applica comunque). */
@@ -59,13 +60,14 @@ export const useGenres = (kind: ContentKindPath) =>
   useQuery({ queryKey: ['genres', kind], queryFn: () => api<{ items: string[] }>(`/${kind}/genres`), staleTime: 300_000 });
 
 /* ---------- Wallet ---------- */
-export const useWallet = () => useQuery({ queryKey: ['wallet'], queryFn: () => api<WalletSummary>('/wallet'), enabled: authed() });
-export const useHoldings = () => useQuery({ queryKey: ['holdings'], queryFn: () => api<{ items: Holding[] }>('/wallet/holdings'), enabled: authed() });
+export const useWallet = () => useQuery({ queryKey: ['wallet'], queryFn: () => api<WalletSummary>('/wallet'), enabled: walletUser() });
+export const useHoldings = () => useQuery({ queryKey: ['holdings'], queryFn: () => api<{ items: Holding[] }>('/wallet/holdings'), enabled: walletUser() });
 export const useTransactions = (page: number, category?: string) =>
   useQuery({
     queryKey: ['transactions', page, category],
     queryFn: () => api<Paginated<LedgerEntry>>('/transactions', { query: { page, pageSize: 20, category } }),
     placeholderData: keepPreviousData,
+    enabled: walletUser(),
   });
 
 /**

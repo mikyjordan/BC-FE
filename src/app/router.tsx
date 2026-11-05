@@ -14,6 +14,7 @@ import { PrivacyPage, TermsPage } from '../features/legal/LegalPages';
 import { HowItWorksPage } from '../features/info/HowItWorksPage';
 import { BuyCoinsPage, LeaderboardsPage, NotificationsPage, RewardsPage, TrophiesPage } from '../features/upcoming/ComingSoonPage';
 import { NotFoundPage } from './NotFoundPage';
+import { RequireWallet } from '../components/layout/RequireWallet';
 import { RequireFeature } from '../components/layout/RequireFeature';
 
 // Caricamento differito: area amministrativa e portafoglio (Recharts) in chunk separati.
@@ -57,9 +58,14 @@ export const router = createBrowserRouter([
               { path: 'serie/:id', element: <SeriesDetailPage /> },
             ],
           },
-          { path: 'portafoglio', lazy: lazyPage(wallet, (m) => m.WalletPage) },
-          { path: 'movimenti', lazy: lazyPage(wallet, (m) => m.TransactionsPage) },
-          { path: 'acquista-bustercoin', element: <BuyCoinsPage /> },
+          {
+            element: <RequireWallet />,
+            children: [
+              { path: 'portafoglio', lazy: lazyPage(wallet, (m) => m.WalletPage) },
+              { path: 'movimenti', lazy: lazyPage(wallet, (m) => m.TransactionsPage) },
+              { path: 'acquista-bustercoin', element: <BuyCoinsPage /> },
+            ],
+          },
           { path: 'classifiche', element: <LeaderboardsPage /> },
           { path: 'premi', element: <RewardsPage /> },
           { path: 'coppe', element: <TrophiesPage /> },

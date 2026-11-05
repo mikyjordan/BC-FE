@@ -4,7 +4,7 @@ import { ChevronRight, Clapperboard, Gift, Sparkles, Trophy, Tv } from 'lucide-r
 import { useHome, useTransactions, useWallet } from '../../api/hooks';
 import { Alert, Bc, Card, Gain, EmptyState, Grid, Muted, SectionTitle, Spinner, Stack } from '../../components/ui';
 import { formatDateTime, formatPct, LEDGER_LABELS } from '../../components/format';
-import { useAuthStore } from '../../store/auth';
+import { hasWallet, useAuthStore } from '../../store/auth';
 import { ContentCard } from '../catalog/ContentCard';
 import { media } from '../../theme/theme';
 
@@ -61,6 +61,7 @@ const ActivityLink = styled(Link)`
 
 export function HomePage() {
   const user = useAuthStore((s) => s.user);
+  const withWallet = hasWallet(user);
   const location = useLocation();
   const welcome = (location.state as { welcome?: boolean } | null)?.welcome;
   const home = useHome();
@@ -74,7 +75,7 @@ export function HomePage() {
     <>
       <div style={{ marginBottom: 22 }}>
         <h1>Ciao, {user?.profile?.displayName ?? user?.username}</h1>
-        <Muted style={{ marginTop: 6 }}>Ecco come sta andando il tuo portafoglio virtuale.</Muted>
+        <Muted style={{ marginTop: 6 }}>{withWallet ? 'Ecco come sta andando il tuo portafoglio virtuale.' : 'Il Superadmin gestisce la piattaforma: non ha saldo né portafoglio.'}</Muted>
       </div>
 
       {welcome && (
@@ -83,6 +84,7 @@ export function HomePage() {
         </Alert>
       )}
 
+      {withWallet && (
       <Stats>
         <StatCard $hero>
           <Muted $size="0.8rem">Saldo disponibile</Muted>
@@ -97,6 +99,7 @@ export function HomePage() {
           <div style={{ fontSize: 18, fontWeight: 700 }}>{wallet.data ? formatPct(wallet.data.returnPct) : '—'}</div>
         </StatCard>
       </Stats>
+      )}
 
       {home.isLoading ? (
         <Spinner />
@@ -175,6 +178,7 @@ export function HomePage() {
         </Stack>
       </Section>
 
+      {withWallet && (
       <Section>
         <SectionTitle>
           Attività recenti <MoreLink to="/app/movimenti">Storico</MoreLink>
@@ -210,6 +214,7 @@ export function HomePage() {
           {activity.data && activity.data.items.length === 0 && <Muted style={{ padding: 16 }}>Nessuna attività.</Muted>}
         </Card>
       </Section>
+      )}
     </>
   );
 }

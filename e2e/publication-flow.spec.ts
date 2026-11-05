@@ -72,6 +72,13 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await expect(page.getByRole('heading', { name: title })).toBeVisible();
     await expect(page.getByTestId('superadmin-no-purchase')).toContainText('Il Superadmin non può effettuare acquisti');
     await expect(page.getByRole('button', { name: 'Acquista' })).toHaveCount(0);
+    // …e non ha saldo né portafoglio
+    await expect(page.getByRole('link', { name: 'Saldo Bustercoin' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Portafoglio' })).toHaveCount(0);
+    await page.goto('/app/portafoglio');
+    await expect(page).toHaveURL(/\/app$/);
+    await expect(page.getByText('Il Superadmin gestisce la piattaforma: non ha saldo né portafoglio.')).toBeVisible();
+    await expect(page.getByText('Saldo disponibile')).toHaveCount(0);
   });
 
   test('un utente compra il film, vede incasso e guadagno in verde, riscatta e non può ricomprarlo', async ({ page, browser }) => {

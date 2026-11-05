@@ -8,7 +8,7 @@ import { SiteFooter } from './SiteChrome';
 import { useFeatures, useWallet } from '../../api/hooks';
 import type { Features } from '../../api/types';
 import { logout } from '../../api/client';
-import { isStaff, useAuthStore } from '../../store/auth';
+import { hasWallet, isStaff, useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
 
 /* ---------- Header blu a tutta larghezza ---------- */
@@ -145,12 +145,12 @@ const BottomLink = styled(NavLink)`
   &.active { color: ${({ theme }) => theme.colors.onBrand}; font-weight: 700; background: ${({ theme }) => theme.colors.brandDarker}; }
 `;
 
-type NavItem = { to: string; label: string; icon: typeof Home; end?: boolean; feature?: keyof Features };
+type NavItem = { to: string; label: string; icon: typeof Home; end?: boolean; feature?: keyof Features; wallet?: boolean };
 const nav: NavItem[] = [
   { to: '/app', label: 'Dashboard', icon: Home, end: true },
   { to: '/app/film', label: 'Film', icon: Clapperboard, feature: 'movies' },
   { to: '/app/serie', label: 'Serie TV', icon: Tv, feature: 'tvSeries' },
-  { to: '/app/portafoglio', label: 'Portafoglio', icon: Wallet },
+  { to: '/app/portafoglio', label: 'Portafoglio', icon: Wallet, wallet: true },
   { to: '/app/classifiche', label: 'Classifiche', icon: Trophy },
   { to: '/app/premi', label: 'Premi', icon: Gift },
   { to: '/app/coppe', label: 'Coppe', icon: Award },
@@ -163,7 +163,8 @@ export function AppShell() {
   const features = useFeatures().data;
   const navigate = useNavigate();
   // Voci Film e Serie TV solo se le sezioni sono abilitate dal Superadmin.
-  const visibleNav = nav.filter((n) => !n.feature || !!features?.[n.feature]);
+  const withWallet = hasWallet(user);
+  const visibleNav = nav.filter((n) => (!n.feature || !!features?.[n.feature]) && (!n.wallet || withWallet));
   const catalogTab = features?.movies
     ? { to: '/app/film', label: 'Film', icon: Clapperboard }
     : features?.tvSeries
@@ -172,7 +173,7 @@ export function AppShell() {
   const bottomTabs: NavItem[] = [
     { to: '/app', label: 'Home', icon: Home, end: true },
     ...(catalogTab ? [catalogTab] : []),
-    { to: '/app/portafoglio', label: 'Portafoglio', icon: Wallet },
+    ...(withWallet ? [{ to: '/app/portafoglio', label: 'Portafoglio', icon: Wallet }] : []),
     { to: '/app/classifiche', label: 'Classifiche', icon: Trophy },
     { to: '/app/profilo', label: 'Profilo', icon: User },
   ];

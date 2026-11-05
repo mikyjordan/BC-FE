@@ -8,7 +8,7 @@ import { useAvatar, useFeatures, useHoldings, useUpdateProfile, useWallet } from
 import { Avatar } from '../../components/Avatar';
 import { Alert, Badge, Bc, Gain, Button, Card, Field, Input, Muted, PageHeader, Stack, Textarea } from '../../components/ui';
 import { formatDate, formatPct } from '../../components/format';
-import { useAuthStore } from '../../store/auth';
+import { hasWallet, useAuthStore } from '../../store/auth';
 
 const ROLE_LABEL = { USER: 'Giocatore', ADMIN: 'Amministratore', SUPERADMIN: 'Superadmin' } as const;
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -23,6 +23,7 @@ type Values = z.infer<typeof schema>;
 
 export function ProfilePage() {
   const user = useAuthStore((s) => s.user)!;
+  const withWallet = hasWallet(user);
   const wallet = useWallet();
   const holdings = useHoldings();
   const features = useFeatures().data;
@@ -89,6 +90,7 @@ export function ProfilePage() {
           {fileError && <Alert $tone="error" style={{ marginTop: 14 }}>{fileError}</Alert>}
         </Card>
 
+        {withWallet && (
         <Stack $row $gap={14} $wrap>
           <Card style={{ flex: '1 1 160px' }}>
             <Muted $size="0.8rem">Saldo</Muted>
@@ -109,6 +111,7 @@ export function ProfilePage() {
             </strong>
           </Card>
         </Stack>
+        )}
 
         <Stack $row $gap={14} $wrap>
           <Link to="/app/coppe" style={{ flex: '1 1 200px' }}>

@@ -17,4 +17,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 }));
 
 export const isStaff = (u: Me | null) => u?.role === 'ADMIN' || u?.role === 'SUPERADMIN';
+/** Il Superadmin non ha saldo né portafoglio. */
+export const hasWallet = (u: Me | null) => !!u && u.role !== 'SUPERADMIN';
 export const hasPermission = (u: Me | null, p: string) => !!u && (u.role === 'SUPERADMIN' || u.permissions.includes(p));
