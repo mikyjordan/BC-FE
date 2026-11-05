@@ -75,7 +75,7 @@ export function PublicationPage() {
   const user = useAuthStore((s) => s.user);
   const [params, setParams] = useSearchParams();
   const kind = (params.get('tipo') === 'tv-series' ? 'tv-series' : 'movies') as ContentKindPath;
-  const status = (STATUS_TABS.find((t) => t.key === params.get('stato'))?.key ?? 'DRAFT') as PublicationStatus;
+  const status = (STATUS_TABS.find((t) => t.key === params.get('stato'))?.key ?? 'PUBLISHED') as PublicationStatus;
   const [page, setPage] = useState(1);
   const [q, setQ] = useState('');
   const [search, setSearch] = useState<string | undefined>();

@@ -7,6 +7,9 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
   test('il Superadmin crea un film: nasce in bozza e non è visibile agli utenti', async ({ page }) => {
     await login(page, SUPERADMIN.email, SUPERADMIN.password);
     await page.goto('/admin/pubblicazione');
+    // All'apertura è selezionata la tab "Pubblicati"
+    await expect(page.getByRole('button', { name: /^Pubblicati/ })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: /^Bozze/ })).toHaveAttribute('aria-pressed', 'false');
     await page.getByRole('button', { name: 'Nuovo film' }).click();
     await page.getByLabel('Titolo *').fill(title);
     await page.getByLabel('Generi').fill('Commedia, Dramma');
