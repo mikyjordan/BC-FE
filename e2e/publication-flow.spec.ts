@@ -122,6 +122,14 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await expect(admin.getByText('Rilevazione aggiornata. Incasso in vigore: 600.000 B.')).toBeVisible();
     await admin.close();
 
+    // In homepage la card del film mostra "Già acquistato" con l'incasso corrente
+    await page.goto('/app');
+    const homeCard = page.getByRole('link', { name: new RegExp(title) }).filter({ has: page.getByTestId('owned-status') }).first();
+    await expect(homeCard.getByTestId('owned-status')).toHaveAttribute('data-status', 'OPEN');
+    await expect(homeCard).toContainText('Già acquistato');
+    await expect(homeCard).toContainText('Incasso corrente');
+    await expect(homeCard).toContainText('600.000 B');
+
     await page.goto('/app/portafoglio');
     await expect(page.getByText('500.000 B').first()).toBeVisible(); // saldo
     const card = page.getByRole('article', { name: `Film ${title}` });
@@ -136,6 +144,16 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
 
     await page.goto('/app/movimenti');
     await expect(page.getByText('Riscatto film').first()).toBeVisible();
+
+    // In homepage: non acquistabile perché già riscattato, con data e rendita
+    await page.goto('/app');
+    const redeemedCard = page.getByRole('link', { name: new RegExp(title) }).filter({ has: page.getByTestId('owned-status') }).first();
+    await expect(redeemedCard.getByTestId('owned-status')).toHaveAttribute('data-status', 'REDEEMED');
+    await expect(redeemedCard).toContainText('Non acquistabile');
+    await expect(redeemedCard).toContainText(/Già riscattato il \d{2} \S+ \d{4}/);
+    await expect(redeemedCard).toContainText('Rendita');
+    await expect(redeemedCard).toContainText('600.000 B');
+    await expect(redeemedCard).toContainText('+100.000 B');
 
     // Non è più riacquistabile
     await page.goto('/app/portafoglio');

@@ -2,6 +2,8 @@ import { Link } from 'react-router';
 import styled from 'styled-components';
 import { Star } from 'lucide-react';
 import type { PublicContent } from '../../api/types';
+import { useHoldings } from '../../api/hooks';
+import { OwnedMovieStatus } from './OwnedMovieStatus';
 import { Poster } from '../../components/Poster';
 import { Badge, Bc, Muted } from '../../components/ui';
 import { AutoRedeemNotice } from './AutoRedeemNotice';
@@ -33,6 +35,8 @@ export function contentPath(c: Pick<PublicContent, 'id' | 'kind'>) {
 }
 
 export function ContentCard({ item }: { item: PublicContent }) {
+  const holdings = useHoldings();
+  const owned = item.kind === 'MOVIE' ? holdings.data?.items.find((h) => h.contentType === 'MOVIE' && h.contentId === item.id) : undefined;
   const meta = item.kind === 'MOVIE' ? item.genres.slice(0, 2).join(' · ') : item.platforms.slice(0, 2).join(' · ');
   return (
     <CardLink to={contentPath(item)}>
@@ -48,13 +52,22 @@ export function ContentCard({ item }: { item: PublicContent }) {
         <Title>{item.title}</Title>
         {meta && <Muted $size="0.8rem">{meta}</Muted>}
       </div>
-      {item.purchase.priceBc ? (
-        <Bc value={item.purchase.priceBc} size={13} />
+      {owned && item.kind === 'MOVIE' ? (
+        <>
+          <OwnedMovieStatus h={owned} />
+          {owned.status === 'OPEN' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
+        </>
       ) : (
-        <Muted $size="0.8rem">Prezzo non ancora definito</Muted>
+        <>
+          {item.purchase.priceBc ? (
+            <Bc value={item.purchase.priceBc} size={13} />
+          ) : (
+            <Muted $size="0.8rem">Prezzo non ancora definito</Muted>
+          )}
+          <PurchaseBadge active={item.purchase.purchasable} reason={item.purchase.message} showReason={false} />
+          {item.kind === 'MOVIE' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
+        </>
       )}
-      <PurchaseBadge active={item.purchase.purchasable} reason={item.purchase.message} showReason={false} />
-      {item.kind === 'MOVIE' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
     </CardLink>
   );
 }
