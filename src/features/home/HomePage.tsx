@@ -47,6 +47,7 @@ export function HomePage() {
   const location = useLocation();
   const welcome = (location.state as { welcome?: boolean } | null)?.welcome;
   const home = useHome();
+  const features = home.data?.features;
   const wallet = useWallet();
   const activity = useTransactions(1);
 
@@ -131,13 +132,15 @@ export function HomePage() {
 
       <Section>
         <Stack $row $gap={10} $wrap>
-          <Link to="/app/serie" style={{ flex: '1 1 200px' }}>
-            <Card $padding="16px">
-              <Stack $row $gap={10} $align="center">
-                <Tv size={18} /> <strong>Catalogo Serie TV</strong>
-              </Stack>
-            </Card>
-          </Link>
+          {features?.tvSeries && (
+            <Link to="/app/serie" style={{ flex: '1 1 200px' }}>
+              <Card $padding="16px">
+                <Stack $row $gap={10} $align="center">
+                  <Tv size={18} /> <strong>Catalogo Serie TV</strong>
+                </Stack>
+              </Card>
+            </Link>
+          )}
           <Link to="/app/classifiche" style={{ flex: '1 1 200px' }}>
             <Card $padding="16px">
               <Stack $row $gap={10} $align="center">

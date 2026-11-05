@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import styled, { css } from 'styled-components';
 import { HandCoins } from 'lucide-react';
-import { useRedeem } from '../../api/hooks';
+import { useFeatures, useRedeem } from '../../api/hooks';
 import type { Holding } from '../../api/types';
 import { ConfirmModal } from '../../components/Modal';
 import { Poster } from '../../components/Poster';
@@ -43,6 +43,7 @@ const Row = styled.div`
  */
 export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean }) {
   const redeem = useRedeem();
+  const moviesEnabled = !!useFeatures().data?.movies;
   const [confirm, setConfirm] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const redeemed = h.status === 'REDEEMED';
@@ -59,7 +60,7 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
           </div>
         )}
         <Stack $gap={4} style={{ minWidth: 0, flex: 1 }}>
-          {h.available ? <Link to={`/app/film/${h.contentId}`}>{title}</Link> : title}
+          {h.available && moviesEnabled ? <Link to={`/app/film/${h.contentId}`}>{title}</Link> : title}
           <Muted $size="0.78rem">Acquistato il {formatDate(h.firstPurchasedAt)}</Muted>
           <Stack $row $gap={6} $wrap>
             {redeemed && <Badge $tone="neutral">Riscattato</Badge>}

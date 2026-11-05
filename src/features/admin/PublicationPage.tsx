@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import styled from 'styled-components';
 import { CalendarClock, Eye, Home, Pencil, Plus, Search, Star } from 'lucide-react';
-import { useAdminContentList, useStatusCounts } from '../../api/hooks';
+import { useAdminContentList, useFeatures, useStatusCounts } from '../../api/hooks';
 import type { AdminContent, ContentKindPath, PublicationStatus } from '../../api/types';
-import { Badge, Bc, Button, Card, EmptyState, Input, Muted, PageHeader, Pagination, Spinner, Stack, Tab, Tabs } from '../../components/ui';
+import { Alert, Badge, Bc, Button, Card, EmptyState, Input, Muted, PageHeader, Pagination, Spinner, Stack, Tab, Tabs } from '../../components/ui';
 import { formatDateTime, STATUS_LABELS } from '../../components/format';
 import { Poster } from '../../components/Poster';
 import { hasPermission, useAuthStore } from '../../store/auth';
@@ -82,6 +82,7 @@ export function PublicationPage() {
   const [preview, setPreview] = useState<AdminContent | null>(null);
   const list = useAdminContentList(kind, status, page, search);
   const counts = useStatusCounts(kind);
+  const features = useFeatures().data;
 
   const update = (next: Record<string, string>) => {
     setPage(1);
@@ -106,6 +107,12 @@ export function PublicationPage() {
         }
       />
 
+      {features && !features[kind === 'movies' ? 'movies' : 'tvSeries'] && (
+        <Alert $tone="warning" style={{ marginBottom: 14 }}>
+          La sezione {kind === 'movies' ? 'Film' : 'Serie TV'} è disattivata: i titoli non sono visibili agli utenti anche se pubblicati.
+          {user?.role === 'SUPERADMIN' && <> Puoi attivarla da <Link to="/admin/impostazioni" style={{ textDecoration: 'underline' }}>Impostazioni</Link>.</>}
+        </Alert>
+      )}
       <Stack $row $gap={8} $wrap style={{ marginBottom: 14 }}>
         <Tab $active={kind === 'movies'} onClick={() => update({ tipo: 'movies' })}>Film</Tab>
         <Tab $active={kind === 'tv-series'} onClick={() => update({ tipo: 'tv-series' })}>Serie TV</Tab>

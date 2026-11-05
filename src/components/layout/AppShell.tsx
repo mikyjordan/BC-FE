@@ -5,7 +5,8 @@ import { Logo } from '../brand/Logo';
 import { Bc } from '../ui';
 import { Avatar } from '../Avatar';
 import { SiteFooter } from './SiteChrome';
-import { useWallet } from '../../api/hooks';
+import { useFeatures, useWallet } from '../../api/hooks';
+import type { Features } from '../../api/types';
 import { logout } from '../../api/client';
 import { isStaff, useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
@@ -144,10 +145,11 @@ const BottomLink = styled(NavLink)`
   &.active { color: ${({ theme }) => theme.colors.onBrand}; font-weight: 700; background: ${({ theme }) => theme.colors.brandDarker}; }
 `;
 
-const nav = [
+type NavItem = { to: string; label: string; icon: typeof Home; end?: boolean; feature?: keyof Features };
+const nav: NavItem[] = [
   { to: '/app', label: 'Dashboard', icon: Home, end: true },
-  { to: '/app/film', label: 'Film', icon: Clapperboard },
-  { to: '/app/serie', label: 'Serie TV', icon: Tv },
+  { to: '/app/film', label: 'Film', icon: Clapperboard, feature: 'movies' },
+  { to: '/app/serie', label: 'Serie TV', icon: Tv, feature: 'tvSeries' },
   { to: '/app/portafoglio', label: 'Portafoglio', icon: Wallet },
   { to: '/app/classifiche', label: 'Classifiche', icon: Trophy },
   { to: '/app/premi', label: 'Premi', icon: Gift },
@@ -158,7 +160,22 @@ const nav = [
 export function AppShell() {
   const user = useAuthStore((s) => s.user);
   const wallet = useWallet();
+  const features = useFeatures().data;
   const navigate = useNavigate();
+  // Voci Film e Serie TV solo se le sezioni sono abilitate dal Superadmin.
+  const visibleNav = nav.filter((n) => !n.feature || !!features?.[n.feature]);
+  const catalogTab = features?.movies
+    ? { to: '/app/film', label: 'Film', icon: Clapperboard }
+    : features?.tvSeries
+      ? { to: '/app/serie', label: 'Serie TV', icon: Tv }
+      : null;
+  const bottomTabs: NavItem[] = [
+    { to: '/app', label: 'Home', icon: Home, end: true },
+    ...(catalogTab ? [catalogTab] : []),
+    { to: '/app/portafoglio', label: 'Portafoglio', icon: Wallet },
+    { to: '/app/classifiche', label: 'Classifiche', icon: Trophy },
+    { to: '/app/profilo', label: 'Profilo', icon: User },
+  ];
 
   const onLogout = async () => {
     await logout();
@@ -190,7 +207,7 @@ export function AppShell() {
 
       <Body>
         <Sidebar aria-label="Navigazione principale">
-          {nav.map(({ to, label, icon: Icon, end }) => (
+          {visibleNav.map(({ to, label, icon: Icon, end }) => (
             <SideLink key={to} to={to} end={end}>
               <Icon size={18} aria-hidden /> {label}
             </SideLink>
@@ -220,22 +237,12 @@ export function AppShell() {
         </Main>
       </Body>
 
-      <BottomNav aria-label="Navigazione">
-        <BottomLink to="/app" end>
-          <Home size={20} aria-hidden /> Home
-        </BottomLink>
-        <BottomLink to="/app/film">
-          <Clapperboard size={20} aria-hidden /> Film
-        </BottomLink>
-        <BottomLink to="/app/portafoglio">
-          <Wallet size={20} aria-hidden /> Portafoglio
-        </BottomLink>
-        <BottomLink to="/app/classifiche">
-          <Trophy size={20} aria-hidden /> Classifiche
-        </BottomLink>
-        <BottomLink to="/app/profilo">
-          <User size={20} aria-hidden /> Profilo
-        </BottomLink>
+      <BottomNav aria-label="Navigazione" style={{ gridTemplateColumns: `repeat(${bottomTabs.length}, 1fr)` }}>
+        {bottomTabs.map(({ to, label, icon: Icon, end }) => (
+          <BottomLink key={to} to={to} end={end}>
+            <Icon size={20} aria-hidden /> {label}
+          </BottomLink>
+        ))}
       </BottomNav>
     </>
   );

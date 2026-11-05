@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router';
 import { z } from 'zod';
 import { Award, Camera, Gift, Settings, Trash2 } from 'lucide-react';
-import { useAvatar, useHoldings, useUpdateProfile, useWallet } from '../../api/hooks';
+import { useAvatar, useFeatures, useHoldings, useUpdateProfile, useWallet } from '../../api/hooks';
 import { Avatar } from '../../components/Avatar';
 import { Alert, Badge, Bc, Gain, Button, Card, Field, Input, Muted, PageHeader, Stack, Textarea } from '../../components/ui';
 import { formatDate, formatPct } from '../../components/format';
@@ -25,6 +25,7 @@ export function ProfilePage() {
   const user = useAuthStore((s) => s.user)!;
   const wallet = useWallet();
   const holdings = useHoldings();
+  const features = useFeatures().data;
   const update = useUpdateProfile();
   const avatar = useAvatar();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -103,7 +104,9 @@ export function ProfilePage() {
           </Card>
           <Card style={{ flex: '1 1 160px' }}>
             <Muted $size="0.8rem">Titoli posseduti</Muted>
-            <strong style={{ fontSize: 18 }}>{movies} film · {series} serie</strong>
+            <strong style={{ fontSize: 18 }}>
+              {[features?.movies && `${movies} film`, features?.tvSeries && `${series} serie`].filter(Boolean).join(' · ') || '—'}
+            </strong>
           </Card>
         </Stack>
 

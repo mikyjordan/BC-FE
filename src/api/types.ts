@@ -108,7 +108,14 @@ export interface PublicSeries extends PublicContentBase {
 
 export type PublicContent = PublicMovie | PublicSeries;
 
+/** Sezioni attivate dal Superadmin. */
+export interface Features {
+  movies: boolean;
+  tvSeries: boolean;
+}
+
 export interface HomeResponse {
+  features: Features;
   featured: PublicContent[];
   movies: PublicMovie[];
   tvSeries: PublicSeries[];

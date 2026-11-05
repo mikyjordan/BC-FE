@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Clapperboard, Search, Tv } from 'lucide-react';
-import { useGenres, useMovies, useSeriesList, type CatalogFilters } from '../../api/hooks';
+import { useFeatures, useGenres, useMovies, useSeriesList, type CatalogFilters } from '../../api/hooks';
 import type { PublicContent } from '../../api/types';
 import { EmptyState, Grid, Input, PageHeader, Pagination, Select, Spinner, Stack, Alert } from '../../components/ui';
 import { ContentCard } from './ContentCard';
@@ -22,6 +22,8 @@ function CatalogView({
   const list = useList(filters);
   const genres = useGenres(kind);
   const Icon = kind === 'movies' ? Clapperboard : Tv;
+  const features = useFeatures().data;
+  const otherEnabled = kind === 'movies' ? features?.tvSeries : features?.movies;
 
   return (
     <>
@@ -29,9 +31,11 @@ function CatalogView({
         title={title}
         subtitle={subtitle}
         actions={
-          <Link to={kind === 'movies' ? '/app/serie' : '/app/film'} style={{ fontWeight: 600, fontSize: '0.9rem' }}>
-            {kind === 'movies' ? 'Vai alle Serie TV →' : 'Vai ai Film →'}
-          </Link>
+          otherEnabled && (
+            <Link to={kind === 'movies' ? '/app/serie' : '/app/film'} style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+              {kind === 'movies' ? 'Vai alle Serie TV →' : 'Vai ai Film →'}
+            </Link>
+          )
         }
       />
       <form

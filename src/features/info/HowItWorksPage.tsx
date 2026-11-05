@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { CoinIcon } from '../../components/brand/CoinIcon';
 import { Alert, Card } from '../../components/ui';
 import { PublicHeader, SiteFooter } from '../../components/layout/SiteChrome';
+import { useFeatures } from '../../api/hooks';
 
 const Wrap = styled.div`
   max-width: 820px;
@@ -42,6 +43,10 @@ function S({ icon, title, children }: { icon: ReactNode; title: string; children
 
 /** Regole del gioco spiegate agli utenti (pagina pubblica). */
 export function HowItWorksPage() {
+  // Le regole delle sezioni disattivate dal Superadmin non vengono mostrate.
+  const features = useFeatures().data;
+  const movies = !!features?.movies;
+  const tvSeries = !!features?.tvSeries;
   return (
     <>
     <PublicHeader />
@@ -53,6 +58,8 @@ export function HowItWorksPage() {
         <p>Alla registrazione ricevi 1.000.000 di Bustercoin. Sono una valuta virtuale di gioco: non sono denaro, non sono convertibili e non danno diritti reali sui film.</p>
       </S>
 
+      {movies && (
+      <>
       <S icon={<Ticket size={28} />} title="Acquista un film prima che esca">
         <ul>
           <li>Ogni film si acquista <strong>una sola volta</strong>, al prezzo stabilito dalla piattaforma.</li>
@@ -81,10 +88,14 @@ export function HowItWorksPage() {
       <S icon={<CalendarClock size={28} />} title="Riscatto automatico all’uscita dalle sale">
         <p>Quando il film viene tolto dalle sale (data indicata sotto ogni film), viene riscattato automaticamente a tutti coloro che lo possiedono, con l’incasso in vigore in quel momento.</p>
       </S>
+      </>
+      )}
 
-      <S icon={<Clapperboard size={28} />} title="Serie TV">
-        <p>Le serie TV si acquistano a quote; le regole di rendimento verranno pubblicate quando la sezione sarà completa.</p>
-      </S>
+      {tvSeries && (
+        <S icon={<Clapperboard size={28} />} title="Serie TV">
+          <p>Le serie TV si acquistano a quote; le regole di rendimento verranno pubblicate quando la sezione sarà completa.</p>
+        </S>
+      )}
 
       <Alert $tone="info" style={{ marginTop: 18 }}>
         Consulta anche i <Link to="/termini" style={{ textDecoration: 'underline' }}>termini e condizioni</Link>.

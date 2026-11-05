@@ -14,6 +14,7 @@ import { PrivacyPage, TermsPage } from '../features/legal/LegalPages';
 import { HowItWorksPage } from '../features/info/HowItWorksPage';
 import { BuyCoinsPage, LeaderboardsPage, NotificationsPage, RewardsPage, TrophiesPage } from '../features/upcoming/ComingSoonPage';
 import { NotFoundPage } from './NotFoundPage';
+import { RequireFeature } from '../components/layout/RequireFeature';
 
 // Caricamento differito: area amministrativa e portafoglio (Recharts) in chunk separati.
 const lazyPage = <M,>(load: () => Promise<M>, pick: (m: M) => React.ComponentType) => async () => ({ Component: pick(await load()) });
@@ -42,10 +43,20 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           { index: true, element: <HomePage /> },
-          { path: 'film', element: <MoviesPage /> },
-          { path: 'film/:id', element: <MovieDetailPage /> },
-          { path: 'serie', element: <SeriesPage /> },
-          { path: 'serie/:id', element: <SeriesDetailPage /> },
+          {
+            element: <RequireFeature feature="movies" />,
+            children: [
+              { path: 'film', element: <MoviesPage /> },
+              { path: 'film/:id', element: <MovieDetailPage /> },
+            ],
+          },
+          {
+            element: <RequireFeature feature="tvSeries" />,
+            children: [
+              { path: 'serie', element: <SeriesPage /> },
+              { path: 'serie/:id', element: <SeriesDetailPage /> },
+            ],
+          },
           { path: 'portafoglio', lazy: lazyPage(wallet, (m) => m.WalletPage) },
           { path: 'movimenti', lazy: lazyPage(wallet, (m) => m.TransactionsPage) },
           { path: 'acquista-bustercoin', element: <BuyCoinsPage /> },
@@ -69,6 +80,7 @@ export const router = createBrowserRouter([
               { path: 'contenuti/:kind/:id', lazy: lazyPage(admin, (m) => m.ContentEditorPage) },
               { path: 'utenti', lazy: lazyPage(admin, (m) => m.UsersPage) },
               { path: 'audit', lazy: lazyPage(admin, (m) => m.AuditPage) },
+              { path: 'impostazioni', lazy: lazyPage(admin, (m) => m.SettingsAdminPage) },
             ],
           },
         ],

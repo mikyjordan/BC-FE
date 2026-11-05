@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { Wallet as WalletIcon } from 'lucide-react';
 import { MovieHoldingCard } from './MovieHoldingCard';
-import { useHoldings, useTransactions, useWallet } from '../../api/hooks';
-import type { Holding } from '../../api/types';
+import { useFeatures, useHoldings, useTransactions, useWallet } from '../../api/hooks';
+import type { Features, Holding } from '../../api/types';
 import { Badge, Bc, Card, EmptyState, Gain, Grid, Muted, PageHeader, Pagination, Spinner, Stack, Tab, Tabs, Table, TableScroll } from '../../components/ui';
 import { formatBc, formatDate, formatDateTime, formatPct, LEDGER_LABELS } from '../../components/format';
 import { Poster } from '../../components/Poster';
@@ -42,6 +42,7 @@ const PIE_COLORS = theme.colors.chart;
 type Filter = 'all' | 'MOVIE' | 'TV_SERIES' | 'REDEEMED';
 
 function SeriesHoldingRow({ h }: { h: Holding }) {
+  const linkable = h.available && !!useFeatures().data?.tvSeries;
   const title = (
     <div style={{ fontWeight: 600 }}>
       {h.title}
@@ -52,7 +53,7 @@ function SeriesHoldingRow({ h }: { h: Holding }) {
     <SeriesRow>
       <Poster src={h.posterUrl} alt="" kind="TV_SERIES" />
       <div style={{ minWidth: 0 }}>
-        {h.available ? <Link to={`/app/serie/${h.contentId}`}>{title}</Link> : title}
+        {linkable ? <Link to={`/app/serie/${h.contentId}`}>{title}</Link> : title}
         <Muted $size="0.8rem">
           {h.units} quote · investiti {formatBc(h.totalInvested)} · dal {formatDate(h.firstPurchasedAt)}
         </Muted>
@@ -68,6 +69,7 @@ function SeriesHoldingRow({ h }: { h: Holding }) {
 export function WalletPage() {
   const wallet = useWallet();
   const holdings = useHoldings();
+  const features = useFeatures().data;
   const [filter, setFilter] = useState<Filter>('all');
 
   if (wallet.isLoading) return <Spinner />;
@@ -145,8 +147,8 @@ export function WalletPage() {
             <h3>Partecipazioni</h3>
             <Tabs style={{ margin: 0 }}>
               <Tab $active={filter === 'all'} onClick={() => setFilter('all')}>Tutti</Tab>
-              <Tab $active={filter === 'MOVIE'} onClick={() => setFilter('MOVIE')}>Film</Tab>
-              <Tab $active={filter === 'TV_SERIES'} onClick={() => setFilter('TV_SERIES')}>Serie TV</Tab>
+              {features?.movies && <Tab $active={filter === 'MOVIE'} onClick={() => setFilter('MOVIE')}>Film</Tab>}
+              {features?.tvSeries && <Tab $active={filter === 'TV_SERIES'} onClick={() => setFilter('TV_SERIES')}>Serie TV</Tab>}
               <Tab $active={filter === 'REDEEMED'} onClick={() => setFilter('REDEEMED')}>Riscattati</Tab>
             </Tabs>
           </Stack>
@@ -179,26 +181,27 @@ export function WalletPage() {
   );
 }
 
-const CATEGORIES: Array<[string | undefined, string]> = [
-  [undefined, 'Tutti'],
-  ['movies', 'Film'],
-  ['series', 'Serie TV'],
-  ['earnings', 'Guadagni'],
-  ['purchases', 'Acquisti'],
-  ['bonus', 'Bonus'],
-  ['prizes', 'Premi'],
+const CATEGORIES: Array<[string | undefined, string, keyof Features | null]> = [
+  [undefined, 'Tutti', null],
+  ['movies', 'Film', 'movies'],
+  ['series', 'Serie TV', 'tvSeries'],
+  ['earnings', 'Guadagni', null],
+  ['purchases', 'Acquisti', null],
+  ['bonus', 'Bonus', null],
+  ['prizes', 'Premi', null],
 ];
 
 export function TransactionsPage() {
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState<string | undefined>();
   const tx = useTransactions(page, category);
+  const features = useFeatures().data;
 
   return (
     <>
       <PageHeader title="Storico movimenti" subtitle="Registro contabile immutabile di tutti i movimenti Bustercoin." />
       <Tabs>
-        {CATEGORIES.map(([key, label]) => (
+        {CATEGORIES.filter(([, , f]) => !f || !!features?.[f]).map(([key, label]) => (
           <Tab key={label} $active={category === key} onClick={() => { setCategory(key); setPage(1); }}>
             {label}
           </Tab>

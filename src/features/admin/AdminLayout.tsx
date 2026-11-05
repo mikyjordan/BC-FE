@@ -1,6 +1,6 @@
 import { Link, NavLink, Outlet } from 'react-router';
 import styled from 'styled-components';
-import { ArrowLeft, Eye, FileClock, LayoutDashboard, Users } from 'lucide-react';
+import { ArrowLeft, Eye, FileClock, LayoutDashboard, Settings, Users } from 'lucide-react';
 import { Logo } from '../../components/brand/Logo';
 import { SiteFooter } from '../../components/layout/SiteChrome';
 import { Badge } from '../../components/ui';
@@ -9,6 +9,8 @@ import { media } from '../../theme/theme';
 
 const Shell = styled.div`
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Top = styled.header`
@@ -47,6 +49,8 @@ const Item = styled(NavLink)`
 `;
 
 const Body = styled.main`
+  flex: 1;
+  width: 100%;
   max-width: 1320px;
   margin: 0 auto;
   padding: 24px 16px 60px;
@@ -69,6 +73,7 @@ export function AdminLayout() {
           {canContent && <Item to="/admin/pubblicazione"><Eye size={16} /> Pubblicazione</Item>}
           {(can('users.view') || user?.role === 'SUPERADMIN') && <Item to="/admin/utenti"><Users size={16} /> Utenti</Item>}
           {can('audit.view') && <Item to="/admin/audit"><FileClock size={16} /> Audit log</Item>}
+          {user?.role === 'SUPERADMIN' && <Item to="/admin/impostazioni"><Settings size={16} /> Impostazioni</Item>}
         </Nav>
         <Link to="/app" style={{ display: 'inline-flex', gap: 6, alignItems: 'center', fontSize: '0.9rem' }}>
           <ArrowLeft size={16} /> Torna all’app

@@ -6,6 +6,7 @@ import type {
   AdminUserRow,
   AuditEntry,
   BoxOfficeReading,
+  Features,
   RedeemResult,
   ContentKindPath,
   Holding,
@@ -22,6 +23,21 @@ import type {
 import { useAuthStore } from '../store/auth';
 
 const authed = () => useAuthStore.getState().status === 'authenticated';
+
+/* ---------- Sezioni attive ---------- */
+/** Film e Serie TV sono visibili solo se abilitati dal Superadmin (il backend lo applica comunque). */
+export const useFeatures = () => useQuery({ queryKey: ['features'], queryFn: () => api<Features>('/features'), staleTime: 60_000 });
+
+export function useUpdateFeatures() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (patch: Partial<Features>) => api<Features>('/admin/settings/features', { method: 'PUT', body: patch }),
+    onSuccess: (f) => {
+      qc.setQueryData(['features'], f);
+      for (const k of ['home', 'movies', 'tv-series', 'movie', 'series', 'admin']) void qc.invalidateQueries({ queryKey: [k] });
+    },
+  });
+}
 
 /* ---------- Catalogo pubblico ---------- */
 export const useHome = () => useQuery({ queryKey: ['home'], queryFn: () => api<HomeResponse>('/home') });
