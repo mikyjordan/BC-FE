@@ -6,6 +6,7 @@ import type { ContentKindPath, PurchaseInfo } from '../../api/types';
 import { ApiError } from '../../api/client';
 import { Alert, Bc, Button, Card, Field, Input, Muted, Stack } from '../../components/ui';
 import { formatBc } from '../../components/format';
+import { PurchaseBadge } from '../../components/PurchaseBadge';
 import { useAuthStore } from '../../store/auth';
 
 interface Props {
@@ -46,8 +47,8 @@ export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Pr
       <Card>
         <Stack $gap={8}>
           <h3>Acquisto</h3>
+          <PurchaseBadge active={false} reason={purchase.message ?? 'Al momento non è possibile acquistare questo titolo.'} />
           {purchase.priceBc ? <Bc value={purchase.priceBc} size={20} /> : null}
-          <Muted>{purchase.message ?? 'Al momento non è possibile acquistare questo titolo.'}</Muted>
         </Stack>
       </Card>
     );
@@ -58,6 +59,7 @@ export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Pr
       <Card>
         <Stack $gap={10}>
           <h3>Acquisto</h3>
+          <PurchaseBadge active />
           <Bc value={price} size={22} />
           <Muted>Accedi per acquistare quote virtuali.</Muted>
           <Link to="/login">
@@ -89,6 +91,7 @@ export function PurchasePanel({ kind, contentId, purchase, seasonId, label }: Pr
   return (
     <Card>
       <Stack $gap={14}>
+        <PurchaseBadge active />
         <Stack $row $justify="space-between" $align="center">
           <h3>Acquista quote</h3>
           <Muted $size="0.8rem">{label}</Muted>

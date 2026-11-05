@@ -8,6 +8,7 @@ import { Alert, Bc, Button, Card, Muted, Stack, Table } from '../../components/u
 import { formatBc, formatDate, formatDateTime, formatNumber } from '../../components/format';
 import { useAuthStore } from '../../store/auth';
 import { MovieHoldingCard } from '../wallet/MovieHoldingCard';
+import { PurchaseBadge } from '../../components/PurchaseBadge';
 import { AutoRedeemNotice } from './AutoRedeemNotice';
 
 /** Incasso attuale e storico delle rilevazioni inserite dal Superadmin (mai valori inventati). */
@@ -93,8 +94,8 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
       <Card>
         <Stack $gap={8}>
           <h3>Acquisto</h3>
+          <PurchaseBadge active={false} reason={movie.purchase.message ?? 'Al momento non è possibile acquistare questo film.'} />
           {movie.purchase.priceBc ? <Bc value={movie.purchase.priceBc} size={20} /> : null}
-          <Muted>{movie.purchase.message ?? 'Al momento non è possibile acquistare questo film.'}</Muted>
           <AutoRedeemNotice date={movie.autoRedeemAt} past={movie.outOfTheaters} />
         </Stack>
       </Card>
@@ -106,6 +107,7 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
       <Card>
         <Stack $gap={10}>
           <h3>Acquisto</h3>
+          <PurchaseBadge active />
           <Bc value={price} size={22} />
           <Link to="/login"><Button $block>Accedi per acquistare</Button></Link>
           <AutoRedeemNotice date={movie.autoRedeemAt} />
@@ -121,6 +123,7 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
     <Card>
       <Stack $gap={14}>
         <h3>Investi in questo film</h3>
+        <PurchaseBadge active />
         <div>
           <Muted $size="0.8rem">Prezzo</Muted>
           <Bc value={price} size={24} />

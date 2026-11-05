@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import styled from 'styled-components';
-import { Logo } from '../../components/brand/Logo';
+import { PublicHeader, SiteFooter } from '../../components/layout/SiteChrome';
 import { Alert, Card } from '../../components/ui';
 
 const Wrap = styled.div`
@@ -16,8 +16,9 @@ const Wrap = styled.div`
 
 function LegalLayout({ title, children }: { title: string; children: ReactNode }) {
   return (
+    <>
+    <PublicHeader />
     <Wrap>
-      <Link to="/"><Logo height={30} /></Link>
       <h1>{title}</h1>
       <Alert $tone="warning" style={{ marginBottom: 18 }}>
         Bozza da sottoporre a verifica legale e fiscale prima del lancio. Il testo definitivo deve essere redatto da un professionista.
@@ -27,6 +28,8 @@ function LegalLayout({ title, children }: { title: string; children: ReactNode }
         <Link to="/come-funziona" style={{ textDecoration: 'underline' }}>Come funziona BusterCinema</Link>
       </p>
     </Wrap>
+    <SiteFooter />
+    </>
   );
 }
 

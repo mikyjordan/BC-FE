@@ -5,6 +5,7 @@ import { Modal } from '../../components/Modal';
 import { Poster } from '../../components/Poster';
 import { Alert, Badge, Bc, Muted, Spinner, Stack } from '../../components/ui';
 import { STATUS_LABELS } from '../../components/format';
+import { PurchaseBadge } from '../../components/PurchaseBadge';
 
 /**
  * Anteprima della scheda pubblica così come la vedrebbe un utente, ottenuta dall'endpoint
@@ -39,9 +40,9 @@ export function PreviewModal({ kind, id, status, onClose }: { kind: ContentKindP
             <div style={{ marginTop: 8 }}>
               <Muted $size="0.8rem">Prezzo per quota</Muted>
               {c.purchase.priceBc ? <Bc value={c.purchase.priceBc} size={20} /> : <Muted>Non impostato</Muted>}
-              <Muted $size="0.8rem" style={{ marginTop: 4 }}>
-                {c.purchase.purchasable ? 'Acquistabile' : `Non acquistabile: ${c.purchase.message ?? c.purchase.reason}`}
-              </Muted>
+              <div style={{ marginTop: 6 }}>
+                <PurchaseBadge active={c.purchase.purchasable} reason={c.purchase.message ?? c.purchase.reason} />
+              </div>
             </div>
           </Stack>
         </Stack>

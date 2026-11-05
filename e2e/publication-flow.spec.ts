@@ -50,12 +50,18 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.getByRole('button', { name: 'Salva prezzo e date' }).click();
     await expect(page.getByText('Impostazioni salvate.')).toBeVisible();
     await page.getByRole('button', { name: 'Abilita acquisti' }).click();
-    await expect(page.getByText('Acquisti attivi', { exact: true })).toBeVisible();
+    await expect(page.getByText('Acquisti abilitati.')).toBeVisible();
+    // Ancora in bozza: ovale rosso "Acquisti non attivi"
+    await expect(page.getByTestId('purchase-badge').first()).toHaveAttribute('data-active', 'false');
+    await expect(page.getByText('Titolo non pubblicato')).toBeVisible();
     await page.getByLabel('Mostra nella homepage').check();
 
     await page.getByRole('button', { name: 'Pubblica', exact: true }).first().click();
     await page.getByRole('dialog').getByRole('button', { name: 'Pubblica', exact: true }).click();
     await expect(page.getByText('Pubblicato', { exact: true }).first()).toBeVisible();
+    // Pubblicato e acquistabile: ovale verde "Acquisti attivi"
+    await expect(page.getByTestId('purchase-badge').first()).toHaveAttribute('data-active', 'true');
+    await expect(page.getByText('Acquisti attivi', { exact: true }).first()).toBeVisible();
   });
 
   test('un utente compra il film, vede incasso e guadagno in verde, riscatta e non può ricomprarlo', async ({ page, browser }) => {

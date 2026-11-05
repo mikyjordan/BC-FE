@@ -22,9 +22,9 @@ const Wrap = styled.article<{ $tone: Tone }>`
   border: 1px solid ${({ theme }) => theme.colors.border};
   ${({ $tone, theme }) =>
     $tone === 'up'
-      ? css`border-color: rgba(63, 185, 132, 0.55); background: linear-gradient(180deg, ${theme.colors.successSoft}, ${theme.colors.surface} 55%);`
+      ? css`border-color: ${theme.colors.successBorder}; border-width: 2px; background: linear-gradient(180deg, ${theme.colors.successSoft}, ${theme.colors.surface} 55%);`
       : $tone === 'down'
-        ? css`border-color: rgba(229, 86, 107, 0.55); background: linear-gradient(180deg, ${theme.colors.dangerSoft}, ${theme.colors.surface} 55%);`
+        ? css`border-color: ${theme.colors.dangerBorder}; border-width: 2px; background: linear-gradient(180deg, ${theme.colors.dangerSoft}, ${theme.colors.surface} 55%);`
         : ''}
 `;
 

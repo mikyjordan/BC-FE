@@ -19,11 +19,9 @@ const Showcase = styled.div`
     flex-direction: column;
     justify-content: space-between;
     padding: 48px;
-    border-right: 1px solid ${({ theme }) => theme.colors.border};
-    background:
-      radial-gradient(600px 300px at 20% 30%, rgba(79,107,216,0.25), transparent 70%),
-      repeating-linear-gradient(0deg, transparent 0 36px, rgba(255,255,255,0.02) 36px 38px),
-      ${({ theme }) => theme.colors.bgElevated};
+    background: ${({ theme }) => theme.colors.brand};
+    color: ${({ theme }) => theme.colors.onBrand};
+    a { color: ${({ theme }) => theme.colors.onBrand}; }
   }
 `;
 
@@ -47,6 +45,10 @@ const Box = styled(Card)`
   padding: 28px;
 `;
 
+const OnBrandText = styled.p`
+  color: ${({ theme }) => theme.colors.onBrandMuted};
+`;
+
 const MobileLogo = styled.div`
   margin-bottom: 18px;
   ${media.md} { display: none; }
@@ -56,24 +58,24 @@ export function AuthLayout({ title, subtitle, children, footer }: { title: strin
   return (
     <Page>
       <Showcase>
-        <Logo height={40} />
+        <Logo height={40} tone="light" />
         <div>
           <Headline>Investi virtualmente nei film e nelle serie che fanno parlare l’Italia.</Headline>
-          <Muted style={{ marginTop: 16, maxWidth: 440, display: 'flex', gap: 10, alignItems: 'center' }}>
+          <OnBrandText style={{ marginTop: 16, maxWidth: 440, display: 'flex', gap: 10, alignItems: 'center' }}>
             <CoinIcon size={28} /> Ogni nuovo giocatore riceve 1.000.000 di Bustercoin di benvenuto.
-          </Muted>
+          </OnBrandText>
         </div>
-        <Muted $size="0.8rem">
+        <OnBrandText style={{ fontSize: '0.8rem' }}>
           Bustercoin è una valuta virtuale di gioco: non è denaro, non è convertibile e non attribuisce diritti reali sui contenuti.{' '}
-          <Link to="/come-funziona" style={{ textDecoration: 'underline' }}>Come funziona</Link>
-        </Muted>
+          <Link to="/come-funziona" style={{ textDecoration: 'underline', fontWeight: 600 }}>Come funziona</Link>
+        </OnBrandText>
       </Showcase>
       <FormSide>
         <Box>
           <div style={{ marginBottom: 22 }}>
             <MobileLogo>
               <Link to="/">
-                <Logo height={30} />
+                <Logo height={30} tone="brand" />
               </Link>
             </MobileLogo>
             <h1 style={{ fontSize: '1.6rem' }}>{title}</h1>
@@ -88,7 +90,7 @@ export function AuthLayout({ title, subtitle, children, footer }: { title: strin
 }
 
 export const TextLink = styled(Link)`
-  color: ${({ theme }) => theme.colors.primaryHover};
+  color: ${({ theme }) => theme.colors.primaryText};
   font-weight: 600;
   &:hover { text-decoration: underline; }
 `;

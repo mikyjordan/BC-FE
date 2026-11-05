@@ -9,7 +9,7 @@ import type { Holding } from '../../api/types';
 import { Badge, Bc, Card, EmptyState, Gain, Grid, Muted, PageHeader, Pagination, Spinner, Stack, Tab, Tabs, Table, TableScroll } from '../../components/ui';
 import { formatBc, formatDate, formatDateTime, formatPct, LEDGER_LABELS } from '../../components/format';
 import { Poster } from '../../components/Poster';
-import { media } from '../../theme/theme';
+import { media, theme } from '../../theme/theme';
 
 const Summary = styled.div`
   display: grid;
@@ -36,8 +36,8 @@ const SeriesRow = styled.div`
   &:last-child { border-bottom: 0; }
 `;
 
-// Colori neutri/blu per la distribuzione (l'oro resta riservato agli importi).
-const PIE_COLORS = ['#4F6BD8', '#8FA3EE'];
+// Colori della distribuzione dal tema (blu del marchio e una sua tinta chiara).
+const PIE_COLORS = theme.colors.chart;
 
 type Filter = 'all' | 'MOVIE' | 'TV_SERIES' | 'REDEEMED';
 
@@ -125,7 +125,7 @@ export function WalletPage() {
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v) => formatBc(Number(v))} contentStyle={{ background: '#0F172E', border: '1px solid #22305A', borderRadius: 10 }} />
+                  <Tooltip formatter={(v) => formatBc(Number(v))} contentStyle={{ background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: 10 }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

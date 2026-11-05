@@ -5,6 +5,7 @@ import type { PublicContent } from '../../api/types';
 import { Poster } from '../../components/Poster';
 import { Badge, Bc, Muted } from '../../components/ui';
 import { AutoRedeemNotice } from './AutoRedeemNotice';
+import { PurchaseBadge } from '../../components/PurchaseBadge';
 
 const CardLink = styled(Link)`
   display: flex;
@@ -52,6 +53,7 @@ export function ContentCard({ item }: { item: PublicContent }) {
       ) : (
         <Muted $size="0.8rem">Prezzo non ancora definito</Muted>
       )}
+      <PurchaseBadge active={item.purchase.purchasable} reason={item.purchase.message} showReason={false} />
       {item.kind === 'MOVIE' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
     </CardLink>
   );

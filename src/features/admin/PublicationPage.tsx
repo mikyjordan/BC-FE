@@ -9,6 +9,7 @@ import { formatDateTime, STATUS_LABELS } from '../../components/format';
 import { Poster } from '../../components/Poster';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { PublicationActions } from './publication-actions';
+import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadge';
 import { PreviewModal } from './PreviewModal';
 import { media } from '../../theme/theme';
 
@@ -49,7 +50,7 @@ function ContentRow({ kind, item, onPreview }: { kind: ContentKindPath; item: Ad
           {item.source !== 'MANUAL' && <Badge>Importato · {item.source}</Badge>}
         </Stack>
         <Stack $row $gap={10} $wrap $align="center">
-          <Badge $tone={item.purchasesEnabled ? 'green' : 'neutral'}>{item.purchasesEnabled ? 'Acquisti attivi' : 'Acquisti disattivati'}</Badge>
+          <PurchaseBadge {...adminPurchaseState(item)} />
           {item.priceBc ? <Bc value={item.priceBc} size={12} /> : <Muted $size="0.8rem">Prezzo non impostato</Muted>}
           {item.showOnHomepage && <Badge $tone="blue"><Home size={11} /> Homepage</Badge>}
           {item.featured && <Badge $tone="blue"><Star size={11} /> Evidenza</Badge>}

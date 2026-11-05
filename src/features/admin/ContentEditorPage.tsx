@@ -9,7 +9,7 @@ import type { AdminContent, ContentKindPath } from '../../api/types';
 import { Alert, Badge, Bc, Button, Card, Checkbox, Field, Input, Muted, PageHeader, Select, Spinner, Stack, Textarea } from '../../components/ui';
 import { formatDate, formatDateTime, STATUS_LABELS } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
-import { media } from '../../theme/theme';
+import { media, theme } from '../../theme/theme';
 import { FIELDS, fromLocalInput, toFormValues, toLocalInput, toPayload, type FormValues } from './content-fields';
 import { PublicationActions } from './publication-actions';
 import { PreviewModal } from './PreviewModal';
@@ -17,6 +17,7 @@ import { statusTone } from './PublicationPage';
 import { SeasonsSection } from './SeasonsSection';
 import { BoxOfficeSection } from './BoxOfficeSection';
 import { PosterField } from './PosterField';
+import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadge';
 import { AutoRedeemSection } from './AutoRedeemSection';
 
 const FormGrid = styled.div`
@@ -293,7 +294,7 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
     <Section title="Acquisti" note={seasonScoped ? 'Serie acquistabile per stagione: il prezzo della stagione, se impostato, prevale su quello della serie.' : 'Tutti i campi sono obbligatori.'}>
       <Stack $gap={12}>
         <Stack $row $justify="space-between" $align="center">
-          <Badge $tone={item.purchasesEnabled ? 'green' : 'neutral'}>{item.purchasesEnabled ? 'Acquisti attivi' : 'Acquisti disattivati'}</Badge>
+          <PurchaseBadge {...adminPurchaseState(item)} />
           {item.priceBc ? <Bc value={item.priceBc} size={14} /> : null}
         </Stack>
         <Field label={kind === 'movies' ? 'Prezzo del film (Bustercoin) *' : 'Prezzo per quota (Bustercoin) *'} error={errors.priceBc}>
@@ -357,7 +358,7 @@ export function ContentEditorPage() {
 
   return (
     <>
-      <Link to={`/admin/pubblicazione?tipo=${kind}${item ? `&stato=${item.publicationStatus}` : ''}`} style={{ display: 'inline-flex', gap: 6, alignItems: 'center', marginBottom: 14, color: '#8592B3' }}>
+      <Link to={`/admin/pubblicazione?tipo=${kind}${item ? `&stato=${item.publicationStatus}` : ''}`} style={{ display: 'inline-flex', gap: 6, alignItems: 'center', marginBottom: 14, color: theme.colors.textMuted }}>
         <ArrowLeft size={16} /> Pubblicazione
       </Link>
       <PageHeader

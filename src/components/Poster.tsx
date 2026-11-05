@@ -7,8 +7,8 @@ const Frame = styled.div<{ $ratio: string }>`
   border-radius: ${({ theme }) => theme.radii.md};
   overflow: hidden;
   background:
-    repeating-linear-gradient(90deg, transparent 0 14px, rgba(255,255,255,0.025) 14px 16px),
-    linear-gradient(160deg, ${({ theme }) => theme.colors.surfaceAlt}, ${({ theme }) => theme.colors.bgElevated});
+    repeating-linear-gradient(90deg, transparent 0 14px, rgba(23, 33, 43, 0.035) 14px 16px),
+    ${({ theme }) => theme.colors.surfaceAlt};
   border: 1px solid ${({ theme }) => theme.colors.border};
   display: flex;
   align-items: center;

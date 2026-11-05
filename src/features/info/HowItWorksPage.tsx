@@ -2,10 +2,9 @@ import { Link } from 'react-router';
 import styled from 'styled-components';
 import { CalendarClock, Clapperboard, HandCoins, Ticket, TrendingUp } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { Logo } from '../../components/brand/Logo';
 import { CoinIcon } from '../../components/brand/CoinIcon';
 import { Alert, Card } from '../../components/ui';
-import { useAuthStore } from '../../store/auth';
+import { PublicHeader, SiteFooter } from '../../components/layout/SiteChrome';
 
 const Wrap = styled.div`
   max-width: 820px;
@@ -17,13 +16,16 @@ const Wrap = styled.div`
   li { margin-bottom: 4px; }
 `;
 
+const Up = styled.strong`color: ${({ theme }) => theme.colors.successText};`;
+const Down = styled.strong`color: ${({ theme }) => theme.colors.dangerText};`;
+
 const Step = styled(Card)`
   display: grid;
   grid-template-columns: 40px 1fr;
   gap: 14px;
   margin-top: 14px;
   h2 { font-size: 1.05rem; margin-bottom: 6px; }
-  svg { color: ${({ theme }) => theme.colors.primaryHover}; }
+  svg { color: ${({ theme }) => theme.colors.brand}; }
 `;
 
 function S({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
@@ -40,10 +42,10 @@ function S({ icon, title, children }: { icon: ReactNode; title: string; children
 
 /** Regole del gioco spiegate agli utenti (pagina pubblica). */
 export function HowItWorksPage() {
-  const authed = useAuthStore((s) => s.status === 'authenticated');
   return (
+    <>
+    <PublicHeader />
     <Wrap>
-      <Link to={authed ? '/app' : '/'}><Logo height={30} /></Link>
       <h1>Come funziona</h1>
       <p>BusterCinema è un gioco di investimento virtuale sui film in uscita nelle sale italiane.</p>
 
@@ -65,8 +67,7 @@ export function HowItWorksPage() {
       <S icon={<TrendingUp size={28} />} title="Segui l’incasso">
         <p>
           Durante la programmazione la piattaforma aggiorna l’incasso del film (1 € = 1 Bustercoin). Sul tuo portafoglio vedi prezzo pagato e incasso attuale:
-          in <span style={{ color: '#3FB984', fontWeight: 600 }}>verde</span> se sei in guadagno, in{' '}
-          <span style={{ color: '#E5566B', fontWeight: 600 }}>rosso</span> se sei in perdita.
+          in <Up>verde</Up> se sei in guadagno, in <Down>rosso</Down> se sei in perdita.
         </p>
       </S>
 
@@ -89,5 +90,7 @@ export function HowItWorksPage() {
         Consulta anche i <Link to="/termini" style={{ textDecoration: 'underline' }}>termini e condizioni</Link>.
       </Alert>
     </Wrap>
+    <SiteFooter />
+    </>
   );
 }

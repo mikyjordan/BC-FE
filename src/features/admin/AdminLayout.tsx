@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from 'react-router';
 import styled from 'styled-components';
 import { ArrowLeft, Eye, FileClock, LayoutDashboard, Users } from 'lucide-react';
 import { Logo } from '../../components/brand/Logo';
+import { SiteFooter } from '../../components/layout/SiteChrome';
 import { Badge } from '../../components/ui';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
@@ -18,10 +19,12 @@ const Top = styled.header`
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  padding: 12px 16px;
-  background: rgba(10, 16, 34, 0.95);
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  ${media.md} { padding: 12px 32px; }
+  padding: 10px 16px;
+  background: ${({ theme }) => theme.colors.brand};
+  color: ${({ theme }) => theme.colors.onBrand};
+  box-shadow: 0 2px 8px rgba(14, 75, 111, 0.25);
+  ${media.md} { padding: 10px 32px; }
+  a { color: ${({ theme }) => theme.colors.onBrand}; }
 `;
 
 const Nav = styled.nav`
@@ -37,11 +40,10 @@ const Item = styled(NavLink)`
   gap: 8px;
   padding: 8px 12px;
   border-radius: ${({ theme }) => theme.radii.md};
-  color: ${({ theme }) => theme.colors.textSecondary};
   font-weight: 500;
   white-space: nowrap;
-  &:hover { background: ${({ theme }) => theme.colors.surfaceAlt}; }
-  &.active { background: ${({ theme }) => theme.colors.primarySoft}; color: ${({ theme }) => theme.colors.text}; }
+  &:hover { background: ${({ theme }) => theme.colors.brandDark}; }
+  &.active { background: ${({ theme }) => theme.colors.brandDarker}; font-weight: 700; }
 `;
 
 const Body = styled.main`
@@ -60,8 +62,8 @@ export function AdminLayout() {
   return (
     <Shell>
       <Top>
-        <Link to="/admin" aria-label="Amministrazione"><Logo height={26} /></Link>
-        <Badge $tone={user?.role === 'SUPERADMIN' ? 'gold' : 'blue'}>{user?.role === 'SUPERADMIN' ? 'Superadmin' : 'Admin'}</Badge>
+        <Link to="/admin" aria-label="Amministrazione"><Logo height={26} tone="light" /></Link>
+        <Badge $tone="neutral">{user?.role === 'SUPERADMIN' ? 'Superadmin' : 'Admin'}</Badge>
         <Nav aria-label="Amministrazione">
           {can('dashboard.view') && <Item to="/admin" end><LayoutDashboard size={16} /> Dashboard</Item>}
           {canContent && <Item to="/admin/pubblicazione"><Eye size={16} /> Pubblicazione</Item>}
@@ -75,6 +77,7 @@ export function AdminLayout() {
       <Body>
         <Outlet />
       </Body>
+      <SiteFooter />
     </Shell>
   );
 }

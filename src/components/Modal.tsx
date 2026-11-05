@@ -2,14 +2,18 @@ import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { X } from 'lucide-react';
-import { Button, Stack } from './ui';
+import { Button, FieldError, Stack } from './ui';
+
+const Message = styled.div`
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
 
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(3, 6, 14, 0.72);
-  backdrop-filter: blur(3px);
+  background: ${({ theme }) => theme.colors.overlay};
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,7 +29,7 @@ const Dialog = styled.div<{ $wide?: boolean }>`
   border: 1px solid ${({ theme }) => theme.colors.borderStrong};
   border-radius: ${({ theme }) => theme.radii.lg};
   padding: 22px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  box-shadow: ${({ theme }) => theme.shadow.raised};
 `;
 
 export function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: ReactNode; wide?: boolean }) {
@@ -74,8 +78,8 @@ export function ConfirmModal({
   return (
     <Modal title={title} onClose={onClose}>
       <Stack $gap={16}>
-        <div style={{ color: '#C3CBE0' }}>{message}</div>
-        {error && <div role="alert" style={{ color: '#FF9AA9' }}>{error}</div>}
+        <Message>{message}</Message>
+        {error && <FieldError role="alert">{error}</FieldError>}
         <Stack $row $gap={8} $justify="flex-end">
           <Button $variant="secondary" onClick={onClose} disabled={pending}>Annulla</Button>
           <Button $variant={danger ? 'danger' : 'primary'} onClick={onConfirm} disabled={pending}>

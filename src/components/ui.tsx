@@ -26,17 +26,18 @@ export const Button = styled.button<{ $variant?: Variant; $size?: 'sm' | 'md'; $
   ${({ $variant = 'primary', theme }) => {
     switch ($variant) {
       case 'gold':
-        // Riservato alle azioni economiche (acquisti, gestione Bustercoin).
+        // Azioni economiche (acquisti, riscatti): stesso blu del marchio, più evidente.
+        // L'oro resta solo sull'icona della moneta.
         return css`
-          background: ${theme.gradients.gold};
-          color: #1E1504;
-          box-shadow: ${theme.shadow.gold};
-          &:hover:not(:disabled) { filter: brightness(1.06); }
+          background: ${theme.colors.brand};
+          color: ${theme.colors.onBrand};
+          box-shadow: 0 2px 8px rgba(26, 124, 182, 0.3);
+          &:hover:not(:disabled) { background: ${theme.colors.brandDark}; }
         `;
       case 'secondary':
         return css`
-          background: ${theme.colors.surfaceAlt};
-          border-color: ${theme.colors.border};
+          background: ${theme.colors.surface};
+          border-color: ${theme.colors.borderStrong};
           color: ${theme.colors.text};
           &:hover:not(:disabled) { background: ${theme.colors.surfaceHover}; border-color: ${theme.colors.borderStrong}; }
         `;
@@ -49,9 +50,9 @@ export const Button = styled.button<{ $variant?: Variant; $size?: 'sm' | 'md'; $
       case 'danger':
         return css`
           background: ${theme.colors.dangerSoft};
-          border-color: rgba(229, 86, 107, 0.4);
-          color: #FFB3BE;
-          &:hover:not(:disabled) { background: rgba(229, 86, 107, 0.24); }
+          border-color: ${theme.colors.dangerBorder};
+          color: ${theme.colors.dangerText};
+          &:hover:not(:disabled) { background: #F9D5D9; }
         `;
       default:
         return css`
@@ -107,19 +108,12 @@ const AmountWrap = styled.span<{ $size: number; $tone: 'gold' | 'positive' | 'ne
   gap: ${({ $size }) => Math.round($size * 0.3)}px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   font-size: ${({ $size }) => `${$size}px`};
-  ${({ $tone, theme }) =>
-    $tone === 'negative'
-      ? css`color: ${theme.colors.textSecondary};`
-      : css`
-          background: ${theme.gradients.goldText};
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-        `}
+  color: ${({ $tone, theme }) => ($tone === 'negative' ? theme.colors.textSecondary : theme.colors.text)};
 `;
 
-/** Importo in Bustercoin: sempre in oro, con l'icona della moneta. */
+/** Importo in Bustercoin, preceduto dall'icona della moneta (unico elemento in oro). */
 export function Bc({ value, size = 15, signed = false }: { value: number; size?: number; signed?: boolean }) {
   const tone = signed && value < 0 ? 'negative' : signed && value > 0 ? 'positive' : 'gold';
   return (
@@ -144,11 +138,11 @@ export const Badge = styled.span<{ $tone?: Tone }>`
   ${({ $tone = 'neutral', theme }) => {
     const map: Record<Tone, [string, string]> = {
       neutral: [theme.colors.surfaceAlt, theme.colors.textSecondary],
-      blue: [theme.colors.primarySoft, '#AFC0FF'],
-      green: [theme.colors.successSoft, '#8BE3BC'],
-      red: [theme.colors.dangerSoft, '#FFB3BE'],
-      amber: [theme.colors.warningSoft, '#F7CB85'],
-      gold: ['rgba(226,185,75,0.14)', theme.colors.goldLight],
+      blue: [theme.colors.infoSoft, theme.colors.primaryText],
+      green: [theme.colors.successSoft, theme.colors.successText],
+      red: [theme.colors.dangerSoft, theme.colors.dangerText],
+      amber: [theme.colors.warningSoft, theme.colors.warning],
+      gold: [theme.colors.infoSoft, theme.colors.primaryText],
     };
     const [bg, fg] = map[$tone];
     return css`background: ${bg}; color: ${fg};`;
@@ -182,7 +176,7 @@ export const Textarea = styled.textarea`${fieldCss} min-height: 96px; resize: ve
 export const Select = styled.select`${fieldCss}`;
 
 export const FieldError = styled.span`
-  color: #FF9AA9;
+  color: ${({ theme }) => theme.colors.dangerText};
   font-size: 0.8rem;
   font-weight: 500;
 `;
@@ -265,10 +259,10 @@ export const Alert = styled.div<{ $tone?: 'error' | 'success' | 'info' | 'warnin
   font-size: 0.9rem;
   ${({ $tone = 'info', theme }) => {
     const map = {
-      error: [theme.colors.dangerSoft, '#FFC2CB', 'rgba(229,86,107,0.35)'],
-      success: [theme.colors.successSoft, '#A9EDCF', 'rgba(63,185,132,0.35)'],
-      warning: [theme.colors.warningSoft, '#F9D59A', 'rgba(232,161,58,0.35)'],
-      info: [theme.colors.primarySoft, '#C5D1FF', 'rgba(79,107,216,0.35)'],
+      error: [theme.colors.dangerSoft, theme.colors.dangerText, theme.colors.dangerBorder],
+      success: [theme.colors.successSoft, theme.colors.successText, theme.colors.successBorder],
+      warning: [theme.colors.warningSoft, theme.colors.warning, theme.colors.warningBorder],
+      info: [theme.colors.infoSoft, theme.colors.primaryText, theme.colors.infoBorder],
     } as const;
     const [bg, fg, bd] = map[$tone];
     return css`background: ${bg}; color: ${fg}; border: 1px solid ${bd};`;
@@ -332,17 +326,19 @@ export const Tabs = styled.div`
   margin-bottom: 18px;
 `;
 
-export const Tab = styled.button<{ $active?: boolean }>`
-  border: 1px solid ${({ theme, $active }) => ($active ? theme.colors.primary : theme.colors.border)};
-  background: ${({ theme, $active }) => ($active ? theme.colors.primarySoft : 'transparent')};
-  color: ${({ theme, $active }) => ($active ? theme.colors.text : theme.colors.textSecondary)};
+/** Tab: fondo blu del marchio; la tab attiva è più scura, in grassetto e sottolineata. */
+export const Tab = styled.button.attrs<{ $active?: boolean }>((p) => ({ type: 'button', 'aria-pressed': !!p.$active }))<{ $active?: boolean }>`
+  border: 0;
+  background: ${({ theme, $active }) => ($active ? theme.colors.brandDarker : theme.colors.brand)};
+  color: ${({ theme }) => theme.colors.onBrand};
   border-radius: ${({ theme }) => theme.radii.pill};
-  padding: 6px 14px;
-  font-weight: 600;
+  padding: 7px 15px;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
   font-size: 0.85rem;
   cursor: pointer;
   white-space: nowrap;
-  &:hover { border-color: ${({ theme }) => theme.colors.borderStrong}; }
+  box-shadow: ${({ $active }) => ($active ? 'inset 0 -3px 0 rgba(255,255,255,0.85)' : 'none')};
+  &:hover { background: ${({ theme }) => theme.colors.brandDark}; }
 `;
 
 export function Pagination({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {

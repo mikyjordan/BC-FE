@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { api, ApiError } from '../../api/client';
 import { useAdminMutation, useAdminSeasons } from '../../api/hooks';
 import type { AdminSeason } from '../../api/types';
-import { Alert, Badge, Bc, Button, Card, Checkbox, Input, Muted, Stack, Table, TableScroll } from '../../components/ui';
+import { Alert, Badge, Bc, Button, Card, Checkbox, FieldError, Input, Muted, Stack, Table, TableScroll } from '../../components/ui';
 import { hasPermission, useAuthStore } from '../../store/auth';
 
 function SeasonRow({ seriesId, s }: { seriesId: string; s: AdminSeason }) {
@@ -32,7 +32,7 @@ function SeasonRow({ seriesId, s }: { seriesId: string; s: AdminSeason }) {
         ) : (
           <Badge $tone={s.purchasesEnabled ? 'green' : 'neutral'}>{s.purchasesEnabled ? 'Attivi' : 'Disattivati'}</Badge>
         )}
-        {m.error && <Muted $size="0.75rem" style={{ color: '#FF9AA9' }}>{m.error.message}</Muted>}
+        {m.error && <FieldError>{m.error.message}</FieldError>}
       </td>
     </tr>
   );
