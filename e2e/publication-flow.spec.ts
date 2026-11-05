@@ -11,6 +11,15 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.getByLabel('Titolo *').fill(title);
     await page.getByLabel('Generi').fill('Commedia, Dramma');
     await page.getByLabel('Regista').fill('Regista E2E');
+    // Locandina caricata dal computer
+    await page.getByTestId('poster-file').setInputFiles({
+      name: 'locandina.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from('89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d49444154789c6360000002000154a24f5d0000000049454e44ae426082', 'hex'),
+    });
+    await expect(page.getByText('Immagine caricata sul server')).toBeVisible();
+    await expect(page.getByLabel('Titolo originale')).toHaveCount(0);
+    await expect(page.getByLabel('Descrizione')).toHaveCount(0);
     await page.getByRole('button', { name: 'Crea in bozza' }).click();
     await expect(page.getByRole('heading', { name: title })).toBeVisible();
     await expect(page.getByText('Bozza', { exact: true }).first()).toBeVisible();
@@ -29,7 +38,15 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.keyboard.press('Enter');
     await page.getByRole('button', { name: 'Gestisci' }).first().click();
 
+    // Campi obbligatori: senza prezzo e chiusura il salvataggio viene bloccato
+    await page.getByRole('button', { name: 'Salva prezzo e date' }).click();
+    await expect(page.getByText('Il prezzo è obbligatorio')).toBeVisible();
+    await expect(page.getByText('La chiusura degli acquisti è obbligatoria')).toBeVisible();
+
     await page.getByLabel('Prezzo del film (Bustercoin)').fill('500000');
+    const close = new Date(Date.now() + 20 * 86_400_000);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    await page.getByLabel('Chiusura acquisti').fill(`${close.getFullYear()}-${pad(close.getMonth() + 1)}-${pad(close.getDate())}T00:00`);
     await page.getByRole('button', { name: 'Salva prezzo e date' }).click();
     await expect(page.getByText('Impostazioni salvate.')).toBeVisible();
     await page.getByRole('button', { name: 'Abilita acquisti' }).click();
@@ -47,6 +64,7 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.getByRole('link', { name: new RegExp(title) }).first().click();
     await expect(page.getByRole('heading', { name: title })).toBeVisible();
 
+    await expect(page.getByTestId('purchase-deadline')).toContainText('mezzanotte del giorno prima dell’uscita nelle sale');
     await page.getByRole('button', { name: 'Acquista' }).click();
     await page.getByRole('button', { name: /Conferma 500\.000 B/ }).click();
     await expect(page.getByText('Il tuo investimento')).toBeVisible();

@@ -51,6 +51,18 @@ export function BoxOfficeCard({ movie }: { movie: PublicMovie }) {
   );
 }
 
+/** La possibilità d'acquisto termina alla mezzanotte del giorno prima dell'uscita nelle sale. */
+function PurchaseDeadline({ closesAt }: { closesAt: string | null }) {
+  const lastDay = closesAt ? new Date(new Date(closesAt).getTime() - 1) : null;
+  return (
+    <Alert $tone="info" data-testid="purchase-deadline">
+      Acquistabile fino alla mezzanotte del giorno prima dell’uscita nelle sale
+      {lastDay ? `: ultimo giorno ${formatDate(lastDay.toISOString())}, chiusura ${formatDateTime(closesAt)}.` : '.'}{' '}
+      <Link to="/come-funziona" style={{ textDecoration: 'underline' }}>Come funziona</Link>
+    </Alert>
+  );
+}
+
 /**
  * Pannello laterale del film. Se l'utente possiede il film mostra prezzo d'acquisto,
  * incasso, guadagno/perdita e "Riscatta"; altrimenti l'acquisto unico a prezzo fisso.
@@ -116,6 +128,7 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
         <Muted $size="0.82rem">
           Paghi il prezzo una sola volta. Potrai riscattare il film quando vuoi: riceverai l’incasso attuale del film. Se l’incasso supera il prezzo pagato sei in guadagno.
         </Muted>
+        <PurchaseDeadline closesAt={movie.purchase.closesAt ?? null} />
         <Stack $row $justify="space-between">
           <Muted $size="0.8rem">Saldo disponibile</Muted>
           <Muted $size="0.8rem">{formatBc(balance)}</Muted>

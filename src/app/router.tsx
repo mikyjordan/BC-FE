@@ -11,6 +11,7 @@ import { MovieDetailPage, SeriesDetailPage } from '../features/catalog/DetailPag
 import { ProfilePage } from '../features/profile/ProfilePage';
 import { SettingsPage } from '../features/profile/SettingsPage';
 import { PrivacyPage, TermsPage } from '../features/legal/LegalPages';
+import { HowItWorksPage } from '../features/info/HowItWorksPage';
 import { BuyCoinsPage, LeaderboardsPage, NotificationsPage, RewardsPage, TrophiesPage } from '../features/upcoming/ComingSoonPage';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
   { path: '/reset-password', element: <ResetPasswordPage /> },
   { path: '/privacy', element: <PrivacyPage /> },
   { path: '/termini', element: <TermsPage /> },
+  { path: '/come-funziona', element: <HowItWorksPage /> },
   {
     element: <RequireAuth />,
     children: [

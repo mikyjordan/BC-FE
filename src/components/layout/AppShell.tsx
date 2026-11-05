@@ -1,6 +1,6 @@
 import { NavLink, Outlet, Link, useNavigate } from 'react-router';
 import styled from 'styled-components';
-import { Award, Clapperboard, Gift, Home, LayoutDashboard, LogOut, Shield, Trophy, Tv, User, Wallet } from 'lucide-react';
+import { Award, Clapperboard, Info, Gift, Home, LayoutDashboard, LogOut, Shield, Trophy, Tv, User, Wallet } from 'lucide-react';
 import { Logo } from '../brand/Logo';
 import { Bc } from '../ui';
 import { Avatar } from '../Avatar';
@@ -162,6 +162,9 @@ export function AppShell() {
         ))}
         <SideLink to="/app/coppe">
           <Award size={18} /> Coppe
+        </SideLink>
+        <SideLink to="/come-funziona">
+          <Info size={18} /> Come funziona
         </SideLink>
         {isStaff(user) && (
           <>

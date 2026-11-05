@@ -23,6 +23,9 @@ function LegalLayout({ title, children }: { title: string; children: ReactNode }
         Bozza da sottoporre a verifica legale e fiscale prima del lancio. Il testo definitivo deve essere redatto da un professionista.
       </Alert>
       <Card>{children}</Card>
+      <p style={{ marginTop: 16 }}>
+        <Link to="/come-funziona" style={{ textDecoration: 'underline' }}>Come funziona BusterCinema</Link>
+      </p>
     </Wrap>
   );
 }
@@ -37,6 +40,13 @@ export function TermsPage() {
         <li>Bustercoin è una valuta virtuale utilizzabile esclusivamente all’interno della piattaforma.</li>
         <li>Non è denaro, non è una criptovaluta, non è uno strumento finanziario e non è convertibile in denaro reale.</li>
         <li>Le partecipazioni acquistate sono virtuali e non attribuiscono proprietà, diritti economici o quote su film, serie TV o piattaforme.</li>
+      </ul>
+      <h2>Acquisto dei film</h2>
+      <ul>
+        <li>Ogni film può essere acquistato una sola volta, al prezzo stabilito dalla piattaforma.</li>
+        <li>La possibilità di acquistare un film termina alla mezzanotte del giorno prima della sua uscita nelle sale italiane.</li>
+        <li>Il riscatto accredita l’incasso del film in vigore (1 € = 1 Bustercoin); un film riscattato non può essere riacquistato.</li>
+        <li>All’uscita dalle sale il film viene riscattato automaticamente a tutti i possessori.</li>
       </ul>
       <h2>Dati sui contenuti</h2>
       <p>I rendimenti virtuali si basano su dati del mercato italiano provenienti da fonti indicate in ciascuna scheda. Le posizioni in classifica non rappresentano numeri certificati di spettatori.</p>

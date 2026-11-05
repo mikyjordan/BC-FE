@@ -7,7 +7,7 @@ import { api, ApiError } from '../../api/client';
 import { useAdminContent, useAdminMutation } from '../../api/hooks';
 import type { AdminContent, ContentKindPath } from '../../api/types';
 import { Alert, Badge, Bc, Button, Card, Checkbox, Field, Input, Muted, PageHeader, Select, Spinner, Stack, Textarea } from '../../components/ui';
-import { formatDateTime, STATUS_LABELS } from '../../components/format';
+import { formatDate, formatDateTime, STATUS_LABELS } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
 import { FIELDS, fromLocalInput, toFormValues, toLocalInput, toPayload, type FormValues } from './content-fields';
@@ -16,6 +16,7 @@ import { PreviewModal } from './PreviewModal';
 import { statusTone } from './PublicationPage';
 import { SeasonsSection } from './SeasonsSection';
 import { BoxOfficeSection } from './BoxOfficeSection';
+import { PosterField } from './PosterField';
 import { AutoRedeemSection } from './AutoRedeemSection';
 
 const FormGrid = styled.div`
@@ -52,7 +53,7 @@ function EditorialForm({ kind, item }: { kind: ContentKindPath; item?: AdminCont
   const user = useAuthStore((s) => s.user);
   const canEdit = item ? hasPermission(user, 'content.edit') : hasPermission(user, 'content.create');
   const [saved, setSaved] = useState(false);
-  const { register, handleSubmit, reset, formState } = useForm<FormValues>({ defaultValues: toFormValues(kind, item) });
+  const { register, handleSubmit, reset, formState, watch, setValue } = useForm<FormValues>({ defaultValues: toFormValues(kind, item) });
   useEffect(() => reset(toFormValues(kind, item)), [item, kind, reset]);
 
   const mutation = useAdminMutation((payload: Record<string, unknown>) =>
@@ -80,7 +81,14 @@ function EditorialForm({ kind, item }: { kind: ContentKindPath; item?: AdminCont
             {FIELDS[kind].map((f) => (
               <div key={f.name} className={f.wide || f.type === 'textarea' ? 'wide' : undefined}>
                 <Field label={`${f.label}${f.required ? ' *' : ''}`} hint={f.hint}>
-                  {f.type === 'textarea' ? (
+                  {f.type === 'image' ? (
+                    <PosterField
+                      value={watch(f.name) ?? ''}
+                      onChange={(v) => setValue(f.name, v, { shouldDirty: true })}
+                      disabled={!canEdit}
+                      kind={kind === 'movies' ? 'MOVIE' : 'TV_SERIES'}
+                    />
+                  ) : f.type === 'textarea' ? (
                     <Textarea {...register(f.name, { required: f.required })} />
                   ) : f.type === 'select' ? (
                     <Select {...register(f.name)}>
@@ -215,55 +223,116 @@ function VisibilitySection({ kind, item }: { kind: ContentKindPath; item: AdminC
 }
 
 /* ---------------- Acquisti ---------------- */
+/** Mezzanotte tra il giorno prima dell'uscita e il giorno d'uscita (ora locale), per <input type="datetime-local">. */
+export const releaseMidnightInput = (releaseDate: string | null | undefined) => (releaseDate ? `${releaseDate}T00:00` : '');
+
+type PurchaseField = 'priceBc' | 'purchaseOpensAt' | 'purchaseClosesAt';
+
 function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminContent }) {
   const user = useAuthStore((s) => s.user);
   const can = hasPermission(user, 'content.purchases');
-  const [price, setPrice] = useState(item.priceBc ? String(item.priceBc) : '');
-  const [opens, setOpens] = useState(toLocalInput(item.purchaseOpensAt));
-  const [closes, setCloses] = useState(toLocalInput(item.purchaseClosesAt));
-  const [saved, setSaved] = useState(false);
+  // Valori iniziali: quelli salvati; altrimenti apertura = adesso e, per i film,
+  // chiusura = mezzanotte del giorno prima dell'uscita in sala.
+  const initial = () => ({
+    price: item.priceBc ? String(item.priceBc) : '',
+    opens: toLocalInput(item.purchaseOpensAt) || toLocalInput(new Date().toISOString()),
+    closes: toLocalInput(item.purchaseClosesAt) || (kind === 'movies' ? releaseMidnightInput(item.italianReleaseDate) : ''),
+  });
+  const [price, setPrice] = useState(initial().price);
+  const [opens, setOpens] = useState(initial().opens);
+  const [closes, setCloses] = useState(initial().closes);
+  const [errors, setErrors] = useState<Partial<Record<PurchaseField, string>>>({});
+  const [saved, setSaved] = useState<string | null>(null);
   const mutation = useAdminMutation((body: Record<string, unknown>) => api(`/admin/${kind}/${item.id}/purchase-settings`, { method: 'PATCH', body }));
   // Riallinea i campi quando il record viene ricaricato dal server.
   useEffect(() => {
-    setPrice(item.priceBc ? String(item.priceBc) : '');
-    setOpens(toLocalInput(item.purchaseOpensAt));
-    setCloses(toLocalInput(item.purchaseClosesAt));
-  }, [item.priceBc, item.purchaseOpensAt, item.purchaseClosesAt]);
+    const v = initial();
+    setPrice(v.price);
+    setOpens(v.opens);
+    setCloses(v.closes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.priceBc, item.purchaseOpensAt, item.purchaseClosesAt, item.italianReleaseDate]);
   const seasonScoped = kind === 'tv-series' && item.holdingScope === 'SEASON';
+  const suggestedClose = kind === 'movies' ? releaseMidnightInput(item.italianReleaseDate) : '';
 
-  const save = (extra: Record<string, unknown> = {}) => {
-    setSaved(false);
+  /** Validazione lato frontend: tutti e tre i campi sono obbligatori (il backend applica le stesse regole). */
+  const validate = () => {
+    const e: Partial<Record<PurchaseField, string>> = {};
+    const n = Number(price);
+    if (!price) e.priceBc = 'Il prezzo è obbligatorio';
+    else if (!Number.isInteger(n) || n <= 0) e.priceBc = 'Inserisci un numero intero maggiore di zero';
+    if (!opens) e.purchaseOpensAt = 'L’apertura degli acquisti è obbligatoria';
+    if (!closes) e.purchaseClosesAt = 'La chiusura degli acquisti è obbligatoria';
+    else if (opens && new Date(closes) <= new Date(opens)) e.purchaseClosesAt = 'La chiusura deve seguire l’apertura';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const save = (extra: Record<string, unknown> = {}, message = 'Impostazioni salvate.') => {
+    setSaved(null);
+    if (!validate()) return;
     mutation.mutate(
-      { priceBc: price ? Number.parseInt(price, 10) : null, purchaseOpensAt: fromLocalInput(opens), purchaseClosesAt: fromLocalInput(closes), ...extra },
-      { onSuccess: () => setSaved(true) },
+      { priceBc: Number.parseInt(price, 10), purchaseOpensAt: fromLocalInput(opens), purchaseClosesAt: fromLocalInput(closes), ...extra },
+      {
+        onSuccess: () => setSaved(message),
+        onError: (err) => {
+          if (err instanceof ApiError && err.details) {
+            setErrors(Object.fromEntries(err.details.map((d) => [d.path, d.message])) as Partial<Record<PurchaseField, string>>);
+          }
+        },
+      },
     );
   };
 
+  const suspend = () => {
+    setSaved(null);
+    mutation.mutate({ purchasesEnabled: false }, { onSuccess: () => setSaved('Acquisti sospesi.') });
+  };
+
   return (
-    <Section title="Acquisti" note={seasonScoped ? 'Serie acquistabile per stagione: il prezzo della stagione, se impostato, prevale su quello della serie.' : undefined}>
+    <Section title="Acquisti" note={seasonScoped ? 'Serie acquistabile per stagione: il prezzo della stagione, se impostato, prevale su quello della serie.' : 'Tutti i campi sono obbligatori.'}>
       <Stack $gap={12}>
         <Stack $row $justify="space-between" $align="center">
           <Badge $tone={item.purchasesEnabled ? 'green' : 'neutral'}>{item.purchasesEnabled ? 'Acquisti attivi' : 'Acquisti disattivati'}</Badge>
           {item.priceBc ? <Bc value={item.priceBc} size={14} /> : null}
         </Stack>
-        <Field label={kind === 'movies' ? 'Prezzo del film (Bustercoin)' : 'Prezzo per quota (Bustercoin)'}>
-          <Input type="number" min={1} value={price} disabled={!can} onChange={(e) => setPrice(e.target.value)} />
+        <Field label={kind === 'movies' ? 'Prezzo del film (Bustercoin) *' : 'Prezzo per quota (Bustercoin) *'} error={errors.priceBc}>
+          <Input type="number" min={1} required aria-invalid={!!errors.priceBc} value={price} disabled={!can} onChange={(e) => setPrice(e.target.value)} />
         </Field>
-        <Field label="Apertura acquisti" hint="Facoltativa">
-          <Input type="datetime-local" value={opens} disabled={!can} onChange={(e) => setOpens(e.target.value)} />
+        <Field label="Apertura acquisti *" error={errors.purchaseOpensAt}>
+          <Input type="datetime-local" required aria-invalid={!!errors.purchaseOpensAt} value={opens} disabled={!can} onChange={(e) => setOpens(e.target.value)} />
         </Field>
-        <Field label="Chiusura acquisti" hint="Facoltativa">
-          <Input type="datetime-local" value={closes} disabled={!can} onChange={(e) => setCloses(e.target.value)} />
+        <Field
+          label="Chiusura acquisti *"
+          error={errors.purchaseClosesAt}
+          hint={
+            kind === 'movies'
+              ? suggestedClose
+                ? 'Regola: mezzanotte del giorno prima dell’uscita nelle sale (precompilata dalla data d’uscita italiana).'
+                : 'Regola: mezzanotte del giorno prima dell’uscita nelle sale. Imposta la data d’uscita italiana nei dati editoriali per precompilarla.'
+              : undefined
+          }
+        >
+          <Input type="datetime-local" required aria-invalid={!!errors.purchaseClosesAt} value={closes} disabled={!can} onChange={(e) => setCloses(e.target.value)} />
         </Field>
-        {mutation.error && <Alert $tone="error">{errorText(mutation.error)}</Alert>}
-        {saved && <Alert $tone="success">Impostazioni salvate.</Alert>}
+        {kind === 'movies' && suggestedClose && closes !== suggestedClose && can && (
+          <div>
+            <Button $size="sm" $variant="ghost" onClick={() => setCloses(suggestedClose)}>
+              Usa la mezzanotte prima dell’uscita ({formatDate(item.italianReleaseDate)})
+            </Button>
+          </div>
+        )}
+        {mutation.error && !Object.keys(errors).length && <Alert $tone="error">{errorText(mutation.error)}</Alert>}
+        {saved && <Alert $tone="success">{saved}</Alert>}
         {can ? (
           <Stack $row $gap={8} $wrap>
             <Button $variant="gold" disabled={mutation.isPending} onClick={() => save()}>Salva prezzo e date</Button>
             {item.purchasesEnabled ? (
-              <Button $variant="secondary" disabled={mutation.isPending} onClick={() => save({ purchasesEnabled: false })}>Sospendi acquisti</Button>
+              <Button $variant="secondary" disabled={mutation.isPending} onClick={suspend}>Sospendi acquisti</Button>
             ) : (
-              <Button $variant="secondary" disabled={mutation.isPending || item.publicationStatus === 'ARCHIVED'} onClick={() => save({ purchasesEnabled: true })}>Abilita acquisti</Button>
+              <Button $variant="secondary" disabled={mutation.isPending || item.publicationStatus === 'ARCHIVED'} onClick={() => save({ purchasesEnabled: true }, 'Acquisti abilitati.')}>
+                Abilita acquisti
+              </Button>
             )}
           </Stack>
         ) : (

@@ -64,7 +64,8 @@ export function AuthLayout({ title, subtitle, children, footer }: { title: strin
           </Muted>
         </div>
         <Muted $size="0.8rem">
-          Bustercoin è una valuta virtuale di gioco: non è denaro, non è convertibile e non attribuisce diritti reali sui contenuti.
+          Bustercoin è una valuta virtuale di gioco: non è denaro, non è convertibile e non attribuisce diritti reali sui contenuti.{' '}
+          <Link to="/come-funziona" style={{ textDecoration: 'underline' }}>Come funziona</Link>
         </Muted>
       </Showcase>
       <FormSide>

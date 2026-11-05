@@ -27,17 +27,30 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
   const [saved, setSaved] = useState<string | null>(null);
   const mutation = useAdminMutation((body: Record<string, unknown>) => api<{ becomesCurrent: boolean }>(`/admin/movies/${movie.id}/box-office`, { method: 'POST', body }));
 
+  const [errors, setErrors] = useState<{ grossAmount?: string; recordedAt?: string }>({});
   const amount = Number(gross);
   const valid = gross !== '' && Number.isInteger(amount) && amount >= 0;
+
+  /** Incasso e data di rilevazione sono obbligatori (stesse regole del backend). */
+  const validate = () => {
+    const e: typeof errors = {};
+    if (gross === '') e.grossAmount = 'L’incasso è obbligatorio';
+    else if (!Number.isInteger(amount) || amount < 0) e.grossAmount = 'Inserisci un numero intero maggiore o uguale a zero';
+    if (!when) e.recordedAt = 'La data di rilevazione è obbligatoria';
+    else if (new Date(when).getTime() > Date.now() + 60_000) e.recordedAt = 'La data di rilevazione non può essere futura';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
   const decreasing = valid && movie.latestGross != null && amount < movie.latestGross;
 
   const submit = () => {
     setSaved(null);
+    if (!validate()) return;
     mutation.mutate(
       {
         grossAmount: amount,
         ...(spectators ? { spectators: Number(spectators) } : {}),
-        recordedAt: whenTouched && when ? fromLocalInput(when) : new Date().toISOString(),
+        recordedAt: whenTouched ? fromLocalInput(when) : new Date().toISOString(),
         ...(notes.trim() ? { notes: notes.trim() } : {}),
       },
       {
@@ -50,6 +63,9 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
           setWhenTouched(false);
           setNotes('');
           void history.refetch();
+        },
+        onError: (err) => {
+          if (err instanceof ApiError && err.details) setErrors(Object.fromEntries(err.details.map((d) => [d.path, d.message])));
         },
       },
     );
@@ -70,8 +86,8 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
 
         {can ? (
           <>
-            <Field label="Nuovo incasso totale (€)">
-              <Input type="number" min={0} step={1} value={gross} onChange={(e) => setGross(e.target.value)} />
+            <Field label="Nuovo incasso totale (€) *" error={errors.grossAmount}>
+              <Input type="number" min={0} step={1} required aria-invalid={!!errors.grossAmount} value={gross} onChange={(e) => setGross(e.target.value)} />
             </Field>
             <Stack $row $gap={10} $wrap>
               <div style={{ flex: '1 1 160px' }}>
@@ -80,8 +96,8 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
                 </Field>
               </div>
               <div style={{ flex: '1 1 200px' }}>
-                <Field label="Data rilevazione" hint="Precompilata con la data e l’ora attuali">
-                  <Input type="datetime-local" value={when} onChange={(e) => { setWhen(e.target.value); setWhenTouched(true); }} />
+                <Field label="Data rilevazione *" hint="Precompilata con la data e l’ora attuali" error={errors.recordedAt}>
+                  <Input type="datetime-local" required aria-invalid={!!errors.recordedAt} value={when} onChange={(e) => { setWhen(e.target.value); setWhenTouched(true); }} />
                 </Field>
               </div>
             </Stack>
@@ -89,10 +105,10 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
               <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Es. Cinetel, settimana 44" />
             </Field>
             {decreasing && <Alert $tone="warning">Il nuovo incasso è inferiore a quello in vigore: gli utenti che riscattano riceveranno meno.</Alert>}
-            {mutation.error && <Alert $tone="error">{mutation.error instanceof ApiError ? mutation.error.message : 'Errore'}</Alert>}
+            {mutation.error && !Object.keys(errors).length && <Alert $tone="error">{mutation.error instanceof ApiError ? mutation.error.message : 'Errore'}</Alert>}
             {saved && <Alert $tone="success">{saved}</Alert>}
             <div>
-              <Button $variant="gold" disabled={!valid || mutation.isPending} onClick={submit}>
+              <Button $variant="gold" disabled={mutation.isPending} onClick={submit}>
                 Registra incasso {valid ? formatBc(amount) : ''}
               </Button>
             </div>

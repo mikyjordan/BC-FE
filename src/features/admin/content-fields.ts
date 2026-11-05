@@ -1,6 +1,6 @@
 import type { AdminContent, ContentKindPath } from '../../api/types';
 
-export type FieldType = 'text' | 'textarea' | 'list' | 'int' | 'date' | 'select';
+export type FieldType = 'text' | 'textarea' | 'list' | 'int' | 'date' | 'select' | 'image';
 
 export interface FieldDef {
   name: keyof AdminContent & string;
@@ -15,7 +15,7 @@ export interface FieldDef {
 const common = {
   title: { name: 'title', label: 'Titolo', type: 'text', required: true },
   originalTitle: { name: 'originalTitle', label: 'Titolo originale', type: 'text' },
-  posterUrl: { name: 'posterUrl', label: 'URL locandina', type: 'text', hint: 'https://… (immagine verticale)' },
+  posterUrl: { name: 'posterUrl', label: 'Locandina', type: 'image', wide: true, hint: 'Carica un’immagine dal computer oppure incolla un link https://… (formato verticale)' },
   coverUrl: { name: 'coverUrl', label: 'URL immagine di copertina', type: 'text', hint: 'https://… (immagine orizzontale)' },
   description: { name: 'description', label: 'Descrizione', type: 'textarea', wide: true },
   genres: { name: 'genres', label: 'Generi', type: 'list', hint: 'Separati da virgola' },
@@ -25,12 +25,10 @@ const common = {
 } satisfies Record<string, FieldDef>;
 
 export const FIELDS: Record<ContentKindPath, FieldDef[]> = {
+  // Film: niente titolo originale, immagine di copertina e descrizione (la scheda usa la trama).
   movies: [
     common.title,
-    common.originalTitle,
     common.posterUrl,
-    common.coverUrl,
-    common.description,
     { name: 'plot', label: 'Trama', type: 'textarea', wide: true },
     common.genres,
     { name: 'director', label: 'Regista', type: 'text' },
