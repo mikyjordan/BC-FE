@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router';
 import styled from 'styled-components';
-import { Clapperboard, Gift, Sparkles, Trophy, Tv } from 'lucide-react';
+import { ChevronRight, Clapperboard, Gift, Sparkles, Trophy, Tv } from 'lucide-react';
 import { useHome, useTransactions, useWallet } from '../../api/hooks';
 import { Alert, Bc, Card, Gain, EmptyState, Grid, Muted, SectionTitle, Spinner, Stack } from '../../components/ui';
 import { formatDateTime, formatPct, LEDGER_LABELS } from '../../components/format';
@@ -40,6 +40,23 @@ const ActivityRow = styled.div`
   padding: 12px 0;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   &:last-child { border-bottom: 0; }
+`;
+
+/** Riga di un acquisto film: porta alla scheda del film. */
+const ActivityLink = styled(Link)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 8px;
+  margin: 0 -8px;
+  border-radius: ${({ theme }) => theme.radii.sm};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  color: inherit;
+  text-decoration: none;
+  &:last-child { border-bottom: 0; }
+  &:hover { background: ${({ theme }) => theme.colors.bg}; }
+  &:focus-visible { outline: 2px solid ${({ theme }) => theme.colors.brand}; outline-offset: -2px; }
 `;
 
 export function HomePage() {
@@ -163,17 +180,33 @@ export function HomePage() {
           Attività recenti <MoreLink to="/app/movimenti">Storico</MoreLink>
         </SectionTitle>
         <Card $padding="4px 18px">
-          {activity.data?.items.slice(0, 5).map((t) => (
-            <ActivityRow key={t.id}>
+          {activity.data?.items.slice(0, 5).map((t) => {
+            const body = (
               <div>
                 <div style={{ fontWeight: 600 }}>{LEDGER_LABELS[t.type] ?? t.type}</div>
                 <Muted $size="0.8rem">
                   {t.description} · {formatDateTime(t.createdAt)}
                 </Muted>
               </div>
-              <Bc value={t.amount} signed size={14} />
-            </ActivityRow>
-          ))}
+            );
+            if (t.type === 'MOVIE_PURCHASE' && t.movieId && features?.movies !== false) {
+              return (
+                <ActivityLink key={t.id} to={`/app/film/${t.movieId}`} aria-label={`${LEDGER_LABELS[t.type]}: ${t.description} — apri la scheda del film`} data-testid="activity-movie-link">
+                  {body}
+                  <Stack $row $gap={6} $align="center">
+                    <Bc value={t.amount} signed size={14} />
+                    <ChevronRight size={16} aria-hidden />
+                  </Stack>
+                </ActivityLink>
+              );
+            }
+            return (
+              <ActivityRow key={t.id}>
+                {body}
+                <Bc value={t.amount} signed size={14} />
+              </ActivityRow>
+            );
+          })}
           {activity.data && activity.data.items.length === 0 && <Muted style={{ padding: 16 }}>Nessuna attività.</Muted>}
         </Card>
       </Section>

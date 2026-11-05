@@ -76,6 +76,14 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await expect(page.getByText('Il tuo investimento')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Riscatta' })).toBeDisabled();
 
+    // Nelle attività recenti la riga dell'acquisto porta alla scheda del film
+    await page.goto('/app');
+    const activity = page.getByTestId('activity-movie-link').first();
+    await expect(activity).toContainText('Acquisto film');
+    await activity.click();
+    await expect(page).toHaveURL(/\/app\/film\/[0-9a-f-]+$/);
+    await expect(page.getByRole('heading', { name: title })).toBeVisible();
+
     // Il Superadmin inserisce l'incasso attuale: 600.000 €
     const admin = await browser.newPage();
     await login(admin, SUPERADMIN.email, SUPERADMIN.password);
