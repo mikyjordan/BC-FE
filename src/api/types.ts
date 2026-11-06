@@ -277,6 +277,18 @@ export interface AdminUserRow {
   permissions: string[];
 }
 
+export interface UserDeletionPreview {
+  id: string;
+  username: string;
+  email: string;
+  role: Role;
+  balance: number;
+  transactions: number;
+  holdings: number;
+  openHoldings: number;
+  deletable: boolean;
+}
+
 export interface ContentNotificationStats {
   notifyOnPublish: boolean;
   queuedAt: string | null;

@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Coins, KeyRound, Search, ShieldBan, ShieldCheck } from 'lucide-react';
+import { Coins, KeyRound, Search, ShieldBan, ShieldCheck, Trash2 } from 'lucide-react';
 import { api, newIdempotencyKey } from '../../api/client';
-import { useAdminMutation, useAdminPermissions, useAdminUsers } from '../../api/hooks';
+import { useAdminMutation, useAdminPermissions, useAdminUsers, useUserDeletionPreview } from '../../api/hooks';
 import type { AdminUserRow } from '../../api/types';
 import { Modal } from '../../components/Modal';
 import { Alert, Badge, Bc, Button, Card, Checkbox, Field, Input, Muted, PageHeader, Pagination, Select, Spinner, Stack, Table, TableScroll } from '../../components/ui';
-import { formatDate, formatBc } from '../../components/format';
+import { formatDate, formatBc, formatNumber } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { t, tx } from '../../i18n';
 
@@ -17,6 +17,7 @@ function PermissionsModal({ user, onClose }: { user: AdminUserRow; onClose: () =
     <Modal title={t('admin.usersPage.permessiDiUsername', { username: user.username })} onClose={onClose}>
       <Stack $gap={10}>
         <Muted $size="0.85rem">{t('admin.usersPage.unAdminNonHaAlcun')}</Muted>
+        <Muted $size="0.85rem">{t('admin.usersPage.riservatiSuperadmin')}</Muted>
         {perms.data?.items.map((p) => (
           <Checkbox key={p.key}>
             <input
@@ -77,10 +78,46 @@ function AdjustModal({ user, onClose }: { user: AdminUserRow; onClose: () => voi
   );
 }
 
+function DeleteUserModal({ user, onClose, onDeleted }: { user: AdminUserRow; onClose: () => void; onDeleted: (username: string) => void }) {
+  const preview = useUserDeletionPreview(user.id);
+  const [confirm, setConfirm] = useState('');
+  const m = useAdminMutation(() => api<{ username: string }>(`/admin/users/${user.id}`, { method: 'DELETE', body: { confirmUsername: confirm } }));
+  const p = preview.data;
+  const ok = confirm.trim() === user.username;
+  return (
+    <Modal title={t('admin.usersPage.eliminaUtenteTitolo', { username: user.username })} onClose={onClose}>
+      <Stack $gap={12} data-testid="delete-user-modal">
+        <Alert $tone="error">{t('admin.usersPage.eliminaIrreversibile')}</Alert>
+        {preview.isLoading ? <Spinner /> : p && (
+          <Card $padding="12px 14px">
+            <Stack $gap={4}>
+              <span>{tx('admin.usersPage.eliminaRiepilogoUtente', { username: <strong>{p.username}</strong>, email: p.email })}</span>
+              <span>{tx('admin.usersPage.eliminaRiepilogoSaldo', { balance: <Bc value={p.balance} size={13} /> })}</span>
+              <span>{t('admin.usersPage.eliminaRiepilogoMovimenti', { transactions: formatNumber(p.transactions), holdings: formatNumber(p.holdings), open: formatNumber(p.openHoldings) })}</span>
+            </Stack>
+          </Card>
+        )}
+        <Muted $size="0.85rem">{t('admin.usersPage.eliminaAudit')}</Muted>
+        <Field label={t('admin.usersPage.eliminaConferma', { username: user.username })}>
+          <Input value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="off" />
+        </Field>
+        {m.error && <Alert $tone="error">{m.error.message}</Alert>}
+        <Stack $row $gap={8} $justify="flex-end">
+          <Button $variant="secondary" onClick={onClose}>{t('admin.usersPage.annulla')}</Button>
+          <Button $variant="danger" disabled={!ok || m.isPending || !p?.deletable} onClick={() => m.mutate(undefined, { onSuccess: () => onDeleted(user.username) })}>
+            {m.isPending ? t('admin.usersPage.eliminazioneInCorso') : t('admin.usersPage.eliminaDefinitivamente')}
+          </Button>
+        </Stack>
+      </Stack>
+    </Modal>
+  );
+}
+
 export function UsersPage() {
   const me = useAuthStore((s) => s.user);
   const isSuper = me?.role === 'SUPERADMIN';
-  const canAdjust = hasPermission(me, 'wallet.adjust');
+  // Rettifiche del saldo (in positivo e in negativo) e cancellazione degli utenti: solo il Superadmin.
+  const canAdjust = isSuper;
   const [page, setPage] = useState(1);
   const [q, setQ] = useState('');
   const [search, setSearch] = useState<string | undefined>();
@@ -88,6 +125,8 @@ export function UsersPage() {
   const users = useAdminUsers(page, search, role || undefined);
   const [permsFor, setPermsFor] = useState<AdminUserRow | null>(null);
   const [adjustFor, setAdjustFor] = useState<AdminUserRow | null>(null);
+  const [deleteFor, setDeleteFor] = useState<AdminUserRow | null>(null);
+  const [deleted, setDeleted] = useState<string | null>(null);
   const setRoleM = useAdminMutation((v: { id: string; role: 'USER' | 'ADMIN' }) => api(`/admin/users/${v.id}/role`, { method: 'PATCH', body: { role: v.role } }));
   const setStatusM = useAdminMutation((v: { id: string; status: 'ACTIVE' | 'SUSPENDED' }) => api(`/admin/users/${v.id}/status`, { method: 'PATCH', body: { status: v.status } }));
 
@@ -110,6 +149,7 @@ export function UsersPage() {
           </Select>
         </Stack>
       </form>
+      {deleted && <Alert $tone="success" style={{ marginBottom: 12 }}>{t('admin.usersPage.utenteEliminato', { username: deleted })}</Alert>}
       {(setRoleM.error || setStatusM.error) && <Alert $tone="error" style={{ marginBottom: 12 }}>{(setRoleM.error ?? setStatusM.error)!.message}</Alert>}
       <Card $padding="6px 10px">
         {users.isLoading ? <Spinner /> : (
@@ -140,11 +180,14 @@ export function UsersPage() {
                     <td>
                       <Stack $row $gap={4} $justify="flex-end">
                         {isSuper && u.role === 'ADMIN' && <Button $size="sm" $variant="ghost" onClick={() => setPermsFor(u)} title={t('admin.usersPage.permessi')}><KeyRound size={14} /></Button>}
-                        {canAdjust && <Button $size="sm" $variant="ghost" onClick={() => setAdjustFor(u)} title={t('admin.usersPage.rettificaSaldo')}><Coins size={14} /></Button>}
+                        {canAdjust && u.role !== 'SUPERADMIN' && <Button $size="sm" $variant="ghost" onClick={() => setAdjustFor(u)} title={t('admin.usersPage.rettificaSaldo')} aria-label={t('admin.usersPage.rettificaSaldoDi', { username: u.username })}><Coins size={14} /></Button>}
                         {isSuper && u.role !== 'SUPERADMIN' && u.id !== me?.id && (
                           u.status === 'ACTIVE'
                             ? <Button $size="sm" $variant="ghost" onClick={() => setStatusM.mutate({ id: u.id, status: 'SUSPENDED' })} title={t('admin.usersPage.sospendi')}><ShieldBan size={14} /></Button>
                             : <Button $size="sm" $variant="ghost" onClick={() => setStatusM.mutate({ id: u.id, status: 'ACTIVE' })} title={t('admin.usersPage.riattiva')}><ShieldCheck size={14} /></Button>
+                        )}
+                        {isSuper && u.role !== 'SUPERADMIN' && u.id !== me?.id && (
+                          <Button $size="sm" $variant="ghost" onClick={() => { setDeleted(null); setDeleteFor(u); }} title={t('admin.usersPage.eliminaUtente')} aria-label={t('admin.usersPage.eliminaUtenteDi', { username: u.username })}><Trash2 size={14} /></Button>
                         )}
                       </Stack>
                     </td>
@@ -158,6 +201,7 @@ export function UsersPage() {
       {users.data && <Pagination page={page} totalPages={users.data.totalPages} onChange={setPage} />}
       {permsFor && <PermissionsModal user={permsFor} onClose={() => setPermsFor(null)} />}
       {adjustFor && <AdjustModal user={adjustFor} onClose={() => setAdjustFor(null)} />}
+      {deleteFor && <DeleteUserModal user={deleteFor} onClose={() => setDeleteFor(null)} onDeleted={(name) => { setDeleteFor(null); setDeleted(name); }} />}
     </>
   );
 }

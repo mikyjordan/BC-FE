@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, newIdempotencyKey } from './client';
-import type { AdminContent, AdminSeason, AdminUserRow, AuditEntry, BoxOfficeReading, ContentKindPath, ContentNotificationStats, Features, Holding, HomeResponse, LedgerEntry, Me, Paginated, PublicMovie, PublicSeries, PublicationStatus, PurchaseResult, RedeemResult, WalletSummary } from './types';
+import type { AdminContent, AdminSeason, AdminUserRow, AuditEntry, BoxOfficeReading, ContentKindPath, ContentNotificationStats, Features, Holding, HomeResponse, LedgerEntry, Me, Paginated, PublicMovie, PublicSeries, PublicationStatus, PurchaseResult, RedeemResult, UserDeletionPreview, WalletSummary } from './types';
 import { useAuthStore } from '../store/auth';
 
 const authed = () => useAuthStore.getState().status === 'authenticated';
@@ -136,6 +136,9 @@ export const useAdminNotifications = (kind: ContentKindPath, id: string) =>
     // mentre le email partono, l'avanzamento si aggiorna da solo
     refetchInterval: (q) => ((q.state.data?.pending ?? 0) > 0 ? 10_000 : false),
   });
+
+export const useUserDeletionPreview = (id: string) =>
+  useQuery({ queryKey: ['admin', 'users', id, 'deletion-preview'], queryFn: () => api<UserDeletionPreview>(`/admin/users/${id}/deletion-preview`), staleTime: 0 });
 
 export const useAdminSeasons = (seriesId: string | undefined) =>
   useQuery({ queryKey: ['admin', 'seasons', seriesId], queryFn: () => api<{ items: AdminSeason[] }>(`/admin/tv-series/${seriesId}/seasons`), enabled: !!seriesId });
