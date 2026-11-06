@@ -274,6 +274,15 @@ export interface AdminUserRow {
 }
 
 /** Bonus configurati dal Superadmin (Amministrazione → Impostazioni). */
+/** Periodo in cui l'incasso si può modificare: dall'uscita in sala al riscatto di tutti. */
+export interface BoxOfficeWindow {
+  editable: boolean;
+  code: 'OPEN' | 'BOX_OFFICE_NO_RELEASE_DATE' | 'BOX_OFFICE_NOT_YET' | 'BOX_OFFICE_CLOSED';
+  message: string | null;
+  opensOn: string | null;
+  holdings: { total: number; open: number };
+}
+
 export interface EconomySettings {
   initialBonus: number;
   weeklyBonus: number;

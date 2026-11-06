@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, newIdempotencyKey } from './client';
-import type { AdminContent, AdminSeason, AdminUserRow, AuditEntry, BoxOfficeReading, ContentKindPath, ContentNotificationStats, EconomySettings, Features, Holding, HomeResponse, LedgerEntry, Me, Paginated, PublicMovie, PublicSeries, PublicationStatus, PurchaseResult, RedeemResult, UserDeletionPreview, WalletSummary } from './types';
+import type { AdminContent, AdminSeason, AdminUserRow, AuditEntry, BoxOfficeReading, BoxOfficeWindow, ContentKindPath, ContentNotificationStats, EconomySettings, Features, Holding, HomeResponse, LedgerEntry, Me, Paginated, PublicMovie, PublicSeries, PublicationStatus, PurchaseResult, RedeemResult, UserDeletionPreview, WalletSummary } from './types';
 import { useAuthStore } from '../store/auth';
 
 const authed = () => useAuthStore.getState().status === 'authenticated';
@@ -104,7 +104,7 @@ export const useMovieBoxOffice = (id: string) =>
   useQuery({ queryKey: ['movie', id, 'box-office'], queryFn: () => api<{ items: BoxOfficeReading[] }>(`/movies/${id}/box-office`), retry: false });
 
 export const useAdminBoxOffice = (id: string) =>
-  useQuery({ queryKey: ['admin', 'movies', id, 'box-office'], queryFn: () => api<{ items: BoxOfficeReading[] }>(`/admin/movies/${id}/box-office`) });
+  useQuery({ queryKey: ['admin', 'movies', id, 'box-office'], queryFn: () => api<{ items: BoxOfficeReading[]; window: BoxOfficeWindow }>(`/admin/movies/${id}/box-office`) });
 
 /* ---------- Profilo ---------- */
 export function useUpdateProfile() {

@@ -14,6 +14,10 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.getByLabel('Titolo *').fill(title);
     await page.getByLabel('Generi').fill('Commedia, Dramma');
     await page.getByLabel('Regista').fill('Regista E2E');
+    // Uscita nelle sale: oggi (l'incasso si può inserire dal giorno di uscita)
+    const today = new Date();
+    const p2 = (n: number) => String(n).padStart(2, '0');
+    await page.getByLabel('Uscita italiana').fill(`${today.getFullYear()}-${p2(today.getMonth() + 1)}-${p2(today.getDate())}`);
     // Locandina caricata dal computer
     await page.getByTestId('poster-file').setInputFiles({
       name: 'locandina.png',
@@ -44,7 +48,8 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     // Campi obbligatori: senza prezzo e chiusura il salvataggio viene bloccato
     await page.getByRole('button', { name: 'Salva prezzo e date' }).click();
     await expect(page.getByText('Il prezzo è obbligatorio')).toBeVisible();
-    await expect(page.getByText('La chiusura degli acquisti è obbligatoria')).toBeVisible();
+    // con l'uscita fissata a oggi la chiusura proposta (ieri alle 23:59) precede la creazione del film
+    await expect(page.getByText('La chiusura deve essere successiva alla creazione del film.')).toBeVisible();
 
     // Film: l'apertura acquisti è automatica (creazione), non c'è un campo da compilare
     await expect(page.getByTestId('auto-opens')).toContainText('automatica, dalla creazione del film');
@@ -140,7 +145,6 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await admin.getByRole('textbox', { name: 'Note', exact: true }).fill('Fonte: verifica E2E');
     await admin.getByRole('button', { name: 'Salva rilevazione' }).click();
     await expect(admin.getByText('Rilevazione aggiornata. Incasso in vigore: 600.000 B.')).toBeVisible();
-    await admin.close();
 
     // In homepage la card del film mostra "Già acquistato" con l'incasso corrente
     await page.goto('/app');
@@ -181,6 +185,13 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.getByRole('link', { name: title }).click();
     await expect(page.getByRole('heading', { name: 'Film riscattato' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Acquista' })).toHaveCount(0);
+
+    // Tutti i possessori hanno riscattato: per il Superadmin l'incasso non è più modificabile
+    await admin.reload();
+    await expect(admin.getByTestId('box-office-window')).toContainText('Tutti gli utenti hanno riscattato il film');
+    await expect(admin.getByLabel('Nuovo incasso totale (€)')).toHaveCount(0);
+    await expect(admin.getByRole('button', { name: /^Modifica rilevazione/ })).toHaveCount(0);
+    await admin.close();
   });
 
   test('nascosto dal Superadmin: sparisce dal catalogo ma resta nel portafoglio', async ({ page }) => {

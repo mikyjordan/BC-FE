@@ -231,7 +231,8 @@
       "nonHaiIlPermessoDi": "Non hai il permesso di inserire gli incassi (boxoffice.manage).",
       "rilevazione": "Rilevazione",
       "incasso": "Incasso",
-      "note": "Note"
+      "note": "Note",
+      "periodoAperto": "Incasso modificabile fino al riscatto di tutti gli utenti (partecipazioni ancora aperte: {open} su {total})."
     },
     "contentEditorPage": {
       "datiEditoriali": "Dati editoriali",

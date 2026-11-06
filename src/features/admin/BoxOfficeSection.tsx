@@ -10,15 +10,18 @@ import { BoxOfficeReadingRow } from './BoxOfficeReadingRow';
 import { t, tx } from '../../i18n';
 
 /**
- * Inserimento dell'incasso del film (1 € = 1 B). Ogni inserimento è una nuova rilevazione
- * immutabile: per correggere un errore si inserisce una nuova rilevazione.
+ * Incasso del film (1 € = 1 B). Ogni inserimento è una rilevazione, modificabile o eliminabile.
  * L'incasso in vigore è quello con la data di rilevazione più recente ed è il valore che
- * gli utenti ricevono quando riscattano il film.
+ * gli utenti ricevono quando riscattano il film. Si può inserire e modificare dal giorno di
+ * uscita nelle sale finché tutti i possessori non hanno riscattato il film (regola del backend).
  */
 export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
   const user = useAuthStore((s) => s.user);
   const can = hasPermission(user, 'boxoffice.manage');
   const history = useAdminBoxOffice(movie.id);
+  // L'incasso si modifica dal giorno di uscita in sala finché tutti i possessori non hanno riscattato.
+  const win = history.data?.window;
+  const editable = can && !!win?.editable;
   const [gross, setGross] = useState('');
   // La data di rilevazione parte sempre da "adesso" ed è modificabile.
   const [when, setWhen] = useState(() => toLocalInput(new Date().toISOString()));
@@ -81,7 +84,16 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
         </Stack>
         {movie.latestGrossAt && <Muted $size="0.75rem">{tx('admin.boxOfficeSection.rilevatoIlLatestgrossat', { latestGrossAt: formatDateTime(movie.latestGrossAt) })}</Muted>}
 
-        {can ? (
+        {win && !win.editable && (
+          <Alert $tone={win.code === 'BOX_OFFICE_CLOSED' ? 'success' : 'warning'} data-testid="box-office-window">{win.message}</Alert>
+        )}
+        {win?.editable && win.opensOn && (
+          <Muted $size="0.8rem">{t('admin.boxOfficeSection.periodoAperto', { open: win.holdings.open, total: win.holdings.total })}</Muted>
+        )}
+
+        {!can ? (
+          <Muted $size="0.85rem">{t('admin.boxOfficeSection.nonHaiIlPermessoDi')}</Muted>
+        ) : editable ? (
           <>
             <Field label={t('admin.boxOfficeSection.nuovoIncassoTotale')} error={errors.grossAmount}>
               <Input type="number" min={0} step={1} required aria-invalid={!!errors.grossAmount} value={gross} onChange={(e) => setGross(e.target.value)} />
@@ -104,9 +116,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
               </Button>
             </div>
           </>
-        ) : (
-          <Muted $size="0.85rem">{t('admin.boxOfficeSection.nonHaiIlPermessoDi')}</Muted>
-        )}
+        ) : null}
 
         {(history.data?.items.length ?? 0) > 0 && (
           <TableScroll>
@@ -119,7 +129,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
                     movieId={movie.id}
                     reading={r}
                     isCurrent={r.id === movie.latestGrossReadingId}
-                    canManage={can}
+                    canManage={editable}
                     onChanged={(msg) => {
                       setSaved(msg);
                       void history.refetch();
