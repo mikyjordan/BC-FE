@@ -138,15 +138,33 @@ export const useAdminDashboard = () =>
       }>('/admin/dashboard'),
   });
 
+/**
+ * Con una pubblicazione programmata in vista, ricarica i dati subito dopo l'orario previsto,
+ * così la pagina mostra "Pubblicato" senza doverla aggiornare a mano.
+ */
+function refetchAroundSchedule(items: Array<Pick<AdminContent, 'scheduledPublishAt'>>): number | false {
+  const next = items.map((i) => (i.scheduledPublishAt ? new Date(i.scheduledPublishAt).getTime() : NaN)).filter((n) => !Number.isNaN(n));
+  if (!next.length) return false;
+  const ms = Math.min(...next) - Date.now();
+  if (ms > 60_000) return 30_000;
+  return Math.max(ms + 1_500, 2_000);
+}
+
 export const useAdminContentList = (kind: ContentKindPath, status: PublicationStatus | undefined, page: number, q?: string) =>
   useQuery({
     queryKey: ['admin', kind, 'list', status, page, q],
     queryFn: () => api<Paginated<AdminContent>>(`/admin/${kind}`, { query: { status, page, pageSize: 20, q } }),
     placeholderData: keepPreviousData,
+    refetchInterval: (query) => refetchAroundSchedule(query.state.data?.items ?? []),
   });
 
 export const useAdminContent = (kind: ContentKindPath, id: string | undefined) =>
-  useQuery({ queryKey: ['admin', kind, id], queryFn: () => api<AdminContent>(`/admin/${kind}/${id}`), enabled: !!id });
+  useQuery({
+    queryKey: ['admin', kind, id],
+    queryFn: () => api<AdminContent>(`/admin/${kind}/${id}`),
+    enabled: !!id,
+    refetchInterval: (query) => refetchAroundSchedule(query.state.data ? [query.state.data] : []),
+  });
 
 export const useAdminNotifications = (kind: ContentKindPath, id: string) =>
   useQuery({
