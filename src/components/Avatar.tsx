@@ -19,7 +19,7 @@ const Circle = styled.span<{ $size: number }>`
 `;
 
 export function Avatar({ user, size = 40 }: { user: Pick<Me, 'username' | 'profile'> | null; size?: number }) {
-  const name = user?.profile?.displayName || user?.username || '?';
+  const name = user?.username || '?';
   return (
     <Circle $size={size}>
       {user?.profile?.avatarUrl ? <img src={user.profile.avatarUrl} alt="" /> : name.slice(0, 1).toUpperCase()}

@@ -7,6 +7,7 @@ import { Alert, Card } from '../../components/ui';
 import { PublicHeader, SiteFooter } from '../../components/layout/SiteChrome';
 import { useFeatures } from '../../api/hooks';
 import { t, tx } from '../../i18n';
+import { useBonusAmounts } from './bonusTexts';
 
 const Wrap = styled.div`
   max-width: 820px;
@@ -44,6 +45,7 @@ function S({ icon, title, children }: { icon: ReactNode; title: string; children
 
 /** Regole del gioco spiegate agli utenti (pagina pubblica). */
 export function HowItWorksPage() {
+  const b = useBonusAmounts();
   // Le regole delle sezioni disattivate dal Superadmin non vengono mostrate.
   const features = useFeatures().data;
   const movies = !!features?.movies;
@@ -56,7 +58,8 @@ export function HowItWorksPage() {
       <p>{t('info.howItWorksPage.bustercinemaEUnGiocoDi')}</p>
 
       <S icon={<CoinIcon size={30} />} title={t('info.howItWorksPage.iBustercoin')}>
-        <p>{t('info.howItWorksPage.allaRegistrazioneRicevi1000')}</p>
+        <p>{t('info.howItWorksPage.allaRegistrazioneRicevi', { bonus: b.bonus })}</p>
+        {b.hasWeekly && <p>{t('info.howItWorksPage.bonusSettimanale', { weekly: b.weekly })}</p>}
       </S>
 
       {movies && (

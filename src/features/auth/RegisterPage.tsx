@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router';
 import { ApiError, register as registerUser } from '../../api/client';
 import { Alert, Button, Checkbox, Field, FieldError, Input, Muted, Stack } from '../../components/ui';
 import { ResendVerification } from './ResendVerification';
+import { useBonusAmounts } from '../info/bonusTexts';
+import { useUsernameAvailability } from '../../api/hooks';
 import { AuthLayout, TextLink } from './AuthLayout';
 import { registerSchema, type RegisterValues } from './schemas';
 import { t, tx } from '../../i18n';
@@ -12,11 +14,20 @@ import { t, tx } from '../../i18n';
 export function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
-  const { register, handleSubmit, formState, setError: setFieldError } = useForm<RegisterValues>({
+  const { register, handleSubmit, formState, setError: setFieldError, watch } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: { acceptTerms: false },
   });
   const e = formState.errors;
+  const b = useBonusAmounts();
+  // Disponibilità dello username mentre si scrive (con una breve attesa tra un tasto e l'altro)
+  const typed = (watch('username') ?? '').trim();
+  const [checked, setChecked] = useState('');
+  useEffect(() => {
+    const id = setTimeout(() => setChecked(typed), 400);
+    return () => clearTimeout(id);
+  }, [typed]);
+  const availability = useUsernameAvailability(checked);
 
   const onSubmit = handleSubmit(async (v) => {
     setError(null);
@@ -51,7 +62,7 @@ export function RegisterPage() {
   return (
     <AuthLayout
       title={t('auth.registerPage.creaIlTuoAccount')}
-      subtitle={t('auth.registerPage.riceviSubito1000000')}
+      subtitle={t('auth.registerPage.riceviBonus', { bonus: b.bonus })}
       footer={
         <Muted>{t('auth.registerPage.haiGiaUnAccount')}{' '}<TextLink to="/login">{t('auth.registerPage.accedi')}</TextLink>
         </Muted>
@@ -63,8 +74,12 @@ export function RegisterPage() {
           <Field label={t('common.email')} error={e.email?.message}>
             <Input type="email" autoComplete="email" aria-invalid={!!e.email} {...register('email')} />
           </Field>
-          <Field label={t('auth.registerPage.nomeUtente')} error={e.username?.message} hint={t('auth.registerPage.visibileNelleClassifiche')}>
-            <Input autoComplete="username" aria-invalid={!!e.username} {...register('username')} />
+          <Field
+            label={t('auth.registerPage.nomeUtente')}
+            error={e.username?.message ?? (availability.data && !availability.data.available ? availability.data.reason : undefined)}
+            hint={availability.data?.available ? t('auth.registerPage.nomeDisponibile') : t('auth.registerPage.nomeUtenteDefinitivo')}
+          >
+            <Input autoComplete="username" aria-invalid={!!e.username || availability.data?.available === false} {...register('username')} />
           </Field>
           <Field label={t('auth.registerPage.password')} error={e.password?.message} hint={t('auth.registerPage.almeno10CaratteriConLettere')}>
             <Input type="password" autoComplete="new-password" aria-invalid={!!e.password} {...register('password')} />

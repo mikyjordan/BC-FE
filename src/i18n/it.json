@@ -355,7 +355,7 @@
       "catalogoFilmSchedeAcquistiIncassi": "Catalogo film, schede, acquisti, incassi e riscatti visibili agli utenti.",
       "catalogoSerieTvSchedeStagioni": "Catalogo serie TV, schede, stagioni e acquisti visibili agli utenti.",
       "impostazioni": "Impostazioni",
-      "scegliQualiSezioniSonoVisibili": "Scegli quali sezioni sono visibili agli utenti. Solo il Superadmin può modificarle.",
+      "scegliQualiSezioniSonoVisibili": "Sezioni visibili agli utenti e importi dei bonus. Solo il Superadmin può modificarli.",
       "sezioneL": "Sezione {l}",
       "attiva": "Attiva",
       "disattivata": "Disattivata",
@@ -367,7 +367,16 @@
       "disattivare": "Disattivare",
       "laSezioneKeyDiventeraVisibile": "La sezione {key} diventerà visibile a tutti gli utenti (solo i titoli pubblicati).",
       "laSezioneKeyVerraNascosta": "La sezione {key} verrà nascosta a tutti gli utenti: menu, tab, catalogo, schede e acquisti non saranno più disponibili.",
-      "disattiva": "Disattiva"
+      "disattiva": "Disattiva",
+      "economiaTitolo": "Bonus Bustercoin",
+      "economiaSpiegazione": "Importi accreditati automaticamente agli utenti. Le modifiche valgono da subito per i nuovi accrediti (non cambiano quelli già fatti) e vengono registrate nell’audit log. Anche le pagine informative mostrano questi valori.",
+      "bonusBenvenuto": "Bonus di benvenuto (Bustercoin)",
+      "bonusBenvenutoNota": "Una sola volta, quando l’utente conferma l’email.",
+      "bonusSettimanale": "Bonus settimanale (Bustercoin)",
+      "bonusSettimanaleNota": "A ogni utente, una volta a settimana dal lunedì (ora italiana). 0 = disattivato.",
+      "importoNonValido": "Inserisci un numero intero maggiore o uguale a zero.",
+      "bonusSalvati": "Bonus aggiornati.",
+      "salvaBonus": "Salva bonus"
     },
     "usersPage": {
       "permessiDiUsername": "Permessi di {username}",
@@ -491,9 +500,10 @@
   "auth": {
     "authLayout": {
       "investiVirtualmenteNeiFilmE": "Investi virtualmente nei film e nelle serie che fanno parlare l’Italia.",
-      "ogniNuovoGiocatoreRiceve1": "Ogni nuovo giocatore riceve 1.000.000 di Bustercoin di benvenuto.",
       "bustercoinEUnaValutaVirtuale": "Bustercoin è una valuta virtuale di gioco: non è denaro, non è convertibile e non attribuisce diritti reali sui contenuti.",
-      "comeFunziona": "Come funziona"
+      "comeFunziona": "Come funziona",
+      "bonusBenvenuto": "Ogni nuovo giocatore riceve {bonus} Bustercoin di benvenuto.",
+      "bonusBenvenutoESettimanale": "Ogni nuovo giocatore riceve {bonus} Bustercoin di benvenuto e altri {weekly} ogni settimana."
     },
     "loginPage": {
       "accessoNonRiuscito": "Accesso non riuscito",
@@ -525,11 +535,9 @@
     "registerPage": {
       "registrazioneNonRiuscita": "Registrazione non riuscita",
       "creaIlTuoAccount": "Crea il tuo account",
-      "riceviSubito1000000": "Conferma la tua email e ricevi 1.000.000 di Bustercoin di benvenuto.",
       "haiGiaUnAccount": "Hai già un account?",
       "accedi": "Accedi",
       "nomeUtente": "Nome utente",
-      "visibileNelleClassifiche": "Visibile nelle classifiche",
       "password": "Password",
       "almeno10CaratteriConLettere": "Almeno 10 caratteri, con lettere e numeri",
       "confermaPassword": "Conferma password",
@@ -542,7 +550,10 @@
       "ultimoPasso": "Ultimo passo per attivare il tuo account.",
       "emailInviata": "Ti abbiamo inviato un’email a {email}. Apri il link “Conferma email” per attivare l’account e ricevere i Bustercoin di benvenuto.",
       "nonTrovi": "Non la trovi? Controlla anche la cartella spam, oppure fatti inviare un nuovo link.",
-      "giaConfermato": "Hai già confermato?"
+      "giaConfermato": "Hai già confermato?",
+      "riceviBonus": "Conferma la tua email e ricevi {bonus} Bustercoin di benvenuto.",
+      "nomeUtenteDefinitivo": "Visibile nelle classifiche. Scegli con attenzione: dopo la registrazione non si può più modificare.",
+      "nomeDisponibile": "✓ Nome utente disponibile. Dopo la registrazione non si potrà più modificare."
     },
     "schemas": {
       "almeno10Caratteri": "Almeno 10 caratteri",
@@ -722,7 +733,6 @@
     "howItWorksPage": {
       "comeFunziona": "Come funziona",
       "bustercinemaEUnGiocoDi": "BusterCinema è un gioco di investimento virtuale sui film in uscita nelle sale italiane.",
-      "allaRegistrazioneRicevi1000": "Alla registrazione ricevi 1.000.000 di Bustercoin. Sono una valuta virtuale di gioco: non sono denaro, non sono convertibili e non danno diritti reali sui film.",
       "acquistaUnFilmPrimaChe": "Acquista un film prima che esca",
       "unaSolaVolta": "una sola volta",
       "ogniFilmSiAcquistaStrong": "Ogni film si acquista {strong}, al prezzo stabilito dalla piattaforma.",
@@ -741,7 +751,9 @@
       "iBustercoin": "I Bustercoin",
       "verde": "verde",
       "rosso": "rosso",
-      "terminiECondizioni": "termini e condizioni"
+      "terminiECondizioni": "termini e condizioni",
+      "allaRegistrazioneRicevi": "Quando confermi la tua email ricevi {bonus} Bustercoin di benvenuto. Sono una valuta virtuale di gioco: non sono denaro, non sono convertibili e non danno diritti reali sui film.",
+      "bonusSettimanale": "Ogni settimana, il lunedì, ricevi altri {weekly} Bustercoin. Il primo bonus settimanale arriva il lunedì successivo all’iscrizione."
     }
   },
   "legal": {
@@ -780,7 +792,6 @@
       "giocatore": "Giocatore",
       "amministratore": "Amministratore",
       "superadmin": "Superadmin",
-      "obbligatorio": "Obbligatorio",
       "massimo500Caratteri": "Massimo 500 caratteri",
       "formatiAmmessiPngJpegWebp": "Formati ammessi: PNG, JPEG, WEBP",
       "dimensioneMassima5Mb": "Dimensione massima 5 MB",
@@ -797,14 +808,15 @@
       "coppeEHallOfFame": "Coppe e Hall of Fame",
       "premiVinti": "Premi vinti",
       "datiPersonali": "Dati personali",
-      "nomeVisualizzato": "Nome visualizzato",
       "nome": "Nome",
       "cognome": "Cognome",
       "bio": "Bio",
       "profiloAggiornato": "Profilo aggiornato.",
       "salva": "Salva",
       "contaFilm": "{count} film",
-      "contaSerie": "{count} serie"
+      "contaSerie": "{count} serie",
+      "nomeUtente": "Nome utente",
+      "nomeUtenteNonModificabile": "Il nome utente si sceglie alla registrazione e non si può modificare."
     },
     "settingsPage": {
       "obbligatoria": "Obbligatoria",

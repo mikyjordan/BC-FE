@@ -15,7 +15,6 @@ const ROLE_LABEL = { USER: t('profile.profilePage.giocatore'), ADMIN: t('profile
 const MAX_BYTES = 5 * 1024 * 1024;
 
 const schema = z.object({
-  displayName: z.string().trim().min(1, t('profile.profilePage.obbligatorio')).max(64),
   firstName: z.string().trim().max(80),
   lastName: z.string().trim().max(80),
   bio: z.string().trim().max(500, t('profile.profilePage.massimo500Caratteri')),
@@ -37,7 +36,6 @@ export function ProfilePage() {
   const { register, handleSubmit, formState } = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {
-      displayName: user.profile?.displayName ?? user.username,
       firstName: user.profile?.firstName ?? '',
       lastName: user.profile?.lastName ?? '',
       bio: user.profile?.bio ?? '',
@@ -71,7 +69,7 @@ export function ProfilePage() {
           <Stack $row $gap={18} $align="center" $wrap>
             <Avatar user={user} size={88} />
             <Stack $gap={6} style={{ flex: 1, minWidth: 200 }}>
-              <h2>{user.profile?.displayName ?? user.username}</h2>
+              <h2>{user.username}</h2>
               <Muted>{tx('profile.profilePage.usernameIscrittoDalCreatedat', { username: user.username, createdAt: formatDate(user.createdAt) })}</Muted>
               <div><Badge $tone="blue">{ROLE_LABEL[user.role]}</Badge></div>
             </Stack>
@@ -131,8 +129,8 @@ export function ProfilePage() {
             })}
           >
             <Stack $gap={14}>
-              <Field label={t('profile.profilePage.nomeVisualizzato')} error={formState.errors.displayName?.message}>
-                <Input {...register('displayName')} />
+              <Field label={t('profile.profilePage.nomeUtente')} hint={t('profile.profilePage.nomeUtenteNonModificabile')}>
+                <Input value={user.username} readOnly disabled />
               </Field>
               <Stack $row $gap={12} $wrap>
                 <div style={{ flex: '1 1 200px' }}>

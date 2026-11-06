@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router';
 import styled from 'styled-components';
-import { Clapperboard, Tv } from 'lucide-react';
-import { useFeatures, useUpdateFeatures } from '../../api/hooks';
+import { Clapperboard, Coins, Tv } from 'lucide-react';
+import { useEconomy, useFeatures, useUpdateEconomy, useUpdateFeatures } from '../../api/hooks';
 import type { Features } from '../../api/types';
 import { ConfirmModal } from '../../components/Modal';
-import { Alert, Badge, Button, Card, Muted, PageHeader, Spinner, Stack } from '../../components/ui';
+import { Alert, Badge, Button, Card, Field, Input, Muted, PageHeader, Spinner, Stack } from '../../components/ui';
 import { useAuthStore } from '../../store/auth';
 import { t } from '../../i18n';
 
@@ -23,7 +23,57 @@ const SECTIONS: Array<{ key: keyof Features; label: string; icon: typeof Tv; des
   { key: 'tvSeries', label: t('common.serieTv'), icon: Tv, description: t('admin.settingsAdminPage.catalogoSerieTvSchedeStagioni') },
 ];
 
-/** Impostazioni riservate al Superadmin: sezioni Film e Serie TV visibili agli utenti. */
+/** Bonus di benvenuto e settimanale: i valori stanno nella configurazione, non nel codice. */
+function EconomyCard() {
+  const economy = useEconomy();
+  const update = useUpdateEconomy();
+  const [initial, setInitial] = useState('');
+  const [weekly, setWeekly] = useState('');
+  const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    if (!economy.data) return;
+    setInitial(String(economy.data.initialBonus));
+    setWeekly(String(economy.data.weeklyBonus));
+  }, [economy.data]);
+  const valid = (v: string) => /^\d+$/.test(v) && Number(v) <= 1_000_000_000_000;
+  const ok = valid(initial) && valid(weekly);
+  const changed = !!economy.data && (Number(initial) !== economy.data.initialBonus || Number(weekly) !== economy.data.weeklyBonus);
+
+  return (
+    <Card data-testid="economy-settings">
+      <Stack $row $gap={10} $align="center" style={{ marginBottom: 6 }}>
+        <Coins size={24} aria-hidden />
+        <h2>{t('admin.settingsAdminPage.economiaTitolo')}</h2>
+      </Stack>
+      <Muted $size="0.88rem" style={{ marginBottom: 14 }}>{t('admin.settingsAdminPage.economiaSpiegazione')}</Muted>
+      {economy.isLoading ? <Spinner /> : (
+        <Stack $gap={12}>
+          <Stack $row $gap={12} $wrap>
+            <div style={{ flex: '1 1 220px' }}>
+              <Field label={t('admin.settingsAdminPage.bonusBenvenuto')} hint={t('admin.settingsAdminPage.bonusBenvenutoNota')} error={valid(initial) ? undefined : t('admin.settingsAdminPage.importoNonValido')}>
+                <Input type="number" min={0} step={1} value={initial} onChange={(e) => { setSaved(false); setInitial(e.target.value); }} />
+              </Field>
+            </div>
+            <div style={{ flex: '1 1 220px' }}>
+              <Field label={t('admin.settingsAdminPage.bonusSettimanale')} hint={t('admin.settingsAdminPage.bonusSettimanaleNota')} error={valid(weekly) ? undefined : t('admin.settingsAdminPage.importoNonValido')}>
+                <Input type="number" min={0} step={1} value={weekly} onChange={(e) => { setSaved(false); setWeekly(e.target.value); }} />
+              </Field>
+            </div>
+          </Stack>
+          {update.error && <Alert $tone="error">{update.error.message}</Alert>}
+          {saved && <Alert $tone="success">{t('admin.settingsAdminPage.bonusSalvati')}</Alert>}
+          <div>
+            <Button disabled={!ok || !changed || update.isPending} onClick={() => update.mutate({ initialBonus: Number(initial), weeklyBonus: Number(weekly) }, { onSuccess: () => setSaved(true) })}>
+              {t('admin.settingsAdminPage.salvaBonus')}
+            </Button>
+          </div>
+        </Stack>
+      )}
+    </Card>
+  );
+}
+
+/** Impostazioni riservate al Superadmin: sezioni Film e Serie TV visibili agli utenti, bonus. */
 export function SettingsAdminPage() {
   const user = useAuthStore((s) => s.user);
   const features = useFeatures();
@@ -57,6 +107,7 @@ export function SettingsAdminPage() {
           </Row>
         ))}
         <Alert $tone="info">{t('admin.settingsAdminPage.conUnaSezioneDisattivataSpariscono')}</Alert>
+        <EconomyCard />
       </Stack>
 
       {pending && (

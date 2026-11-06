@@ -6,6 +6,7 @@ import { CoinIcon } from '../../components/brand/CoinIcon';
 import { Card, Muted } from '../../components/ui';
 import { media } from '../../theme/theme';
 import { t } from '../../i18n';
+import { useBonusAmounts } from '../info/bonusTexts';
 
 const Page = styled.div`
   min-height: 100vh;
@@ -56,6 +57,7 @@ const MobileLogo = styled.div`
 `;
 
 export function AuthLayout({ title, subtitle, children, footer }: { title: string; subtitle?: string; children: ReactNode; footer?: ReactNode }) {
+  const b = useBonusAmounts();
   return (
     <Page>
       <Showcase>
@@ -63,7 +65,7 @@ export function AuthLayout({ title, subtitle, children, footer }: { title: strin
         <div>
           <Headline>{t('auth.authLayout.investiVirtualmenteNeiFilmE')}</Headline>
           <OnBrandText style={{ marginTop: 16, maxWidth: 440, display: 'flex', gap: 10, alignItems: 'center' }}>
-            <CoinIcon size={28} />{' '}{t('auth.authLayout.ogniNuovoGiocatoreRiceve1')}</OnBrandText>
+            <CoinIcon size={28} />{' '}{b.hasWeekly ? t('auth.authLayout.bonusBenvenutoESettimanale', { bonus: b.bonus, weekly: b.weekly }) : t('auth.authLayout.bonusBenvenuto', { bonus: b.bonus })}</OnBrandText>
         </div>
         <OnBrandText style={{ fontSize: '0.8rem' }}>{t('auth.authLayout.bustercoinEUnaValutaVirtuale')}{' '}
           <Link to="/come-funziona" style={{ textDecoration: 'underline', fontWeight: 600 }}>{t('auth.authLayout.comeFunziona')}</Link>

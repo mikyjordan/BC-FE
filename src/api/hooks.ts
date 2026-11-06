@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, newIdempotencyKey } from './client';
-import type { AdminContent, AdminSeason, AdminUserRow, AuditEntry, BoxOfficeReading, ContentKindPath, ContentNotificationStats, Features, Holding, HomeResponse, LedgerEntry, Me, Paginated, PublicMovie, PublicSeries, PublicationStatus, PurchaseResult, RedeemResult, UserDeletionPreview, WalletSummary } from './types';
+import type { AdminContent, AdminSeason, AdminUserRow, AuditEntry, BoxOfficeReading, ContentKindPath, ContentNotificationStats, EconomySettings, Features, Holding, HomeResponse, LedgerEntry, Me, Paginated, PublicMovie, PublicSeries, PublicationStatus, PurchaseResult, RedeemResult, UserDeletionPreview, WalletSummary } from './types';
 import { useAuthStore } from '../store/auth';
 
 const authed = () => useAuthStore.getState().status === 'authenticated';
@@ -9,6 +9,25 @@ const walletUser = () => authed() && useAuthStore.getState().user?.role !== 'SUP
 /* ---------- Sezioni attive ---------- */
 /** Film e Serie TV sono visibili solo se abilitati dal Superadmin (il backend lo applica comunque). */
 export const useFeatures = () => useQuery({ queryKey: ['features'], queryFn: () => api<Features>('/features'), staleTime: 60_000 });
+
+export const useEconomy = () => useQuery({ queryKey: ['economy'], queryFn: () => api<EconomySettings>('/economy'), staleTime: 60_000 });
+
+export function useUpdateEconomy() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (patch: Partial<EconomySettings>) => api<EconomySettings>('/admin/settings/economy', { method: 'PUT', body: patch }),
+    onSuccess: (e) => qc.setQueryData(['economy'], e),
+  });
+}
+
+/** Disponibilità dello username durante la registrazione (vuoto = nessun controllo). */
+export const useUsernameAvailability = (username: string) =>
+  useQuery({
+    queryKey: ['username-available', username.toLowerCase()],
+    queryFn: () => api<{ available: boolean; reason?: string }>(`/auth/username-available?username=${encodeURIComponent(username)}`),
+    enabled: username.length >= 3,
+    staleTime: 10_000,
+  });
 
 export function useUpdateFeatures() {
   const qc = useQueryClient();

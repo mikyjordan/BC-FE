@@ -75,7 +75,7 @@ export function HomePage() {
   return (
     <>
       <div style={{ marginBottom: 22 }}>
-        <h1>{tx('home.homePage.ciaoDisplayname', { displayName: user?.profile?.displayName ?? user?.username })}</h1>
+        <h1>{tx('home.homePage.ciaoDisplayname', { displayName: user?.username })}</h1>
         <Muted style={{ marginTop: 6 }}>{withWallet ? t('home.homePage.eccoComeStaAndandoIl') : t('home.homePage.ilSuperadminGestisceLaPiattaforma')}</Muted>
       </div>
 

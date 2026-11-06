@@ -273,6 +273,12 @@ export interface AdminUserRow {
   permissions: string[];
 }
 
+/** Bonus configurati dal Superadmin (Amministrazione → Impostazioni). */
+export interface EconomySettings {
+  initialBonus: number;
+  weeklyBonus: number;
+}
+
 export interface UserDeletionPreview {
   id: string;
   username: string;
