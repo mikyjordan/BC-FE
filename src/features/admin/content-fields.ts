@@ -1,3 +1,4 @@
+import { fromItalyInput, toItalyInput } from '../../components/time';
 import type { AdminContent, ContentKindPath } from '../../api/types';
 import { t } from '../../i18n';
 
@@ -118,11 +119,7 @@ export function toPayload(kind: ContentKindPath, values: FormValues) {
 }
 
 /** ISO → valore per <input type="datetime-local"> nel fuso del browser. */
-export function toLocalInput(iso: string | null | undefined) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-export const fromLocalInput = (v: string) => (v ? new Date(v).toISOString() : null);
+/** Valore per i campi data/ora: sempre in ora italiana, qualunque sia il fuso del dispositivo. */
+export const toLocalInput = (iso: string | null | undefined) => toItalyInput(iso);
+/** Il valore del campo è inteso come ora italiana. */
+export const fromLocalInput = (v: string) => fromItalyInput(v);

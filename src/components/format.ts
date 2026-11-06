@@ -1,8 +1,9 @@
 import { LOCALE, t } from '../i18n';
+import { ITALY_TIME_ZONE } from './time';
 
 const nf = new Intl.NumberFormat(LOCALE);
-const df = new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: 'short', year: 'numeric' });
-const dtf = new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+const df = new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: 'short', year: 'numeric', timeZone: ITALY_TIME_ZONE });
+const dtf = new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: ITALY_TIME_ZONE });
 
 export const formatNumber = (n: number) => nf.format(n);
 /** Importo Bustercoin, con segno opzionale per i movimenti. */

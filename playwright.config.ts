@@ -19,6 +19,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     locale: 'it-IT',
+    // Per verificare che il sito usi l'ora italiana anche su dispositivi in altri fusi: E2E_TIMEZONE=America/New_York
+    ...(process.env.E2E_TIMEZONE ? { timezoneId: process.env.E2E_TIMEZONE } : {}),
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'], ...(channel ? { channel } : {}) }, testIgnore: /responsive\.spec\.ts/ },

@@ -278,7 +278,7 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
     else if (!Number.isInteger(n) || n <= 0) e.priceBc = t('admin.contentEditorPage.inserisciUnNumeroInteroMaggiore');
     if (!opens && !isMovie) e.purchaseOpensAt = t('admin.contentEditorPage.lAperturaDegliAcquistiE');
     if (!closes) e.purchaseClosesAt = t('admin.contentEditorPage.laChiusuraDegliAcquistiE');
-    else if (opens && new Date(closes) <= new Date(opens)) e.purchaseClosesAt = isMovie ? t('admin.contentEditorPage.chiusuraDopoCreazione') : t('admin.contentEditorPage.laChiusuraDeveSeguireL');
+    else if (opens && new Date(fromLocalInput(closes)!) <= new Date(fromLocalInput(opens)!)) e.purchaseClosesAt = isMovie ? t('admin.contentEditorPage.chiusuraDopoCreazione') : t('admin.contentEditorPage.laChiusuraDeveSeguireL');
     setErrors(e);
     return Object.keys(e).length === 0;
   };

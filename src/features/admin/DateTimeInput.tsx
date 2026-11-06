@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { Input } from '../../components/ui';
 import { t } from '../../i18n';
+import { addDays } from '../../components/time';
 
 const Row = styled.div`
   display: grid;
@@ -57,11 +58,8 @@ export function DateTimeInput({
   );
 }
 
-/** Le 23:59 del giorno prima dell'uscita al cinema (ora locale), nel formato del campo. */
+/** Le 23:59 (ora italiana) del giorno prima dell'uscita al cinema, nel formato del campo. */
 export function dayBeforeReleaseAt2359(releaseDate: string | null | undefined): string {
   if (!releaseDate) return '';
-  const [y, m, d] = releaseDate.split('-').map(Number);
-  const prev = new Date(y, m - 1, d - 1);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${prev.getFullYear()}-${pad(prev.getMonth() + 1)}-${pad(prev.getDate())}T${END_OF_DAY}`;
+  return `${addDays(releaseDate, -1)}T${END_OF_DAY}`;
 }

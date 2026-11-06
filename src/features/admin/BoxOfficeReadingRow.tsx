@@ -48,7 +48,7 @@ export function BoxOfficeReadingRow({
     const n = Number(gross);
     if (gross === '' || !Number.isInteger(n) || n < 0) return setError(t('admin.boxOfficeReadingRow.incassoObbligatorioNumeroIntero0'));
     if (!when) return setError(t('admin.boxOfficeReadingRow.dataDiRilevazioneObbligatoria'));
-    if (new Date(when).getTime() > Date.now() + 60_000) return setError(t('admin.boxOfficeReadingRow.laDataDiRilevazioneNon'));
+    if (new Date(fromLocalInput(when)!).getTime() > Date.now() + 60_000) return setError(t('admin.boxOfficeReadingRow.laDataDiRilevazioneNon'));
     setError(null);
     update.mutate(
       { grossAmount: n, recordedAt: fromLocalInput(when), ...(notes.trim() ? { notes: notes.trim() } : {}) },
