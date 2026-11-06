@@ -220,12 +220,10 @@
       "ultimaPubblicazionePublishedat": "Ultima pubblicazione: {publishedAt}",
       "maiPubblicato": "Mai pubblicato",
       "nonHaiIlPermessoDi2": "Non hai il permesso di pubblicare.",
-      "pubblicazioneProgrammataEConfermataPer": "Pubblicazione programmata e confermata per {scheduledPublishAt}",
+      "pubblicazioneProgrammataEConfermataPer": "Pubblicazione automatica programmata per {scheduledPublishAt}",
       "annullaProgrammazione": "Annulla programmazione",
       "programmaLaPubblicazione": "Programma la pubblicazione",
-      "avverraAutomaticamenteSoloDopoLa": "Avverrà automaticamente solo dopo la tua conferma esplicita.",
-      "confermoCheIlTitoloDovra": "Confermo che il titolo dovrà essere pubblicato alla data indicata.",
-      "programma": "Programma",
+      "programma": "Programma pubblicazione",
       "visibilita": "Visibilità",
       "questiFlagHannoEffettoSolo": "Questi flag hanno effetto solo quando il titolo è pubblicato.",
       "mostraNellaHomepage": "Mostra nella homepage",
@@ -258,7 +256,10 @@
       "avvisaUtentiNota": "Il titolo nasce in bozza: nessuna email parte finché non viene pubblicato.",
       "oraPredefinita2359": "L’ora è proposta alle 23:59.",
       "disponibileDalPrecedente": "Questo titolo ha ancora una data “disponibile dal” impostata in precedenza ({date}): fino ad allora gli utenti non lo vedono. Per far comparire un titolo più tardi ora si usa la pubblicazione programmata.",
-      "rimuoviDisponibileDal": "Rimuovi la data (il titolo diventa subito visibile)"
+      "rimuoviDisponibileDal": "Rimuovi la data (il titolo diventa subito visibile)",
+      "oppureProgramma": "Oppure scegli data e ora: il titolo verrà pubblicato automaticamente a quell’orario.",
+      "pubblicazioneAutomaticaNota": "Ora italiana. All’orario indicato il titolo diventa visibile da solo, senza altre conferme.",
+      "dataFutura": "Scegli una data e un’ora future"
     },
     "posterField": {
       "formatiAmmessiPngJpegWebp": "Formati ammessi: PNG, JPEG, WEBP",
@@ -434,7 +435,7 @@
       "httpsImmagineOrizzontale": "https://… (immagine orizzontale)"
     },
     "publicationActions": {
-      "pubblica": "Pubblica",
+      "pubblica": "Pubblica ora",
       "tDiventeraVisibileATutti": "“{title}” diventerà visibile a tutti gli utenti nel catalogo, nella ricerca e — se abilitato — nella homepage.",
       "nascondi": "Nascondi",
       "tVerraRimossoDaTutte": "“{title}” verrà rimosso da tutte le sezioni pubbliche. Acquisti, storico e partecipazioni restano intatti.",
@@ -480,7 +481,6 @@
       "chiusuraAutomatica": "Chiusura acquisti: {strong} (automatica, alle 23:59 del giorno prima dell’uscita nelle sale).",
       "chiusuraSenzaUscita": "Chiusura acquisti: automatica alle 23:59 del giorno prima dell’uscita nelle sale. Indica l’uscita nelle sale per calcolarla.",
       "prezzo": "Prezzo del film (Bustercoin) *",
-      "acquistiAttivi": "Acquisti attivi (togli la spunta per sospenderli)",
       "uscitaDalleSale": "Uscita dalle sale e riscatto automatico",
       "uscitaDalleSaleNota": "Alla data indicata il film viene riscattato automaticamente a tutti gli utenti che lo possiedono, accreditando l’incasso in vigore. Da quel momento non è più acquistabile.",
       "partecipazioni": "Partecipazioni aperte: {strong} · riscattate: {redeemed}{v}",
@@ -662,7 +662,6 @@
       "aggiornatoAlRecordedat11": "Aggiornato al {recordedAt} · 1 € = 1 B",
       "rilevazione": "Rilevazione",
       "incasso": "Incasso",
-      "comeFunziona": "Come funziona",
       "filmRiscattato": "Film riscattato",
       "ilTuoInvestimento": "Il tuo investimento",
       "unFilmRiscattatoNonPuo": "Un film riscattato non può essere riacquistato.",
@@ -679,9 +678,7 @@
       "annulla": "Annulla",
       "acquisto2": "Acquisto…",
       "confermaPrice": "Conferma {price}",
-      "partecipazioneVirtualeDiGiocoNon": "Partecipazione virtuale di gioco: non attribuisce diritti reali sul film.",
-      "acquistabileFino2359": "Acquistabile fino alle 23:59 del giorno prima dell’uscita al cinema{v}",
-      "chiusuraIl": ": chiusura acquisti il {closesAt}."
+      "partecipazioneVirtualeDiGiocoNon": "Partecipazione virtuale di gioco: non attribuisce diritti reali sul film."
     },
     "ownedMovieStatus": {
       "nonAcquistabile": "Non acquistabile",
@@ -711,6 +708,10 @@
       "acquisto2": "Acquisto…",
       "confermaTotal": "Conferma {total}",
       "leQuoteSonoPartecipazioniVirtuali": "Le quote sono partecipazioni virtuali di gioco e non attribuiscono diritti reali sul contenuto."
+    },
+    "purchaseDeadline": {
+      "acquistabileFino": "Acquistabile fino alle {time} del {date}.",
+      "comeFunziona": "Come funziona"
     }
   },
   "home": {

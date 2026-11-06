@@ -3,6 +3,8 @@ import { login, logout, registerNewUser, simulateRelease, SUPERADMIN, uid } from
 
 /** Giorno di calendario in Italia a N giorni da oggi, "AAAA-MM-GG". */
 const italianDay = (days = 0) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Rome' }).format(new Date(Date.now() + days * 86_400_000));
+/** Lo stesso giorno come lo mostra il sito, es. "06 nov 2026". */
+const shownDay = (iso: string) => new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Europe/Rome' }).format(new Date(`${iso}T12:00:00Z`));
 
 test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', () => {
   const title = `E2E Film ${uid()}`;
@@ -74,7 +76,8 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     // l'uscita dalle sale propone le 23:59
     await expect(rules.getByLabel('Ora', { exact: true })).toHaveValue('23:59');
     await rules.getByLabel('Prezzo del film (Bustercoin)').fill('500000');
-    await rules.getByLabel(/^Acquisti attivi/).check();
+    // nessun interruttore degli acquisti: il film è acquistabile o no secondo le regole
+    await expect(rules.getByRole('checkbox', { name: /Acquisti attivi/ })).toHaveCount(0);
     await rules.getByLabel('Mostra nella homepage').check();
     await rules.getByRole('button', { name: 'Salva regole' }).click();
     await expect(rules.getByText('Regole salvate.')).toBeVisible();
@@ -82,8 +85,19 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await expect(page.getByTestId('purchase-badge').first()).toHaveAttribute('data-active', 'false');
     await expect(page.getByText('Titolo non pubblicato')).toBeVisible();
 
-    await page.getByRole('button', { name: 'Pubblica', exact: true }).first().click();
-    await page.getByRole('dialog').getByRole('button', { name: 'Pubblica', exact: true }).click();
+    // Pubblicazione programmata: data e ora, senza caselle di conferma; si può annullare
+    const schedule = page.getByTestId('schedule-publication');
+    await expect(schedule.getByRole('checkbox')).toHaveCount(0);
+    await schedule.getByLabel('Programma la pubblicazione').fill(italianDay(2));
+    await schedule.getByLabel('Ora', { exact: true }).fill('10:30');
+    await schedule.getByRole('button', { name: 'Programma pubblicazione' }).click();
+    await expect(page.getByText(/Pubblicazione automatica programmata per .*10:30/)).toBeVisible();
+    await page.getByRole('button', { name: 'Annulla programmazione' }).click();
+    await expect(page.getByTestId('schedule-publication')).toBeVisible();
+
+    // …oppure subito con "Pubblica ora"
+    await page.getByRole('button', { name: 'Pubblica ora', exact: true }).first().click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Pubblica ora', exact: true }).click();
     await expect(page.getByText('Pubblicato', { exact: true }).first()).toBeVisible();
     // Pubblicato e acquistabile: ovale verde "Acquisti attivi"
     await expect(page.getByTestId('purchase-badge').first()).toHaveAttribute('data-active', 'true');
@@ -107,11 +121,15 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
   test('un utente compra il film, vede incasso e guadagno in verde, riscatta e non può ricomprarlo', async ({ page, browser }) => {
     await registerNewUser(page);
     await expect(page.getByText('1.000.000 B').first()).toBeVisible();
+    // Sotto il film in homepage: fino a quando è acquistabile, con il link a "Come funziona"
+    const deadlineText = `Acquistabile fino alle 23:59 del ${shownDay(italianDay(19))}.`;
+    const homeDeadline = page.getByRole('link', { name: new RegExp(title) }).first().locator('xpath=..').getByTestId('purchase-deadline');
+    await expect(homeDeadline).toContainText(deadlineText);
+    await expect(homeDeadline.getByRole('link', { name: 'Come funziona' })).toHaveAttribute('href', '/come-funziona');
     await page.getByRole('link', { name: new RegExp(title) }).first().click();
     await expect(page.getByRole('heading', { name: title })).toBeVisible();
 
-    await expect(page.getByTestId('purchase-deadline')).toContainText('23:59 del giorno prima dell’uscita al cinema');
-    await expect(page.getByTestId('purchase-deadline')).toContainText('23:59');
+    await expect(page.getByTestId('purchase-deadline')).toContainText(deadlineText);
     await page.getByRole('button', { name: 'Acquista' }).click();
     await page.getByRole('button', { name: /Conferma 500\.000 B/ }).click();
     await expect(page.getByText('Il tuo investimento')).toBeVisible();

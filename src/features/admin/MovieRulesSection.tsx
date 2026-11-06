@@ -31,7 +31,6 @@ interface RulesForm {
   autoRedeem: string;
   showOnHomepage: boolean;
   showInLeaderboards: boolean;
-  purchasesEnabled: boolean;
 }
 
 const fromMovie = (m: AdminContent): RulesForm => ({
@@ -40,12 +39,12 @@ const fromMovie = (m: AdminContent): RulesForm => ({
   autoRedeem: toItalyInput(m.autoRedeemAt),
   showOnHomepage: m.showOnHomepage,
   showInLeaderboards: m.showInLeaderboards,
-  purchasesEnabled: m.purchasesEnabled,
 });
 
 /**
  * Regole del film: visibilità, uscita nelle sale, uscita dalle sale con riscatto automatico,
- * prezzo e acquisti attivi, salvate insieme. La chiusura degli acquisti non si sceglie: è
+ * e prezzo, salvate insieme. Non c'è un interruttore degli acquisti: il film è acquistabile o no
+ * solo in base a queste regole e alla pubblicazione. La chiusura degli acquisti non si sceglie: è
  * calcolata (23:59 del giorno prima dell'uscita nelle sale) e mostrata in sola lettura.
  */
 export function MovieRulesSection({ movie }: { movie: AdminContent }) {
@@ -64,7 +63,7 @@ export function MovieRulesSection({ movie }: { movie: AdminContent }) {
   useEffect(
     () => setForm(fromMovie(movie)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [movie.italianReleaseDate, movie.priceBc, movie.autoRedeemAt, movie.showOnHomepage, movie.showInLeaderboards, movie.purchasesEnabled],
+    [movie.italianReleaseDate, movie.priceBc, movie.autoRedeemAt, movie.showOnHomepage, movie.showInLeaderboards],
   );
 
   const summary = useQuery({
@@ -105,7 +104,6 @@ export function MovieRulesSection({ movie }: { movie: AdminContent }) {
         autoRedeemAt: fromItalyInput(form.autoRedeem),
         showOnHomepage: form.showOnHomepage,
         showInLeaderboards: form.showInLeaderboards,
-        purchasesEnabled: form.purchasesEnabled,
         ...extra,
       },
       {
@@ -127,7 +125,7 @@ export function MovieRulesSection({ movie }: { movie: AdminContent }) {
     else save();
   };
 
-  const toggle = (key: 'showOnHomepage' | 'showInLeaderboards' | 'purchasesEnabled', label: string, disabled: boolean) => (
+  const toggle = (key: 'showOnHomepage' | 'showInLeaderboards', label: string, disabled: boolean) => (
     <Checkbox>
       <input type="checkbox" checked={form[key]} disabled={disabled} onChange={(e) => set(key, e.target.checked)} />
       {label}
@@ -182,7 +180,6 @@ export function MovieRulesSection({ movie }: { movie: AdminContent }) {
           <Field label={t('admin.movieRules.prezzo')} error={errors.priceBc}>
             <Input type="number" min={1} required aria-invalid={!!errors.priceBc} value={form.price} disabled={!can} onChange={(e) => set('price', e.target.value)} />
           </Field>
-          {toggle('purchasesEnabled', t('admin.movieRules.acquistiAttivi'), !can || movie.publicationStatus === 'ARCHIVED')}
         </Group>
 
         <Group>

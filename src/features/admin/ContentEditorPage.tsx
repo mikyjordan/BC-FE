@@ -134,12 +134,12 @@ function EditorialForm({ kind, item }: { kind: ContentKindPath; item?: AdminCont
   );
 }
 
-/* ---------------- Pubblicazione e programmazione ---------------- */
+/* ---------------- Pubblicazione: subito ("Pubblica ora") oppure programmata ---------------- */
 function PublicationSection({ kind, item }: { kind: ContentKindPath; item: AdminContent }) {
   const user = useAuthStore((s) => s.user);
   const canPublish = hasPermission(user, 'content.publish');
   const [when, setWhen] = useState('');
-  const [confirm, setConfirm] = useState(false);
+  const [whenError, setWhenError] = useState<string | null>(null);
   const schedule = useAdminMutation((publishAt: string) =>
     api(`/admin/${kind}/${item.id}/schedule`, { method: 'POST', body: { publishAt, confirm: true } }),
   );
@@ -165,15 +165,22 @@ function PublicationSection({ kind, item }: { kind: ContentKindPath; item: Admin
           </Alert>
         ) : (
           canSchedule && (
-            <Stack $gap={10}>
-              <Field label={t('admin.contentEditorPage.programmaLaPubblicazione')} hint={t('admin.contentEditorPage.avverraAutomaticamenteSoloDopoLa')}>
-                <Input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
+            <Stack $gap={10} data-testid="schedule-publication">
+              <Muted $size="0.85rem">{t('admin.contentEditorPage.oppureProgramma')}</Muted>
+              <Field label={t('admin.contentEditorPage.programmaLaPubblicazione')} error={whenError ?? undefined} hint={t('admin.contentEditorPage.pubblicazioneAutomaticaNota')}>
+                <DateTimeInput value={when} invalid={!!whenError} defaultTime="00:00" onChange={(v) => { setWhen(v); setWhenError(null); }} />
               </Field>
-              <Checkbox>
-                <input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} />{t('admin.contentEditorPage.confermoCheIlTitoloDovra')}</Checkbox>
               {schedule.error && <Alert $tone="error">{errorText(schedule.error)}</Alert>}
               <div>
-                <Button $variant="secondary" disabled={!when || !confirm || schedule.isPending} onClick={() => schedule.mutate(fromLocalInput(when)!, { onSuccess: () => { setWhen(''); setConfirm(false); } })}>
+                <Button
+                  $variant="secondary"
+                  disabled={!when || schedule.isPending}
+                  onClick={() => {
+                    const at = fromLocalInput(when)!;
+                    if (new Date(at).getTime() <= Date.now()) return setWhenError(t('admin.contentEditorPage.dataFutura'));
+                    schedule.mutate(at, { onSuccess: () => setWhen('') });
+                  }}
+                >
                   <CalendarClock size={15} />{' '}{t('admin.contentEditorPage.programma')}</Button>
               </div>
             </Stack>

@@ -61,9 +61,9 @@ test.describe('Email', () => {
     expect(mailsTo(user.email).some((m) => m.includes(title))).toBe(false);
 
     // pubblicazione: la casella è già spuntata nel dialogo
-    await page.getByRole('button', { name: 'Pubblica', exact: true }).first().click();
+    await page.getByRole('button', { name: 'Pubblica ora', exact: true }).first().click();
     await expect(page.getByTestId('publish-notify').getByRole('checkbox')).toBeChecked();
-    await page.getByRole('dialog').getByRole('button', { name: 'Pubblica', exact: true }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Pubblica ora', exact: true }).click();
     await expect(page.getByTestId('notification-section')).toContainText('Avviso partito il');
 
     // l'email arriva (inviata dallo scheduler a blocchi)

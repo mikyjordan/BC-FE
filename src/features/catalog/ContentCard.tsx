@@ -7,6 +7,7 @@ import { Poster } from '../../components/Poster';
 import { Bc, Muted } from '../../components/ui';
 import { AutoRedeemNotice } from './AutoRedeemNotice';
 import { PurchaseBadge } from '../../components/PurchaseBadge';
+import { PurchaseDeadlineNote } from './PurchaseDeadlineNote';
 import { t } from '../../i18n';
 
 const CardLink = styled(Link)`
@@ -20,6 +21,12 @@ const CardLink = styled(Link)`
   &:hover { background: ${({ theme }) => theme.colors.surface}; }
   &:hover img { transform: scale(1.03); }
   img { transition: transform 0.25s; }
+`;
+
+const Wrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 `;
 
 const Title = styled.h3`
@@ -38,31 +45,36 @@ export function ContentCard({ item }: { item: PublicContent }) {
   const holdings = useHoldings();
   const owned = item.kind === 'MOVIE' ? holdings.data?.items.find((h) => h.contentType === 'MOVIE' && h.contentId === item.id) : undefined;
   const meta = item.kind === 'MOVIE' ? item.genres.slice(0, 2).join(' · ') : item.platforms.slice(0, 2).join(' · ');
+  // Sotto il film acquistabile: fino a quando. Il link "Come funziona" sta fuori dal link della card.
+  const deadline = item.kind === 'MOVIE' && !owned && item.purchase.purchasable ? item.purchase.closesAt : null;
   return (
-    <CardLink to={contentPath(item)}>
-      <div style={{ position: 'relative' }}>
-        <Poster src={item.posterUrl} alt={item.title} kind={item.kind} />
-      </div>
-      <div>
-        <Title>{item.title}</Title>
-        {meta && <Muted $size="0.8rem">{meta}</Muted>}
-      </div>
-      {owned && item.kind === 'MOVIE' ? (
-        <>
-          <OwnedMovieStatus h={owned} />
-          {owned.status === 'OPEN' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
-        </>
-      ) : (
-        <>
-          {item.purchase.priceBc ? (
-            <Bc value={item.purchase.priceBc} size={13} />
-          ) : (
-            <Muted $size="0.8rem">{t('catalog.contentCard.prezzoNonAncoraDefinito')}</Muted>
-          )}
-          <PurchaseBadge active={item.purchase.purchasable} reason={item.purchase.message} showReason={false} />
-          {item.kind === 'MOVIE' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
-        </>
-      )}
-    </CardLink>
+    <Wrap>
+      <CardLink to={contentPath(item)}>
+        <div style={{ position: 'relative' }}>
+          <Poster src={item.posterUrl} alt={item.title} kind={item.kind} />
+        </div>
+        <div>
+          <Title>{item.title}</Title>
+          {meta && <Muted $size="0.8rem">{meta}</Muted>}
+        </div>
+        {owned && item.kind === 'MOVIE' ? (
+          <>
+            <OwnedMovieStatus h={owned} />
+            {owned.status === 'OPEN' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
+          </>
+        ) : (
+          <>
+            {item.purchase.priceBc ? (
+              <Bc value={item.purchase.priceBc} size={13} />
+            ) : (
+              <Muted $size="0.8rem">{t('catalog.contentCard.prezzoNonAncoraDefinito')}</Muted>
+            )}
+            <PurchaseBadge active={item.purchase.purchasable} reason={item.purchase.message} showReason={false} />
+            {item.kind === 'MOVIE' && <AutoRedeemNotice date={item.autoRedeemAt} past={item.outOfTheaters} />}
+          </>
+        )}
+      </CardLink>
+      {deadline && <PurchaseDeadlineNote closesAt={deadline} />}
+    </Wrap>
   );
 }

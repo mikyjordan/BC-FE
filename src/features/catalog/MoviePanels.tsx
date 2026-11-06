@@ -11,6 +11,7 @@ import { SuperadminNoPurchase } from '../../components/SuperadminNoPurchase';
 import { MovieHoldingCard } from '../wallet/MovieHoldingCard';
 import { PurchaseBadge } from '../../components/PurchaseBadge';
 import { AutoRedeemNotice } from './AutoRedeemNotice';
+import { PurchaseDeadlineNote } from './PurchaseDeadlineNote';
 import { t, tx } from '../../i18n';
 
 /** Incasso attuale e storico delle rilevazioni inserite dal Superadmin (mai valori inventati). */
@@ -50,15 +51,6 @@ export function BoxOfficeCard({ movie }: { movie: PublicMovie }) {
         </Stack>
       )}
     </Card>
-  );
-}
-
-/** La possibilità d'acquisto termina alle 23:59 del giorno prima dell'uscita al cinema. */
-function PurchaseDeadline({ closesAt }: { closesAt: string | null }) {
-  return (
-    <Alert $tone="info" data-testid="purchase-deadline">{tx('catalog.moviePanels.acquistabileFino2359', { v: closesAt ? t('catalog.moviePanels.chiusuraIl', { closesAt: formatDateTime(closesAt) }) : '.' })}{' '}
-      <Link to="/come-funziona" style={{ textDecoration: 'underline' }}>{t('catalog.moviePanels.comeFunziona')}</Link>
-    </Alert>
   );
 }
 
@@ -130,7 +122,7 @@ export function MovieSidePanel({ movie }: { movie: PublicMovie }) {
           <Bc value={price} size={24} />
         </div>
         <Muted $size="0.82rem">{t('catalog.moviePanels.paghiIlPrezzoUnaSola')}</Muted>
-        <PurchaseDeadline closesAt={movie.purchase.closesAt ?? null} />
+        <PurchaseDeadlineNote closesAt={movie.purchase.closesAt} $size="0.85rem" />
         <Stack $row $justify="space-between">
           <Muted $size="0.8rem">{t('catalog.moviePanels.saldoDisponibile')}</Muted>
           <Muted $size="0.8rem">{formatBc(balance)}</Muted>
