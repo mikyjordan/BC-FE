@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,6 +30,18 @@ export async function verificationPath(email: string): Promise<string> {
   }, { timeout: 10_000 }).toBe(true);
   const url = new URL(link!.replace(/&amp;/g, '&'));
   return url.pathname + url.search;
+}
+
+/**
+ * Fa uscire un film nelle sale oggi con il comando di sviluppo del backend
+ * (npm run film:simula-uscita), come se fosse arrivata la data di uscita.
+ */
+export function simulateRelease(title: string) {
+  execFileSync('npm', ['run', '--silent', 'film:simula-uscita', '--', title], {
+    cwd: fileURLToPath(new URL('../../backend', import.meta.url)),
+    stdio: 'pipe',
+    shell: process.platform === 'win32',
+  });
 }
 
 export const SUPERADMIN = {

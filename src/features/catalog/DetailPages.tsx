@@ -97,8 +97,6 @@ function MovieBody({ m }: { m: PublicMovie }) {
           {fact(t('catalog.detailPages.cast'), m.cast.join(', '))}
           {fact(t('catalog.detailPages.durata'), m.durationMinutes ? t('catalog.detailPages.durataMinuti', { minutes: m.durationMinutes }) : null)}
           {fact(t('catalog.detailPages.uscitaInItalia'), m.italianReleaseDate ? formatDate(m.italianReleaseDate) : null)}
-          {fact(t('catalog.detailPages.inProgrammazioneDal'), m.screeningStartDate ? formatDate(m.screeningStartDate) : null)}
-          {fact(t('catalog.detailPages.finoAl'), m.screeningEndDate ? formatDate(m.screeningEndDate) : null)}
           {fact(t('catalog.detailPages.paese'), m.productionCountry)}
           {fact(t('catalog.detailPages.distribuzione'), m.distributor)}
           {fact(t('catalog.detailPages.classificazione'), m.ageRating)}

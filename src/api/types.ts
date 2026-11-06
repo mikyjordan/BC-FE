@@ -61,8 +61,6 @@ export interface PublicMovie extends PublicContentBase {
   director: string | null;
   durationMinutes: number | null;
   italianReleaseDate: string | null;
-  screeningStartDate: string | null;
-  screeningEndDate: string | null;
   distributor: string | null;
   ageRating: string | null;
   boxOffice: { currentGross: number | null; recordedAt: string | null };
@@ -226,8 +224,6 @@ export interface AdminContent {
   director?: string | null;
   durationMinutes?: number | null;
   italianReleaseDate?: string | null;
-  screeningStartDate?: string | null;
-  screeningEndDate?: string | null;
   distributor?: string | null;
   ageRating?: string | null;
   latestGross?: number | null;

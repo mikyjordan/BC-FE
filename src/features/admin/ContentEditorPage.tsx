@@ -7,7 +7,7 @@ import { api, ApiError } from '../../api/client';
 import { useAdminContent, useAdminMutation } from '../../api/hooks';
 import type { AdminContent, ContentKindPath } from '../../api/types';
 import { Alert, Badge, Bc, Button, Card, Checkbox, Field, Input, Muted, PageHeader, Select, Spinner, Stack, Textarea } from '../../components/ui';
-import { formatDate, formatDateTime, STATUS_LABELS } from '../../components/format';
+import { formatDateTime, STATUS_LABELS } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { media, theme } from '../../theme/theme';
 import { FIELDS, fromLocalInput, toFormValues, toLocalInput, toPayload, type FormValues } from './content-fields';
@@ -19,8 +19,8 @@ import { BoxOfficeSection } from './BoxOfficeSection';
 import { PosterField } from './PosterField';
 import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadge';
 import { NotificationSection } from './NotificationSection';
-import { DateTimeInput, dayBeforeReleaseAt2359 } from './DateTimeInput';
-import { AutoRedeemSection } from './AutoRedeemSection';
+import { DateTimeInput } from './DateTimeInput';
+import { MovieRulesSection } from './MovieRulesSection';
 import { t, tx } from '../../i18n';
 
 const FormGrid = styled.div`
@@ -184,7 +184,7 @@ function PublicationSection({ kind, item }: { kind: ContentKindPath; item: Admin
   );
 }
 
-/* ---------------- Visibilità ---------------- */
+/* ---------------- Visibilità (serie TV; per i film è nelle Regole) ---------------- */
 function VisibilitySection({ kind, item }: { kind: ContentKindPath; item: AdminContent }) {
   const user = useAuthStore((s) => s.user);
   const can = hasPermission(user, 'content.publish');
@@ -238,20 +238,17 @@ function VisibilitySection({ kind, item }: { kind: ContentKindPath; item: AdminC
   );
 }
 
-/* ---------------- Acquisti ---------------- */
+/* ---------------- Acquisti (serie TV; per i film è nelle Regole) ---------------- */
 type PurchaseField = 'priceBc' | 'purchaseOpensAt' | 'purchaseClosesAt';
 
 function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminContent }) {
   const user = useAuthStore((s) => s.user);
   const can = hasPermission(user, 'content.purchases');
-  const isMovie = kind === 'movies';
-  // Film: l'apertura è automatica (creazione del film) e la chiusura proposta è alle 23:59
-  // del giorno prima dell'uscita al cinema. Serie: apertura da indicare (proposta: adesso).
-  const autoOpens = isMovie ? (item.purchaseOpensAt ?? item.createdAt) : null;
+  // Apertura da indicare (proposta: adesso); chiusura con l'ora proposta alle 23:59.
   const initial = () => ({
     price: item.priceBc ? String(item.priceBc) : '',
-    opens: isMovie ? toLocalInput(autoOpens) : toLocalInput(item.purchaseOpensAt) || toLocalInput(new Date().toISOString()),
-    closes: toLocalInput(item.purchaseClosesAt) || (isMovie ? dayBeforeReleaseAt2359(item.italianReleaseDate) : ''),
+    opens: toLocalInput(item.purchaseOpensAt) || toLocalInput(new Date().toISOString()),
+    closes: toLocalInput(item.purchaseClosesAt),
   });
   const [price, setPrice] = useState(initial().price);
   const [opens, setOpens] = useState(initial().opens);
@@ -266,9 +263,8 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
     setOpens(v.opens);
     setCloses(v.closes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.priceBc, item.purchaseOpensAt, item.purchaseClosesAt, item.italianReleaseDate]);
-  const seasonScoped = kind === 'tv-series' && item.holdingScope === 'SEASON';
-  const suggestedClose = isMovie ? dayBeforeReleaseAt2359(item.italianReleaseDate) : '';
+  }, [item.priceBc, item.purchaseOpensAt, item.purchaseClosesAt]);
+  const seasonScoped = item.holdingScope === 'SEASON';
 
   /** Validazione lato frontend: tutti e tre i campi sono obbligatori (il backend applica le stesse regole). */
   const validate = () => {
@@ -276,9 +272,9 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
     const n = Number(price);
     if (!price) e.priceBc = t('admin.contentEditorPage.ilPrezzoEObbligatorio');
     else if (!Number.isInteger(n) || n <= 0) e.priceBc = t('admin.contentEditorPage.inserisciUnNumeroInteroMaggiore');
-    if (!opens && !isMovie) e.purchaseOpensAt = t('admin.contentEditorPage.lAperturaDegliAcquistiE');
+    if (!opens) e.purchaseOpensAt = t('admin.contentEditorPage.lAperturaDegliAcquistiE');
     if (!closes) e.purchaseClosesAt = t('admin.contentEditorPage.laChiusuraDegliAcquistiE');
-    else if (opens && new Date(fromLocalInput(closes)!) <= new Date(fromLocalInput(opens)!)) e.purchaseClosesAt = isMovie ? t('admin.contentEditorPage.chiusuraDopoCreazione') : t('admin.contentEditorPage.laChiusuraDeveSeguireL');
+    else if (opens && new Date(fromLocalInput(closes)!) <= new Date(fromLocalInput(opens)!)) e.purchaseClosesAt = t('admin.contentEditorPage.laChiusuraDeveSeguireL');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -287,7 +283,7 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
     setSaved(null);
     if (!validate()) return;
     mutation.mutate(
-      { priceBc: Number.parseInt(price, 10), ...(isMovie ? {} : { purchaseOpensAt: fromLocalInput(opens) }), purchaseClosesAt: fromLocalInput(closes), ...extra },
+      { priceBc: Number.parseInt(price, 10), purchaseOpensAt: fromLocalInput(opens), purchaseClosesAt: fromLocalInput(closes), ...extra },
       {
         onSuccess: () => setSaved(message),
         onError: (err) => {
@@ -311,34 +307,15 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
           <PurchaseBadge {...adminPurchaseState(item)} />
           {item.priceBc ? <Bc value={item.priceBc} size={14} /> : null}
         </Stack>
-        <Field label={kind === 'movies' ? t('admin.contentEditorPage.prezzoDelFilmBustercoin') : t('admin.contentEditorPage.prezzoPerQuotaBustercoin')} error={errors.priceBc}>
+        <Field label={t('admin.contentEditorPage.prezzoPerQuotaBustercoin')} error={errors.priceBc}>
           <Input type="number" min={1} required aria-invalid={!!errors.priceBc} value={price} disabled={!can} onChange={(e) => setPrice(e.target.value)} />
         </Field>
-        {isMovie ? (
-          <Muted $size="0.85rem" data-testid="auto-opens">{t('admin.contentEditorPage.aperturaAutomatica', { date: formatDateTime(autoOpens) })}</Muted>
-        ) : (
-          <Field label={t('admin.contentEditorPage.aperturaAcquisti')} error={errors.purchaseOpensAt}>
-            <Input type="datetime-local" required aria-invalid={!!errors.purchaseOpensAt} value={opens} disabled={!can} onChange={(e) => setOpens(e.target.value)} />
-          </Field>
-        )}
-        <Field
-          label={t('admin.contentEditorPage.chiusuraAcquisti')}
-          error={errors.purchaseClosesAt}
-          hint={
-            isMovie
-              ? suggestedClose
-                ? t('admin.contentEditorPage.regola2359GiornoPrima')
-                : t('admin.contentEditorPage.regola2359GiornoPrimaSenzaData')
-              : t('admin.contentEditorPage.oraPredefinita2359')
-          }
-        >
+        <Field label={t('admin.contentEditorPage.aperturaAcquisti')} error={errors.purchaseOpensAt}>
+          <Input type="datetime-local" required aria-invalid={!!errors.purchaseOpensAt} value={opens} disabled={!can} onChange={(e) => setOpens(e.target.value)} />
+        </Field>
+        <Field label={t('admin.contentEditorPage.chiusuraAcquisti')} error={errors.purchaseClosesAt} hint={t('admin.contentEditorPage.oraPredefinita2359')}>
           <DateTimeInput value={closes} invalid={!!errors.purchaseClosesAt} disabled={!can} onChange={setCloses} />
         </Field>
-        {isMovie && suggestedClose && closes !== suggestedClose && can && (
-          <div>
-            <Button $size="sm" $variant="ghost" onClick={() => setCloses(suggestedClose)}>{t('admin.contentEditorPage.usa2359GiornoPrima', { date: formatDate(item.italianReleaseDate) })}</Button>
-          </div>
-        )}
         {mutation.error && !Object.keys(errors).length && <Alert $tone="error">{errorText(mutation.error)}</Alert>}
         {saved && <Alert $tone="success">{saved}</Alert>}
         {can ? (
@@ -389,9 +366,14 @@ export function ContentEditorPage() {
           <Stack $gap={18}>
             <PublicationSection kind={kind} item={item} />
             <NotificationSection kind={kind} item={item} />
-            <VisibilitySection kind={kind} item={item} />
-            <PurchaseSection kind={kind} item={item} />
-            {kind === 'movies' && <AutoRedeemSection movie={item} />}
+            {kind === 'movies' ? (
+              <MovieRulesSection movie={item} />
+            ) : (
+              <>
+                <VisibilitySection kind={kind} item={item} />
+                <PurchaseSection kind={kind} item={item} />
+              </>
+            )}
           </Stack>
         )}
       </Columns>

@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { login, logout, registerNewUser, SUPERADMIN, uid } from './helpers';
+import { login, logout, registerNewUser, simulateRelease, SUPERADMIN, uid } from './helpers';
+
+/** Giorno di calendario in Italia a N giorni da oggi, "AAAA-MM-GG". */
+const italianDay = (days = 0) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Rome' }).format(new Date(Date.now() + days * 86_400_000));
 
 test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', () => {
   const title = `E2E Film ${uid()}`;
@@ -14,10 +17,8 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.getByLabel('Titolo *').fill(title);
     await page.getByLabel('Generi').fill('Commedia, Dramma');
     await page.getByLabel('Regista').fill('Regista E2E');
-    // Uscita nelle sale: oggi (l'incasso si può inserire dal giorno di uscita)
-    const today = new Date();
-    const p2 = (n: number) => String(n).padStart(2, '0');
-    await page.getByLabel('Uscita italiana').fill(`${today.getFullYear()}-${p2(today.getMonth() + 1)}-${p2(today.getDate())}`);
+    // Le date di uscita e programmazione non sono più dati editoriali: stanno nelle Regole
+    for (const label of ['Uscita italiana', 'Inizio programmazione', 'Fine programmazione']) await expect(page.getByLabel(label)).toHaveCount(0);
     // Locandina caricata dal computer
     await page.getByTestId('poster-file').setInputFiles({
       name: 'locandina.png',
@@ -38,42 +39,48 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await expect(page.getByText(title)).toHaveCount(0);
   });
 
-  test('il Superadmin imposta prezzo, homepage e pubblica', async ({ page }) => {
+  test('il Superadmin imposta le Regole (uscita, prezzo, homepage) e pubblica', async ({ page }) => {
     await login(page, SUPERADMIN.email, SUPERADMIN.password);
     await page.goto('/admin/pubblicazione?tipo=movies&stato=DRAFT');
     await page.getByPlaceholder('Cerca per titolo…').fill(title);
     await page.keyboard.press('Enter');
     await page.getByRole('button', { name: 'Gestisci' }).first().click();
 
-    // Campi obbligatori: senza prezzo e chiusura il salvataggio viene bloccato
-    await page.getByRole('button', { name: 'Salva prezzo e date' }).click();
-    await expect(page.getByText('Il prezzo è obbligatorio')).toBeVisible();
-    // con l'uscita fissata a oggi la chiusura proposta (ieri alle 23:59) precede la creazione del film
-    await expect(page.getByText('La chiusura deve essere successiva alla creazione del film.')).toBeVisible();
+    // Una sola sezione "Regole" al posto di Visibilità, Acquisti e Uscita dalle sale
+    const rules = page.getByTestId('movie-rules');
+    await expect(rules.getByRole('heading', { name: 'Regole', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Acquisti', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Uscita dalle sale e riscatto automatico', level: 3 })).toHaveCount(0);
+    // Niente campi per apertura e chiusura acquisti, "Metti in evidenza" o "Disponibile dal"
+    for (const label of ['Apertura acquisti', 'Chiusura acquisti', 'Metti in evidenza', 'Disponibile dal']) await expect(page.getByLabel(label)).toHaveCount(0);
+    await expect(rules.getByTestId('auto-opens')).toContainText('automatica, dalla creazione del film');
 
-    // Film: l'apertura acquisti è automatica (creazione), non c'è un campo da compilare
-    await expect(page.getByTestId('auto-opens')).toContainText('automatica, dalla creazione del film');
-    await expect(page.getByLabel('Apertura acquisti')).toHaveCount(0);
-    // Visibilità senza "Metti in evidenza" e senza "Disponibile dal"
-    await expect(page.getByLabel('Metti in evidenza')).toHaveCount(0);
-    await expect(page.getByLabel('Disponibile dal')).toHaveCount(0);
+    // Campi obbligatori: senza uscita nelle sale e prezzo il salvataggio viene bloccato
+    await rules.getByRole('button', { name: 'Salva regole' }).click();
+    await expect(rules.getByText('L’uscita nelle sale è obbligatoria')).toBeVisible();
+    await expect(rules.getByText('Il prezzo è obbligatorio')).toBeVisible();
+    // uscita oggi: la chiusura (ieri alle 23:59) precederebbe la creazione del film
+    await rules.getByLabel('Uscita nelle sale').fill(italianDay(0));
+    await rules.getByRole('button', { name: 'Salva regole' }).click();
+    await expect(rules.getByText(/deve essere successiva al giorno di creazione del film/)).toBeVisible();
 
-    await page.getByLabel('Prezzo del film (Bustercoin)').fill('500000');
-    const close = new Date(Date.now() + 20 * 86_400_000);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    // chiusura: si sceglie il giorno, l'ora è già proposta alle 23:59
-    await page.getByLabel('Chiusura acquisti').fill(`${close.getFullYear()}-${pad(close.getMonth() + 1)}-${pad(close.getDate())}`);
-    await expect(page.getByLabel('Ora', { exact: true }).first()).toHaveValue('23:59');
-    // anche l'uscita dalle sale propone le 23:59
-    await expect(page.getByLabel('Ora', { exact: true }).nth(1)).toHaveValue('23:59');
-    await page.getByRole('button', { name: 'Salva prezzo e date' }).click();
-    await expect(page.getByText('Impostazioni salvate.')).toBeVisible();
-    await page.getByRole('button', { name: 'Abilita acquisti' }).click();
-    await expect(page.getByText('Acquisti abilitati.')).toBeVisible();
+    // uscita fra 20 giorni: la chiusura si compila da sola alle 23:59 del giorno prima
+    const release = italianDay(20);
+    const [y, , d] = italianDay(19).split('-');
+    await rules.getByLabel('Uscita nelle sale').fill(release);
+    await expect(rules.getByTestId('auto-closes')).toContainText('23:59');
+    await expect(rules.getByTestId('auto-closes')).toContainText(String(Number(d)));
+    await expect(rules.getByTestId('auto-closes')).toContainText(y);
+    // l'uscita dalle sale propone le 23:59
+    await expect(rules.getByLabel('Ora', { exact: true })).toHaveValue('23:59');
+    await rules.getByLabel('Prezzo del film (Bustercoin)').fill('500000');
+    await rules.getByLabel(/^Acquisti attivi/).check();
+    await rules.getByLabel('Mostra nella homepage').check();
+    await rules.getByRole('button', { name: 'Salva regole' }).click();
+    await expect(rules.getByText('Regole salvate.')).toBeVisible();
     // Ancora in bozza: ovale rosso "Acquisti non attivi"
     await expect(page.getByTestId('purchase-badge').first()).toHaveAttribute('data-active', 'false');
     await expect(page.getByText('Titolo non pubblicato')).toBeVisible();
-    await page.getByLabel('Mostra nella homepage').check();
 
     await page.getByRole('button', { name: 'Pubblica', exact: true }).first().click();
     await page.getByRole('dialog').getByRole('button', { name: 'Pubblica', exact: true }).click();
@@ -117,6 +124,11 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await activity.click();
     await expect(page).toHaveURL(/\/app\/film\/[0-9a-f-]+$/);
     await expect(page.getByRole('heading', { name: title })).toBeVisible();
+
+    // Il film esce nelle sale (in sviluppo si simula: npm run film:simula-uscita): acquisti chiusi
+    simulateRelease(title);
+    await page.reload();
+    await expect(page.getByRole('button', { name: 'Acquista' })).toHaveCount(0);
 
     // Il Superadmin inserisce l'incasso attuale: 600.000 €
     const admin = await browser.newPage();
