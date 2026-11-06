@@ -54,6 +54,9 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
+    // Indirizzi pubblici accettati oltre a localhost e agli IP della rete di casa:
+    // i tunnel di VS Code ("Porte" → Inoltra una porta) per provare dal cellulare anche fuori casa.
+    allowedHosts: ['.devtunnels.ms'],
     proxy: {
       '/api': { target: API_TARGET, changeOrigin: false },
       '/uploads': { target: API_TARGET, changeOrigin: false },
