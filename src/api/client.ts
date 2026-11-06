@@ -127,8 +127,23 @@ export async function logout() {
   clearSession();
 }
 
+/**
+ * Identificativo casuale (UUID v4). crypto.randomUUID esiste solo nelle pagine sicure
+ * (https o localhost): aprendo il sito da un altro dispositivo in http, per esempio
+ * http://192.168.x.x:5173 dal cellulare, non c'è. crypto.getRandomValues invece è sempre
+ * disponibile ed è altrettanto sicuro.
+ */
+export function randomId(): string {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40; // versione 4
+  b[8] = (b[8] & 0x3f) | 0x80; // variante RFC 4122
+  const h = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
 export function newIdempotencyKey() {
-  return `web-${crypto.randomUUID()}`;
+  return `web-${randomId()}`;
 }
 
 export type { Me };
