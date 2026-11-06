@@ -19,6 +19,7 @@ import { BoxOfficeSection } from './BoxOfficeSection';
 import { PosterField } from './PosterField';
 import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadge';
 import { NotificationSection } from './NotificationSection';
+import { DateTimeInput, dayBeforeReleaseAt2359 } from './DateTimeInput';
 import { AutoRedeemSection } from './AutoRedeemSection';
 import { t, tx } from '../../i18n';
 
@@ -187,16 +188,16 @@ function PublicationSection({ kind, item }: { kind: ContentKindPath; item: Admin
 function VisibilitySection({ kind, item }: { kind: ContentKindPath; item: AdminContent }) {
   const user = useAuthStore((s) => s.user);
   const can = hasPermission(user, 'content.publish');
-  const [availableFrom, setAvailableFrom] = useState(toLocalInput(item.availableFrom));
   const mutation = useAdminMutation((body: Record<string, unknown>) => api(`/admin/${kind}/${item.id}/visibility`, { method: 'PATCH', body }));
-  useEffect(() => setAvailableFrom(toLocalInput(item.availableFrom)), [item.availableFrom]);
+  // Data "disponibile dal" impostata prima che il campo venisse tolto: si può solo rimuovere.
+  const legacyAvailableFrom = item.availableFrom && new Date(item.availableFrom).getTime() > Date.now() ? item.availableFrom : null;
 
-  type FlagKey = 'showOnHomepage' | 'showInLeaderboards' | 'featured';
+  type FlagKey = 'showOnHomepage' | 'showInLeaderboards';
   // Stato ottimistico: la casella cambia subito e torna indietro se il server rifiuta.
-  const [flags, setFlags] = useState({ showOnHomepage: item.showOnHomepage, showInLeaderboards: item.showInLeaderboards, featured: item.featured });
+  const [flags, setFlags] = useState({ showOnHomepage: item.showOnHomepage, showInLeaderboards: item.showInLeaderboards });
   useEffect(
-    () => setFlags({ showOnHomepage: item.showOnHomepage, showInLeaderboards: item.showInLeaderboards, featured: item.featured }),
-    [item.showOnHomepage, item.showInLeaderboards, item.featured],
+    () => setFlags({ showOnHomepage: item.showOnHomepage, showInLeaderboards: item.showInLeaderboards }),
+    [item.showOnHomepage, item.showInLeaderboards],
   );
   const toggle = (key: FlagKey, label: string) => (
     <Checkbox>
@@ -218,14 +219,19 @@ function VisibilitySection({ kind, item }: { kind: ContentKindPath; item: AdminC
     <Section title={t('admin.contentEditorPage.visibilita')} note={t('admin.contentEditorPage.questiFlagHannoEffettoSolo')}>
       <Stack $gap={10}>
         {toggle('showOnHomepage', t('admin.contentEditorPage.mostraNellaHomepage'))}
-        {toggle('featured', t('admin.contentEditorPage.mettiInEvidenza'))}
         {toggle('showInLeaderboards', t('admin.contentEditorPage.includiNelleClassifiche'))}
-        <Field label={t('admin.contentEditorPage.disponibileDal')} hint={t('admin.contentEditorPage.facoltativoPrimaDiQuestaData')}>
-          <Input type="datetime-local" value={availableFrom} disabled={!can} onChange={(e) => setAvailableFrom(e.target.value)} />
-        </Field>
-        <div>
-          <Button $variant="secondary" disabled={!can || mutation.isPending} onClick={() => mutation.mutate({ availableFrom: fromLocalInput(availableFrom) })}>{t('admin.contentEditorPage.salvaDisponibilita')}</Button>
-        </div>
+        {legacyAvailableFrom && (
+          <Alert $tone="warning" data-testid="legacy-available-from">
+            <Stack $gap={8}>
+              <span>{t('admin.contentEditorPage.disponibileDalPrecedente', { date: formatDateTime(legacyAvailableFrom) })}</span>
+              {can && (
+                <div>
+                  <Button $size="sm" $variant="secondary" disabled={mutation.isPending} onClick={() => mutation.mutate({ availableFrom: null })}>{t('admin.contentEditorPage.rimuoviDisponibileDal')}</Button>
+                </div>
+              )}
+            </Stack>
+          </Alert>
+        )}
         {mutation.error && <Alert $tone="error">{errorText(mutation.error)}</Alert>}
       </Stack>
     </Section>
@@ -233,20 +239,19 @@ function VisibilitySection({ kind, item }: { kind: ContentKindPath; item: AdminC
 }
 
 /* ---------------- Acquisti ---------------- */
-/** Mezzanotte tra il giorno prima dell'uscita e il giorno d'uscita (ora locale), per <input type="datetime-local">. */
-export const releaseMidnightInput = (releaseDate: string | null | undefined) => (releaseDate ? `${releaseDate}T00:00` : '');
-
 type PurchaseField = 'priceBc' | 'purchaseOpensAt' | 'purchaseClosesAt';
 
 function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminContent }) {
   const user = useAuthStore((s) => s.user);
   const can = hasPermission(user, 'content.purchases');
-  // Valori iniziali: quelli salvati; altrimenti apertura = adesso e, per i film,
-  // chiusura = mezzanotte del giorno prima dell'uscita in sala.
+  const isMovie = kind === 'movies';
+  // Film: l'apertura è automatica (creazione del film) e la chiusura proposta è alle 23:59
+  // del giorno prima dell'uscita al cinema. Serie: apertura da indicare (proposta: adesso).
+  const autoOpens = isMovie ? (item.purchaseOpensAt ?? item.createdAt) : null;
   const initial = () => ({
     price: item.priceBc ? String(item.priceBc) : '',
-    opens: toLocalInput(item.purchaseOpensAt) || toLocalInput(new Date().toISOString()),
-    closes: toLocalInput(item.purchaseClosesAt) || (kind === 'movies' ? releaseMidnightInput(item.italianReleaseDate) : ''),
+    opens: isMovie ? toLocalInput(autoOpens) : toLocalInput(item.purchaseOpensAt) || toLocalInput(new Date().toISOString()),
+    closes: toLocalInput(item.purchaseClosesAt) || (isMovie ? dayBeforeReleaseAt2359(item.italianReleaseDate) : ''),
   });
   const [price, setPrice] = useState(initial().price);
   const [opens, setOpens] = useState(initial().opens);
@@ -263,7 +268,7 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.priceBc, item.purchaseOpensAt, item.purchaseClosesAt, item.italianReleaseDate]);
   const seasonScoped = kind === 'tv-series' && item.holdingScope === 'SEASON';
-  const suggestedClose = kind === 'movies' ? releaseMidnightInput(item.italianReleaseDate) : '';
+  const suggestedClose = isMovie ? dayBeforeReleaseAt2359(item.italianReleaseDate) : '';
 
   /** Validazione lato frontend: tutti e tre i campi sono obbligatori (il backend applica le stesse regole). */
   const validate = () => {
@@ -271,9 +276,9 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
     const n = Number(price);
     if (!price) e.priceBc = t('admin.contentEditorPage.ilPrezzoEObbligatorio');
     else if (!Number.isInteger(n) || n <= 0) e.priceBc = t('admin.contentEditorPage.inserisciUnNumeroInteroMaggiore');
-    if (!opens) e.purchaseOpensAt = t('admin.contentEditorPage.lAperturaDegliAcquistiE');
+    if (!opens && !isMovie) e.purchaseOpensAt = t('admin.contentEditorPage.lAperturaDegliAcquistiE');
     if (!closes) e.purchaseClosesAt = t('admin.contentEditorPage.laChiusuraDegliAcquistiE');
-    else if (opens && new Date(closes) <= new Date(opens)) e.purchaseClosesAt = t('admin.contentEditorPage.laChiusuraDeveSeguireL');
+    else if (opens && new Date(closes) <= new Date(opens)) e.purchaseClosesAt = isMovie ? t('admin.contentEditorPage.chiusuraDopoCreazione') : t('admin.contentEditorPage.laChiusuraDeveSeguireL');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -282,7 +287,7 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
     setSaved(null);
     if (!validate()) return;
     mutation.mutate(
-      { priceBc: Number.parseInt(price, 10), purchaseOpensAt: fromLocalInput(opens), purchaseClosesAt: fromLocalInput(closes), ...extra },
+      { priceBc: Number.parseInt(price, 10), ...(isMovie ? {} : { purchaseOpensAt: fromLocalInput(opens) }), purchaseClosesAt: fromLocalInput(closes), ...extra },
       {
         onSuccess: () => setSaved(message),
         onError: (err) => {
@@ -309,25 +314,29 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
         <Field label={kind === 'movies' ? t('admin.contentEditorPage.prezzoDelFilmBustercoin') : t('admin.contentEditorPage.prezzoPerQuotaBustercoin')} error={errors.priceBc}>
           <Input type="number" min={1} required aria-invalid={!!errors.priceBc} value={price} disabled={!can} onChange={(e) => setPrice(e.target.value)} />
         </Field>
-        <Field label={t('admin.contentEditorPage.aperturaAcquisti')} error={errors.purchaseOpensAt}>
-          <Input type="datetime-local" required aria-invalid={!!errors.purchaseOpensAt} value={opens} disabled={!can} onChange={(e) => setOpens(e.target.value)} />
-        </Field>
+        {isMovie ? (
+          <Muted $size="0.85rem" data-testid="auto-opens">{t('admin.contentEditorPage.aperturaAutomatica', { date: formatDateTime(autoOpens) })}</Muted>
+        ) : (
+          <Field label={t('admin.contentEditorPage.aperturaAcquisti')} error={errors.purchaseOpensAt}>
+            <Input type="datetime-local" required aria-invalid={!!errors.purchaseOpensAt} value={opens} disabled={!can} onChange={(e) => setOpens(e.target.value)} />
+          </Field>
+        )}
         <Field
           label={t('admin.contentEditorPage.chiusuraAcquisti')}
           error={errors.purchaseClosesAt}
           hint={
-            kind === 'movies'
+            isMovie
               ? suggestedClose
-                ? t('admin.contentEditorPage.regolaMezzanotteDelGiornoPrima')
-                : t('admin.contentEditorPage.regolaMezzanotteDelGiornoPrima2')
-              : undefined
+                ? t('admin.contentEditorPage.regola2359GiornoPrima')
+                : t('admin.contentEditorPage.regola2359GiornoPrimaSenzaData')
+              : t('admin.contentEditorPage.oraPredefinita2359')
           }
         >
-          <Input type="datetime-local" required aria-invalid={!!errors.purchaseClosesAt} value={closes} disabled={!can} onChange={(e) => setCloses(e.target.value)} />
+          <DateTimeInput value={closes} invalid={!!errors.purchaseClosesAt} disabled={!can} onChange={setCloses} />
         </Field>
-        {kind === 'movies' && suggestedClose && closes !== suggestedClose && can && (
+        {isMovie && suggestedClose && closes !== suggestedClose && can && (
           <div>
-            <Button $size="sm" $variant="ghost" onClick={() => setCloses(suggestedClose)}>{tx('admin.contentEditorPage.usaLaMezzanottePrimaDell', { italianReleaseDate: formatDate(item.italianReleaseDate) })}</Button>
+            <Button $size="sm" $variant="ghost" onClick={() => setCloses(suggestedClose)}>{t('admin.contentEditorPage.usa2359GiornoPrima', { date: formatDate(item.italianReleaseDate) })}</Button>
           </div>
         )}
         {mutation.error && !Object.keys(errors).length && <Alert $tone="error">{errorText(mutation.error)}</Alert>}

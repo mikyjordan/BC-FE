@@ -51,7 +51,6 @@ interface PublicContentBase {
   genres: string[];
   cast: string[];
   productionCountry: string | null;
-  featured: boolean;
   publishedAt: string | null;
   purchase: PurchaseInfo;
 }
@@ -75,7 +74,6 @@ export interface PublicMovie extends PublicContentBase {
 export interface BoxOfficeReading {
   id?: string;
   grossAmount: number;
-  spectators: number | null;
   recordedAt: string;
   source: string;
   notes?: string | null;
@@ -116,7 +114,6 @@ export interface Features {
 
 export interface HomeResponse {
   features: Features;
-  featured: PublicContent[];
   movies: PublicMovie[];
   tvSeries: PublicSeries[];
 }
@@ -219,7 +216,6 @@ export interface AdminContent {
   priceBc: number | null;
   showOnHomepage: boolean;
   showInLeaderboards: boolean;
-  featured: boolean;
   adminNotes: string | null;
   source: string;
   externalId: string | null;

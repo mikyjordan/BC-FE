@@ -182,7 +182,8 @@
       "ilFilmNonVerraPiu": "Il film non verrà più riscattato automaticamente finché non imposterai una nuova data.",
       "confermaData": "Conferma data",
       "rimuovi": "Rimuovi",
-      "oggi": " (oggi {amount})"
+      "oggi": " (oggi {amount})",
+      "oraPredefinita": "L’ora è proposta alle 23:59 del giorno scelto."
     },
     "boxOfficeReadingRow": {
       "incassoObbligatorioNumeroIntero0": "Incasso obbligatorio (numero intero ≥ 0)",
@@ -192,7 +193,6 @@
       "salvataggioNonRiuscito": "Salvataggio non riuscito",
       "dataRilevazione": "Data rilevazione",
       "incasso": "Incasso",
-      "spettatori": "Spettatori",
       "note": "Note",
       "salvaRilevazione": "Salva rilevazione",
       "annullaModifica": "Annulla modifica",
@@ -221,7 +221,6 @@
       "nessuno": "Nessuno",
       "rilevatoIlLatestgrossat": "Rilevato il {latestGrossAt}",
       "nuovoIncassoTotale": "Nuovo incasso totale (€) *",
-      "spettatoriFacoltativo": "Spettatori (facoltativo)",
       "dataRilevazione": "Data rilevazione *",
       "precompilataConLaDataE": "Precompilata con la data e l’ora attuali",
       "fonteNoteFacoltative": "Fonte / note (facoltative)",
@@ -232,7 +231,6 @@
       "nonHaiIlPermessoDi": "Non hai il permesso di inserire gli incassi (boxoffice.manage).",
       "rilevazione": "Rilevazione",
       "incasso": "Incasso",
-      "spettatori": "Spettatori",
       "note": "Note"
     },
     "contentEditorPage": {
@@ -255,11 +253,7 @@
       "visibilita": "Visibilità",
       "questiFlagHannoEffettoSolo": "Questi flag hanno effetto solo quando il titolo è pubblicato.",
       "mostraNellaHomepage": "Mostra nella homepage",
-      "mettiInEvidenza": "Metti in evidenza",
       "includiNelleClassifiche": "Includi nelle classifiche",
-      "disponibileDal": "Disponibile dal",
-      "facoltativoPrimaDiQuestaData": "Facoltativo: prima di questa data il titolo resta invisibile anche se pubblicato.",
-      "salvaDisponibilita": "Salva disponibilità",
       "ilPrezzoEObbligatorio": "Il prezzo è obbligatorio",
       "inserisciUnNumeroInteroMaggiore": "Inserisci un numero intero maggiore di zero",
       "lAperturaDegliAcquistiE": "L’apertura degli acquisti è obbligatoria",
@@ -274,9 +268,6 @@
       "prezzoPerQuotaBustercoin": "Prezzo per quota (Bustercoin) *",
       "aperturaAcquisti": "Apertura acquisti *",
       "chiusuraAcquisti": "Chiusura acquisti *",
-      "regolaMezzanotteDelGiornoPrima": "Regola: mezzanotte del giorno prima dell’uscita nelle sale (precompilata dalla data d’uscita italiana).",
-      "regolaMezzanotteDelGiornoPrima2": "Regola: mezzanotte del giorno prima dell’uscita nelle sale. Imposta la data d’uscita italiana nei dati editoriali per precompilarla.",
-      "usaLaMezzanottePrimaDell": "Usa la mezzanotte prima dell’uscita ({italianReleaseDate})",
       "salvaPrezzoEDate": "Salva prezzo e date",
       "sospendiAcquisti": "Sospendi acquisti",
       "acquistiAbilitati": "Acquisti abilitati.",
@@ -289,7 +280,15 @@
       "anteprimaPubblica": "Anteprima pubblica",
       "film": "film",
       "avvisaUtenti": "Invia un’email di avviso a tutti gli utenti quando il titolo verrà pubblicato",
-      "avvisaUtentiNota": "Il titolo nasce in bozza: nessuna email parte finché non viene pubblicato."
+      "avvisaUtentiNota": "Il titolo nasce in bozza: nessuna email parte finché non viene pubblicato.",
+      "aperturaAutomatica": "Apertura acquisti: automatica, dalla creazione del film ({date}).",
+      "chiusuraDopoCreazione": "La chiusura deve essere successiva alla creazione del film.",
+      "regola2359GiornoPrima": "Regola: acquistabile fino alle 23:59 del giorno prima dell’uscita al cinema (precompilata dalla data d’uscita italiana). L’ora è proposta alle 23:59.",
+      "regola2359GiornoPrimaSenzaData": "Regola: acquistabile fino alle 23:59 del giorno prima dell’uscita al cinema. Imposta la data d’uscita italiana nei dati editoriali per precompilarla. L’ora è proposta alle 23:59.",
+      "oraPredefinita2359": "L’ora è proposta alle 23:59.",
+      "usa2359GiornoPrima": "Usa le 23:59 del giorno prima dell’uscita ({date})",
+      "disponibileDalPrecedente": "Questo titolo ha ancora una data “disponibile dal” impostata in precedenza ({date}): fino ad allora gli utenti non lo vedono. Per far comparire un titolo più tardi ora si usa la pubblicazione programmata.",
+      "rimuoviDisponibileDal": "Rimuovi la data (il titolo diventa subito visibile)"
     },
     "posterField": {
       "formatiAmmessiPngJpegWebp": "Formati ammessi: PNG, JPEG, WEBP",
@@ -318,7 +317,6 @@
       "importatoSource": "Importato · {source}",
       "prezzoNonImpostato": "Prezzo non impostato",
       "homepage": "Homepage",
-      "evidenza": "Evidenza",
       "programmatoScheduledpublishat": "Programmato {scheduledPublishAt}",
       "pubblicatoIlPublishedat": "Pubblicato il {publishedAt}",
       "maiPubblicato": "Mai pubblicato",
@@ -485,6 +483,9 @@
       "confermaTitolo": "Inviare ora l’avviso?",
       "confermaMessaggio": "“{title}” è già pubblicato: l’email di avviso partirà subito verso tutti gli utenti. L’operazione non si può annullare.",
       "confermaPulsante": "Invia ora"
+    },
+    "dateTimeInput": {
+      "ora": "Ora"
     }
   },
   "auth": {
@@ -598,7 +599,6 @@
       "serieInStreamingEIn": "Serie in streaming e in TV, con metriche del pubblico italiano."
     },
     "contentCard": {
-      "inEvidenza": "In evidenza",
       "prezzoNonAncoraDefinito": "Prezzo non ancora definito"
     },
     "detailPages": {
@@ -642,9 +642,6 @@
       "aggiornatoAlRecordedat11": "Aggiornato al {recordedAt} · 1 € = 1 B",
       "rilevazione": "Rilevazione",
       "incasso": "Incasso",
-      "spettatori": "Spettatori",
-      "ultimoGiornoFormatdateChiusuraClosesat": ": ultimo giorno {formatDate}, chiusura {closesAt}.",
-      "acquistabileFinoAllaMezzanotteDel": "Acquistabile fino alla mezzanotte del giorno prima dell’uscita nelle sale{v}",
       "comeFunziona": "Come funziona",
       "filmRiscattato": "Film riscattato",
       "ilTuoInvestimento": "Il tuo investimento",
@@ -662,7 +659,9 @@
       "annulla": "Annulla",
       "acquisto2": "Acquisto…",
       "confermaPrice": "Conferma {price}",
-      "partecipazioneVirtualeDiGiocoNon": "Partecipazione virtuale di gioco: non attribuisce diritti reali sul film."
+      "partecipazioneVirtualeDiGiocoNon": "Partecipazione virtuale di gioco: non attribuisce diritti reali sul film.",
+      "acquistabileFino2359": "Acquistabile fino alle 23:59 del giorno prima dell’uscita al cinema{v}",
+      "chiusuraIl": ": chiusura acquisti il {closesAt}."
     },
     "ownedMovieStatus": {
       "nonAcquistabile": "Non acquistabile",
@@ -705,7 +704,6 @@
       "rendimento": "Rendimento",
       "ilSiparioStaPerAlzarsi": "Il sipario sta per alzarsi",
       "nonCiSonoAncoraTitoli": "Non ci sono ancora titoli in programmazione. Torna presto: i nuovi film e serie compariranno qui.",
-      "inEvidenza": "In evidenza",
       "filmDisponibili": "Film disponibili",
       "vediTutti": "Vedi tutti",
       "serieTvDisponibili": "Serie TV disponibili",
@@ -728,7 +726,7 @@
       "acquistaUnFilmPrimaChe": "Acquista un film prima che esca",
       "unaSolaVolta": "una sola volta",
       "ogniFilmSiAcquistaStrong": "Ogni film si acquista {strong}, al prezzo stabilito dalla piattaforma.",
-      "laPossibilitaDiAcquistareUn": "La possibilità di acquistare un film termina alla mezzanotte del giorno prima della sua uscita nelle sale",
+      "laPossibilitaDiAcquistareUn": "Un film è acquistabile fino alle 23:59 del giorno prima della sua uscita al cinema",
       "esempioSeIlFilmEsce": ". Esempio: se il film esce giovedì, puoi comprarlo fino alle 23:59 di mercoledì.",
       "sullaSchedaDiOgniFilm": "Sulla scheda di ogni film trovi la data e l’ora esatte di chiusura degli acquisti.",
       "seguiLIncasso": "Segui l’incasso",
@@ -759,7 +757,7 @@
       "lePartecipazioniAcquistateSonoVirtuali": "Le partecipazioni acquistate sono virtuali e non attribuiscono proprietà, diritti economici o quote su film, serie TV o piattaforme.",
       "acquistoDeiFilm": "Acquisto dei film",
       "ogniFilmPuoEssereAcquistato": "Ogni film può essere acquistato una sola volta, al prezzo stabilito dalla piattaforma.",
-      "laPossibilitaDiAcquistareUn": "La possibilità di acquistare un film termina alla mezzanotte del giorno prima della sua uscita nelle sale italiane.",
+      "laPossibilitaDiAcquistareUn": "Un film è acquistabile fino alle 23:59 del giorno prima della sua uscita al cinema in Italia.",
       "ilRiscattoAccreditaLIncasso": "Il riscatto accredita l’incasso del film in vigore (1 € = 1 Bustercoin); un film riscattato non può essere riacquistato.",
       "allUscitaDalleSaleIl": "All’uscita dalle sale il film viene riscattato automaticamente a tutti i possessori.",
       "datiSuiContenuti": "Dati sui contenuti",

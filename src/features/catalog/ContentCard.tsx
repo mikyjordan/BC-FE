@@ -1,11 +1,10 @@
 import { Link } from 'react-router';
 import styled from 'styled-components';
-import { Star } from 'lucide-react';
 import type { PublicContent } from '../../api/types';
 import { useHoldings } from '../../api/hooks';
 import { OwnedMovieStatus } from './OwnedMovieStatus';
 import { Poster } from '../../components/Poster';
-import { Badge, Bc, Muted } from '../../components/ui';
+import { Bc, Muted } from '../../components/ui';
 import { AutoRedeemNotice } from './AutoRedeemNotice';
 import { PurchaseBadge } from '../../components/PurchaseBadge';
 import { t } from '../../i18n';
@@ -43,10 +42,6 @@ export function ContentCard({ item }: { item: PublicContent }) {
     <CardLink to={contentPath(item)}>
       <div style={{ position: 'relative' }}>
         <Poster src={item.posterUrl} alt={item.title} kind={item.kind} />
-        {item.featured && (
-          <Badge $tone="blue" style={{ position: 'absolute', top: 8, left: 8 }}>
-            <Star size={11} />{' '}{t('catalog.contentCard.inEvidenza')}</Badge>
-        )}
       </div>
       <div>
         <Title>{item.title}</Title>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import styled from 'styled-components';
-import { CalendarClock, Eye, Home, Pencil, Plus, Search, Star } from 'lucide-react';
+import { CalendarClock, Eye, Home, Pencil, Plus, Search } from 'lucide-react';
 import { useAdminContentList, useFeatures, useStatusCounts } from '../../api/hooks';
 import type { AdminContent, ContentKindPath, PublicationStatus } from '../../api/types';
 import { Alert, Badge, Bc, Button, Card, EmptyState, Input, Muted, PageHeader, Pagination, Spinner, Stack, Tab, Tabs } from '../../components/ui';
@@ -54,7 +54,6 @@ function ContentRow({ kind, item, onPreview }: { kind: ContentKindPath; item: Ad
           <PurchaseBadge {...adminPurchaseState(item)} />
           {item.priceBc ? <Bc value={item.priceBc} size={12} /> : <Muted $size="0.8rem">{t('admin.publicationPage.prezzoNonImpostato')}</Muted>}
           {item.showOnHomepage && <Badge $tone="blue"><Home size={11} />{' '}{t('admin.publicationPage.homepage')}</Badge>}
-          {item.featured && <Badge $tone="blue"><Star size={11} />{' '}{t('admin.publicationPage.evidenza')}</Badge>}
           {item.scheduledPublishAt && <Badge $tone="amber"><CalendarClock size={11} />{' '}{tx('admin.publicationPage.programmatoScheduledpublishat', { scheduledPublishAt: formatDateTime(item.scheduledPublishAt) })}</Badge>}
         </Stack>
         <Muted $size="0.78rem">

@@ -46,10 +46,21 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await expect(page.getByText('Il prezzo è obbligatorio')).toBeVisible();
     await expect(page.getByText('La chiusura degli acquisti è obbligatoria')).toBeVisible();
 
+    // Film: l'apertura acquisti è automatica (creazione), non c'è un campo da compilare
+    await expect(page.getByTestId('auto-opens')).toContainText('automatica, dalla creazione del film');
+    await expect(page.getByLabel('Apertura acquisti')).toHaveCount(0);
+    // Visibilità senza "Metti in evidenza" e senza "Disponibile dal"
+    await expect(page.getByLabel('Metti in evidenza')).toHaveCount(0);
+    await expect(page.getByLabel('Disponibile dal')).toHaveCount(0);
+
     await page.getByLabel('Prezzo del film (Bustercoin)').fill('500000');
     const close = new Date(Date.now() + 20 * 86_400_000);
     const pad = (n: number) => String(n).padStart(2, '0');
-    await page.getByLabel('Chiusura acquisti').fill(`${close.getFullYear()}-${pad(close.getMonth() + 1)}-${pad(close.getDate())}T00:00`);
+    // chiusura: si sceglie il giorno, l'ora è già proposta alle 23:59
+    await page.getByLabel('Chiusura acquisti').fill(`${close.getFullYear()}-${pad(close.getMonth() + 1)}-${pad(close.getDate())}`);
+    await expect(page.getByLabel('Ora', { exact: true }).first()).toHaveValue('23:59');
+    // anche l'uscita dalle sale propone le 23:59
+    await expect(page.getByLabel('Ora', { exact: true }).nth(1)).toHaveValue('23:59');
     await page.getByRole('button', { name: 'Salva prezzo e date' }).click();
     await expect(page.getByText('Impostazioni salvate.')).toBeVisible();
     await page.getByRole('button', { name: 'Abilita acquisti' }).click();
@@ -87,7 +98,8 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.getByRole('link', { name: new RegExp(title) }).first().click();
     await expect(page.getByRole('heading', { name: title })).toBeVisible();
 
-    await expect(page.getByTestId('purchase-deadline')).toContainText('mezzanotte del giorno prima dell’uscita nelle sale');
+    await expect(page.getByTestId('purchase-deadline')).toContainText('23:59 del giorno prima dell’uscita al cinema');
+    await expect(page.getByTestId('purchase-deadline')).toContainText('23:59');
     await page.getByRole('button', { name: 'Acquista' }).click();
     await page.getByRole('button', { name: /Conferma 500\.000 B/ }).click();
     await expect(page.getByText('Il tuo investimento')).toBeVisible();
@@ -112,6 +124,7 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     const pad = (n: number) => String(n).padStart(2, '0');
     const d = new Date();
     await expect(admin.getByLabel('Data rilevazione')).toHaveValue(new RegExp(`^${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T`));
+    await expect(admin.getByText('Spettatori')).toHaveCount(0);
     await admin.getByLabel('Nuovo incasso totale (€)').fill('600000');
     await admin.getByRole('button', { name: /Registra incasso/ }).click();
     await expect(admin.getByText('Incasso aggiornato a 600.000 B.')).toBeVisible();

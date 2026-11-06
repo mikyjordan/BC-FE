@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router';
 import styled from 'styled-components';
-import { ChevronRight, Clapperboard, Gift, Sparkles, Trophy, Tv } from 'lucide-react';
+import { ChevronRight, Clapperboard, Gift, Trophy, Tv } from 'lucide-react';
 import { useHome, useTransactions, useWallet } from '../../api/hooks';
 import { Alert, Bc, Card, Gain, EmptyState, Grid, Muted, SectionTitle, Spinner, Stack } from '../../components/ui';
 import { formatDateTime, formatNumber, formatPct, LEDGER_LABELS } from '../../components/format';
@@ -70,7 +70,7 @@ export function HomePage() {
   const wallet = useWallet();
   const activity = useTransactions(1);
 
-  const hasContent = !!home.data && (home.data.featured.length + home.data.movies.length + home.data.tvSeries.length > 0);
+  const hasContent = !!home.data && (home.data.movies.length + home.data.tvSeries.length > 0);
 
   return (
     <>
@@ -110,17 +110,6 @@ export function HomePage() {
         </Section>
       ) : (
         <>
-          {home.data!.featured.length > 0 && (
-            <Section>
-              <SectionTitle>
-                <Sparkles size={18} />{' '}{t('home.homePage.inEvidenza')}</SectionTitle>
-              <Grid $min={150} $gap={22}>
-                {home.data!.featured.map((c) => (
-                  <ContentCard key={`${c.kind}-${c.id}`} item={c} />
-                ))}
-              </Grid>
-            </Section>
-          )}
           {home.data!.movies.length > 0 && (
             <Section>
               <SectionTitle>

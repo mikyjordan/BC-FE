@@ -5,7 +5,7 @@ import { ApiError } from '../../api/client';
 import { newIdempotencyKey, useHoldings, useMovieBoxOffice, usePurchase, useWallet } from '../../api/hooks';
 import type { PublicMovie } from '../../api/types';
 import { Alert, Bc, Button, Card, Muted, Stack, Table } from '../../components/ui';
-import { formatBc, formatDate, formatDateTime, formatNumber } from '../../components/format';
+import { formatBc, formatDate, formatDateTime } from '../../components/format';
 import { useAuthStore } from '../../store/auth';
 import { SuperadminNoPurchase } from '../../components/SuperadminNoPurchase';
 import { MovieHoldingCard } from '../wallet/MovieHoldingCard';
@@ -35,14 +35,13 @@ export function BoxOfficeCard({ movie }: { movie: PublicMovie }) {
           {items.length > 1 && (
             <Table>
               <thead>
-                <tr><th>{t('catalog.moviePanels.rilevazione')}</th><th style={{ textAlign: 'right' }}>{t('catalog.moviePanels.incasso')}</th><th style={{ textAlign: 'right' }}>{t('catalog.moviePanels.spettatori')}</th></tr>
+                <tr><th>{t('catalog.moviePanels.rilevazione')}</th><th style={{ textAlign: 'right' }}>{t('catalog.moviePanels.incasso')}</th></tr>
               </thead>
               <tbody>
                 {items.slice(0, 8).map((r, i) => (
                   <tr key={`${r.recordedAt}-${i}`}>
                     <td><Muted $size="0.85rem">{formatDate(r.recordedAt)}</Muted></td>
                     <td style={{ textAlign: 'right' }}>{formatBc(r.grossAmount)}</td>
-                    <td style={{ textAlign: 'right' }}><Muted $size="0.85rem">{r.spectators !== null ? formatNumber(r.spectators) : '—'}</Muted></td>
                   </tr>
                 ))}
               </tbody>
@@ -54,11 +53,10 @@ export function BoxOfficeCard({ movie }: { movie: PublicMovie }) {
   );
 }
 
-/** La possibilità d'acquisto termina alla mezzanotte del giorno prima dell'uscita nelle sale. */
+/** La possibilità d'acquisto termina alle 23:59 del giorno prima dell'uscita al cinema. */
 function PurchaseDeadline({ closesAt }: { closesAt: string | null }) {
-  const lastDay = closesAt ? new Date(new Date(closesAt).getTime() - 1) : null;
   return (
-    <Alert $tone="info" data-testid="purchase-deadline">{tx('catalog.moviePanels.acquistabileFinoAllaMezzanotteDel', { v: lastDay ? t('catalog.moviePanels.ultimoGiornoFormatdateChiusuraClosesat', { formatDate: formatDate(lastDay.toISOString()), closesAt: formatDateTime(closesAt) }) : '.' })}{' '}
+    <Alert $tone="info" data-testid="purchase-deadline">{tx('catalog.moviePanels.acquistabileFino2359', { v: closesAt ? t('catalog.moviePanels.chiusuraIl', { closesAt: formatDateTime(closesAt) }) : '.' })}{' '}
       <Link to="/come-funziona" style={{ textDecoration: 'underline' }}>{t('catalog.moviePanels.comeFunziona')}</Link>
     </Alert>
   );

@@ -5,10 +5,11 @@ import { api, ApiError } from '../../api/client';
 import { useAdminMutation } from '../../api/hooks';
 import type { AdminContent } from '../../api/types';
 import { ConfirmModal } from '../../components/Modal';
-import { Alert, Button, Card, Field, Input, Muted, Stack } from '../../components/ui';
+import { Alert, Button, Card, Field, Muted, Stack } from '../../components/ui';
 import { formatBc, formatDateTime } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { fromLocalInput, toLocalInput } from './content-fields';
+import { DateTimeInput } from './DateTimeInput';
 import { t, tx } from '../../i18n';
 
 /**
@@ -55,8 +56,8 @@ export function AutoRedeemSection({ movie }: { movie: AdminContent }) {
             )}
             {can ? (
               <>
-                <Field label={t('admin.autoRedeemSection.dataEOraDiUscita')}>
-                  <Input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
+                <Field label={t('admin.autoRedeemSection.dataEOraDiUscita')} hint={t('admin.autoRedeemSection.oraPredefinita')}>
+                  <DateTimeInput value={when} onChange={setWhen} />
                 </Field>
                 {mutation.error && <Alert $tone="error">{mutation.error instanceof ApiError ? mutation.error.message : t('admin.autoRedeemSection.errore')}</Alert>}
                 <Stack $row $gap={8} $wrap>

@@ -20,7 +20,6 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
   const can = hasPermission(user, 'boxoffice.manage');
   const history = useAdminBoxOffice(movie.id);
   const [gross, setGross] = useState('');
-  const [spectators, setSpectators] = useState('');
   // La data di rilevazione parte sempre da "adesso" ed è modificabile.
   const [when, setWhen] = useState(() => toLocalInput(new Date().toISOString()));
   // Se l'operatore non modifica la data si usa l'istante esatto dell'invio (il campo ha precisione al minuto).
@@ -51,7 +50,6 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
     mutation.mutate(
       {
         grossAmount: amount,
-        ...(spectators ? { spectators: Number(spectators) } : {}),
         recordedAt: whenTouched ? fromLocalInput(when) : new Date().toISOString(),
         ...(notes.trim() ? { notes: notes.trim() } : {}),
       },
@@ -60,7 +58,6 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
           const res = r as { becomesCurrent: boolean };
           setSaved(res.becomesCurrent ? t('admin.boxOfficeSection.incassoAggiornatoAAmount', { amount: formatBc(amount) }) : t('admin.boxOfficeSection.rilevazioneSalvataNelloStoricoData'));
           setGross('');
-          setSpectators('');
           setWhen(toLocalInput(new Date().toISOString()));
           setWhenTouched(false);
           setNotes('');
@@ -90,11 +87,6 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
               <Input type="number" min={0} step={1} required aria-invalid={!!errors.grossAmount} value={gross} onChange={(e) => setGross(e.target.value)} />
             </Field>
             <Stack $row $gap={10} $wrap>
-              <div style={{ flex: '1 1 160px' }}>
-                <Field label={t('admin.boxOfficeSection.spettatoriFacoltativo')}>
-                  <Input type="number" min={0} value={spectators} onChange={(e) => setSpectators(e.target.value)} />
-                </Field>
-              </div>
               <div style={{ flex: '1 1 200px' }}>
                 <Field label={t('admin.boxOfficeSection.dataRilevazione')} hint={t('admin.boxOfficeSection.precompilataConLaDataE')} error={errors.recordedAt}>
                   <Input type="datetime-local" required aria-invalid={!!errors.recordedAt} value={when} onChange={(e) => { setWhen(e.target.value); setWhenTouched(true); }} />
@@ -119,7 +111,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
         {(history.data?.items.length ?? 0) > 0 && (
           <TableScroll>
             <Table>
-              <thead><tr><th>{t('admin.boxOfficeSection.rilevazione')}</th><th style={{ textAlign: 'right' }}>{t('admin.boxOfficeSection.incasso')}</th><th style={{ textAlign: 'right' }}>{t('admin.boxOfficeSection.spettatori')}</th><th>{t('admin.boxOfficeSection.note')}</th><th /></tr></thead>
+              <thead><tr><th>{t('admin.boxOfficeSection.rilevazione')}</th><th style={{ textAlign: 'right' }}>{t('admin.boxOfficeSection.incasso')}</th><th>{t('admin.boxOfficeSection.note')}</th><th /></tr></thead>
               <tbody>
                 {history.data!.items.map((r) => (
                   <BoxOfficeReadingRow

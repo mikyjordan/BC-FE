@@ -5,7 +5,7 @@ import { useAdminMutation } from '../../api/hooks';
 import type { BoxOfficeReading } from '../../api/types';
 import { ConfirmModal } from '../../components/Modal';
 import { Badge, Button, FieldError, Input, Muted, Stack } from '../../components/ui';
-import { formatBc, formatDateTime, formatNumber } from '../../components/format';
+import { formatBc, formatDateTime } from '../../components/format';
 import { fromLocalInput, toLocalInput } from './content-fields';
 import { t, tx } from '../../i18n';
 
@@ -30,7 +30,6 @@ export function BoxOfficeReadingRow({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [gross, setGross] = useState(String(reading.grossAmount));
   const [when, setWhen] = useState(toLocalInput(reading.recordedAt));
-  const [spectators, setSpectators] = useState(reading.spectators !== null ? String(reading.spectators) : '');
   const [notes, setNotes] = useState(reading.notes ?? '');
   const [error, setError] = useState<string | null>(null);
   const base = `/admin/movies/${movieId}/box-office/${reading.id}`;
@@ -40,7 +39,6 @@ export function BoxOfficeReadingRow({
   const startEdit = () => {
     setGross(String(reading.grossAmount));
     setWhen(toLocalInput(reading.recordedAt));
-    setSpectators(reading.spectators !== null ? String(reading.spectators) : '');
     setNotes(reading.notes ?? '');
     setError(null);
     setEditing(true);
@@ -53,7 +51,7 @@ export function BoxOfficeReadingRow({
     if (new Date(when).getTime() > Date.now() + 60_000) return setError(t('admin.boxOfficeReadingRow.laDataDiRilevazioneNon'));
     setError(null);
     update.mutate(
-      { grossAmount: n, recordedAt: fromLocalInput(when), ...(spectators ? { spectators: Number(spectators) } : {}), ...(notes.trim() ? { notes: notes.trim() } : {}) },
+      { grossAmount: n, recordedAt: fromLocalInput(when), ...(notes.trim() ? { notes: notes.trim() } : {}) },
       {
         onSuccess: (r) => {
           setEditing(false);
@@ -69,7 +67,6 @@ export function BoxOfficeReadingRow({
       <tr>
         <td><Input type="datetime-local" aria-label={t('admin.boxOfficeReadingRow.dataRilevazione')} value={when} onChange={(e) => setWhen(e.target.value)} style={{ minWidth: 190 }} /></td>
         <td><Input type="number" min={0} aria-label={t('admin.boxOfficeReadingRow.incasso')} value={gross} onChange={(e) => setGross(e.target.value)} style={{ minWidth: 120, textAlign: 'right' }} /></td>
-        <td><Input type="number" min={0} aria-label={t('admin.boxOfficeReadingRow.spettatori')} value={spectators} onChange={(e) => setSpectators(e.target.value)} style={{ minWidth: 100, textAlign: 'right' }} /></td>
         <td>
           <Stack $gap={6}>
             <Input aria-label={t('admin.boxOfficeReadingRow.note')} value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -93,7 +90,6 @@ export function BoxOfficeReadingRow({
         {isCurrent && <Badge $tone="gold" style={{ marginTop: 4 }}>{t('admin.boxOfficeReadingRow.inVigore')}</Badge>}
       </td>
       <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{formatBc(reading.grossAmount)}</td>
-      <td style={{ textAlign: 'right' }}><Muted $size="0.85rem">{reading.spectators !== null ? formatNumber(reading.spectators) : '—'}</Muted></td>
       <td>
         <Muted $size="0.8rem">{reading.notes ?? ''}</Muted>
         {reading.updatedAt && <Muted $size="0.72rem">{tx('admin.boxOfficeReadingRow.modificataIlUpdatedat', { updatedAt: formatDateTime(reading.updatedAt) })}</Muted>}
