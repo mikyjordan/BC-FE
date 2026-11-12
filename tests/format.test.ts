@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { formatBc, formatPct } from '../src/components/format';
 import { toPayload, toFormValues } from '../src/features/admin/content-fields';
 

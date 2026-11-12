@@ -3,12 +3,12 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { registerSW } from 'virtual:pwa-register';
 import { router } from './app/router';
 import { theme } from './theme/theme';
 import { GlobalStyle } from './theme/GlobalStyle';
 import { refreshSession } from './api/client';
 import { ApiError } from './api/client';
+import { registerServiceWorker } from './app/service-worker';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,7 +24,7 @@ const queryClient = new QueryClient({
 // Ripristina la sessione dal cookie httpOnly (se presente) prima del primo render protetto.
 void refreshSession();
 
-registerSW({ immediate: true });
+registerServiceWorker();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

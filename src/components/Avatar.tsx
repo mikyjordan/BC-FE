@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { assetUrl } from '../api/origin';
 import type { Me } from '../api/types';
 
 const Circle = styled.span<{ $size: number }>`
@@ -22,7 +23,7 @@ export function Avatar({ user, size = 40 }: { user: Pick<Me, 'username' | 'profi
   const name = user?.username || '?';
   return (
     <Circle $size={size}>
-      {user?.profile?.avatarUrl ? <img src={user.profile.avatarUrl} alt="" /> : name.slice(0, 1).toUpperCase()}
+      {user?.profile?.avatarUrl ? <img src={assetUrl(user.profile.avatarUrl) ?? undefined} alt="" /> : name.slice(0, 1).toUpperCase()}
     </Circle>
   );
 }

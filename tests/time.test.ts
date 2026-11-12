@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { addDays, fromItalyInput, italyToday, toItalyInput } from '../src/components/time';
 import { formatDateTime } from '../src/components/format';
 import { dayBeforeReleaseAt2359 } from '../src/features/admin/DateTimeInput';

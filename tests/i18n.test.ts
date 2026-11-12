@@ -7,12 +7,13 @@
 /// <reference types="node" />
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parse } from '@babel/parser';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { files, findHardcoded, findTranslationCalls } from '../scripts/i18n-rules.mjs';
-import messages from '../src/i18n/it.json';
+import messages from '../src/i18n/it.json' with { type: 'json' };
 
-const SRC = path.resolve(__dirname, '../src');
+const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../src');
 const sources = files(SRC).map((f) => ({ file: path.relative(SRC, f), code: readFileSync(f, 'utf8') }));
 
 function flatten(obj: unknown, prefix = ''): Map<string, unknown> {
@@ -30,7 +31,8 @@ const placeholders = (text: string) => [...text.matchAll(/\{(\w+)\}/g)].map((m) 
 describe('testi dell’interfaccia nel file src/i18n/it.json', () => {
   it('nessun componente contiene scritte fisse', () => {
     const offenders = sources.flatMap(({ file, code }) => findHardcoded(code, parse).map((h) => `${file}:${h.line}  «${h.text}»`));
-    expect(offenders, `Scritte da spostare in src/i18n/it.json:\n${offenders.join('\n')}`).toEqual([]);
+    // l'elenco nel messaggio d'errore indica le scritte da spostare in src/i18n/it.json
+    expect(offenders).toEqual([]);
   });
 
   const calls = sources.flatMap(({ file, code }) => findTranslationCalls(code, parse).map((c) => ({ ...c, file })));

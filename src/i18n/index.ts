@@ -11,7 +11,7 @@
  * restituisce un frammento React invece di una stringa.
  */
 import { Fragment, createElement, type ReactNode } from 'react';
-import messages from './it.json';
+import messages from './it.json' with { type: 'json' };
 
 type Messages = typeof messages;
 type Leaves<T, P extends string = ''> = {
@@ -34,7 +34,7 @@ function lookup(key: string): unknown {
 function raw(key: TKey): string {
   const value = lookup(key);
   if (typeof value === 'string') return value;
-  if (import.meta.env?.DEV) console.warn(`[i18n] testo mancante: ${key}`);
+  if (process.env.NODE_ENV !== 'production') console.warn(`[i18n] testo mancante: ${key}`);
   return key;
 }
 

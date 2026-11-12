@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Test end-to-end sull'applicazione completa (frontend + API + PostgreSQL).
- * Prerequisiti: backend avviato con migrazioni applicate e un Superadmin creato
+ * Prerequisiti: sito servito su :3000 (npm run build && serve -s build -p 3000), backend avviato con migrazioni applicate e un Superadmin creato
  * con le credenziali E2E_SUPERADMIN_EMAIL / E2E_SUPERADMIN_PASSWORD.
  * PW_CHROME_CHANNEL=chrome usa il Chrome di sistema invece del browser scaricato da Playwright.
  */
@@ -15,7 +15,7 @@ export default defineConfig({
   workers: 1,
   reporter: [['list']],
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:4173',
+    baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3000',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     locale: 'it-IT',

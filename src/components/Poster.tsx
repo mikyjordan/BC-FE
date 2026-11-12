@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { Clapperboard, Tv } from 'lucide-react';
+import { assetUrl } from '../api/origin';
 
 const Frame = styled.div<{ $ratio: string }>`
   position: relative;
@@ -23,7 +24,7 @@ export function Poster({ src, alt, kind, ratio = '2 / 3' }: { src: string | null
   return (
     <Frame $ratio={ratio}>
       <Icon size={30} aria-hidden />
-      {src && <img src={src} alt={alt} loading="lazy" referrerPolicy="no-referrer" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />}
+      {src && <img src={assetUrl(src) ?? undefined} alt={alt} loading="lazy" referrerPolicy="no-referrer" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />}
     </Frame>
   );
 }

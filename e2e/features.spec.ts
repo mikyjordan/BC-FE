@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
-import { login, registerNewUser, SUPERADMIN } from './helpers';
+import { login, registerNewUser, SUPERADMIN, API_URL } from './helpers';
 
 test.describe.serial('Sezioni attivabili dal Superadmin', () => {
   // Qualunque esito, la sezione viene riattivata per non influenzare gli altri test.
   test.afterAll(async ({ request }) => {
-    const res = await request.post('/api/v1/auth/login', { data: SUPERADMIN });
+    const res = await request.post(`${API_URL}/api/v1/auth/login`, { data: SUPERADMIN });
     const { accessToken } = await res.json();
-    await request.put('/api/v1/admin/settings/features', { headers: { Authorization: `Bearer ${accessToken}` }, data: { movies: true, tvSeries: true } });
+    await request.put(`${API_URL}/api/v1/admin/settings/features`, { headers: { Authorization: `Bearer ${accessToken}` }, data: { movies: true, tvSeries: true } });
   });
 
   test('disattivando Serie TV spariscono menu e pagine; riattivandola tornano', async ({ page, browser }) => {

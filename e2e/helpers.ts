@@ -44,6 +44,9 @@ export function simulateRelease(title: string) {
   });
 }
 
+/** L'API è un server distinto dal sito (porta 4000). */
+export const API_URL = process.env.E2E_API_URL ?? 'http://localhost:4000';
+
 export const SUPERADMIN = {
   email: process.env.E2E_SUPERADMIN_EMAIL ?? 'admin@bustercinema.local',
   password: process.env.E2E_SUPERADMIN_PASSWORD ?? 'SuperAdmin2026',

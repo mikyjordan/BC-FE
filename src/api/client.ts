@@ -1,8 +1,9 @@
 import { useAuthStore } from '../store/auth';
 import type { Me, SessionResponse } from './types';
 import { t } from '../i18n';
+import { API_ORIGIN } from './origin';
 
-const BASE = '/api/v1';
+const BASE = `${API_ORIGIN}/api/v1`;
 
 export class ApiError extends Error {
   readonly status: number;
@@ -130,7 +131,7 @@ export async function logout() {
 /**
  * Identificativo casuale (UUID v4). crypto.randomUUID esiste solo nelle pagine sicure
  * (https o localhost): aprendo il sito da un altro dispositivo in http, per esempio
- * http://192.168.x.x:5173 dal cellulare, non c'è. crypto.getRandomValues invece è sempre
+ * http://192.168.x.x:3000 dal cellulare, non c'è. crypto.getRandomValues invece è sempre
  * disponibile ed è altrettanto sicuro.
  */
 export function randomId(): string {
