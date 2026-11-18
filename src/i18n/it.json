@@ -506,6 +506,21 @@
       "confermaUscita": "Uscita nelle sale: {date}.",
       "oggi": " (oggi {amount})",
       "confermaESalva": "Conferma e salva"
+    },
+    "movieDeletion": {
+      "titolo": "Cancella il film",
+      "nota": "Solo se nessuno l’ha ancora riscattato. A chi lo possiede viene restituito il prezzo pagato; il film sparisce dal sito e non conta più nelle classifiche.",
+      "cancella": "Cancella il film…",
+      "giaCancellato": "Film cancellato il {date}: chi lo possedeva è stato rimborsato. Non è più modificabile.",
+      "modaleTitolo": "Cancellare “{title}”?",
+      "irreversibile": "Operazione irreversibile.",
+      "rimborsi": "{holders} utenti lo possiedono: a ciascuno torna il prezzo pagato, in tutto {total}.",
+      "nessunAcquirente": "Nessuno ha acquistato il film: non ci sono rimborsi da fare.",
+      "effetti": "Il film non sarà più visibile né acquistabile, non conterà nelle classifiche e gli avvisi email non ancora inviati vengono annullati. L’operazione resta nell’audit log.",
+      "conferma": "Per confermare scrivi il titolo: {title}",
+      "annulla": "Annulla",
+      "inCorso": "Cancellazione in corso…",
+      "cancellaERimborsa": "Cancella e rimborsa"
     }
   },
   "auth": {
@@ -681,11 +696,7 @@
       "partecipazioneVirtualeDiGiocoNon": "Partecipazione virtuale di gioco: non attribuisce diritti reali sul film."
     },
     "ownedMovieStatus": {
-      "nonAcquistabile": "Non acquistabile",
-      "riscattoAutomatico": " (riscatto automatico)",
-      "giaRiscattatoIlRedeemedatV": "Già riscattato il {redeemedAt}{v}",
       "rendita": "Rendita",
-      "giaAcquistato": "Già acquistato",
       "incassoCorrente": "Incasso corrente",
       "nonAncoraDisponibile": "non ancora disponibile",
       "pagato": "Pagato"
@@ -869,7 +880,6 @@
     "movieHoldingCard": {
       "filmTitle": "Film {title}",
       "acquistatoIlFirstpurchasedat": "Acquistato il {firstPurchasedAt}",
-      "riscattato": "Riscattato",
       "nonPiuInCatalogo": "Non più in catalogo",
       "prezzoDAcquisto": "Prezzo d’acquisto",
       "riscattatoPer": "Riscattato per",
@@ -879,17 +889,16 @@
       "perdita": "Perdita",
       "guadagno": "Guadagno",
       "incassoAggiornatoAlCurrentgrossat": "Incasso aggiornato al {currentGrossAt}",
-      "riscattatoIlRedeemedat": "Riscattato il {redeemedAt}",
       "riscatta": "Riscatta",
       "disponibileQuandoVerraInseritoL": "Disponibile quando verrà inserito l’incasso del film",
-      "riscattatoAutomaticamenteAllUscitaDalle": "Riscattato automaticamente all’uscita dalle sale.",
       "riscattareTitle": "Riscattare “{title}”?",
       "riceveraiStrongSulTuoWallet": "Riceverai {strong} sul tuo wallet (incasso attuale del film).",
       "rispettoAlPrezzoPagatoPurchaseprice": "Rispetto al prezzo pagato ({purchasePrice}):",
       "nonPotraiPiuRiacquistarlo": "non potrai più riacquistarlo",
       "dopoIlRiscattoIlFilm": "Dopo il riscatto il film esce dal portafoglio e {strong}.",
       "riscattaCurrentgross": "Riscatta {currentGross}",
-      "accreditatiGrossamountNuovoSaldoBalanceafter": "Accreditati {grossAmount}. Nuovo saldo: {balanceAfter}."
+      "accreditatiGrossamountNuovoSaldoBalanceafter": "Accreditati {grossAmount}. Nuovo saldo: {balanceAfter}.",
+      "rimborsato": "Rimborsato"
     },
     "walletPage": {
       "nonPiuInCatalogo": "Non più in catalogo",
@@ -925,7 +934,24 @@
       "nessunMovimentoInQuestaCategoria": "Nessun movimento in questa categoria.",
       "unitsQuoteInvestitiTotalinvestedDal": "{units} quote · investiti {totalInvested} · dal {firstPurchasedAt}",
       "catalogo": "catalogo",
-      "stagioneBreve": " — S{number}"
+      "stagioneBreve": " — S{number}",
+      "rimborsati": "Rimborsati"
+    },
+    "holdingStatus": {
+      "stato": "Stato",
+      "faseAcquistato": "Acquistato",
+      "faseInSala": "Acquistato · in sala",
+      "faseUscito": "Uscito dalle sale",
+      "faseRiscattato": "Riscattato",
+      "faseRimborsato": "Rimborsato",
+      "acquistatoDettaglio": "Esce nelle sale il {date}: da quel giorno arriva l’incasso.",
+      "acquistatoSenzaData": "In attesa dell’uscita nelle sale.",
+      "inSalaRiscattabile": "Il film è in sala: puoi riscattarlo quando vuoi.",
+      "inSalaSenzaIncasso": "Il film è in sala: potrai riscattarlo appena sarà inserito l’incasso.",
+      "uscitoDettaglio": "Uscito dalle sale il {date}: riceverai automaticamente l’incasso in vigore.",
+      "riscattatoUtente": "Riscattato il {date}.",
+      "riscattatoAuto": "Riscattato automaticamente il {date}, all’uscita dalle sale.",
+      "rimborsatoDettaglio": "Film cancellato: il {date} ti sono stati restituiti {amount}."
     }
   }
 }

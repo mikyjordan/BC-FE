@@ -134,6 +134,12 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.getByRole('button', { name: /Conferma 500\.000 B/ }).click();
     await expect(page.getByText('Il tuo investimento')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Riscatta' })).toBeDisabled();
+    // Stato attuale: acquistato, in attesa dell'uscita nelle sale
+    const status = page.getByTestId('holding-status').first();
+    await expect(status).toHaveAttribute('data-phase', 'ACQUISTATO');
+    await expect(status).toContainText('Stato');
+    await expect(status).toContainText('Acquistato');
+    await expect(status).toContainText(`Esce nelle sale il ${shownDay(italianDay(20))}`);
 
     // Nelle attività recenti la riga dell'acquisto porta alla scheda del film
     await page.goto('/app');
@@ -147,6 +153,8 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     simulateRelease(title);
     await page.reload();
     await expect(page.getByRole('button', { name: 'Acquista' })).toHaveCount(0);
+    await expect(page.getByTestId('holding-status').first()).toHaveAttribute('data-phase', 'IN_SALA');
+    await expect(page.getByTestId('holding-status').first()).toContainText('Acquistato · in sala');
 
     // Il Superadmin inserisce l'incasso attuale: 600.000 €
     const admin = await browser.newPage();
@@ -176,11 +184,12 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await admin.getByRole('button', { name: 'Salva rilevazione' }).click();
     await expect(admin.getByText('Rilevazione aggiornata. Incasso in vigore: 600.000 B.')).toBeVisible();
 
-    // In homepage la card del film mostra "Già acquistato" con l'incasso corrente
+    // In homepage la card del film mostra lo stato attuale con l'incasso corrente
     await page.goto('/app');
     const homeCard = page.getByRole('link', { name: new RegExp(title) }).filter({ has: page.getByTestId('owned-status') }).first();
     await expect(homeCard.getByTestId('owned-status')).toHaveAttribute('data-status', 'OPEN');
-    await expect(homeCard).toContainText('Già acquistato');
+    await expect(homeCard.getByTestId('holding-status')).toContainText('Acquistato · in sala');
+    await expect(homeCard).toContainText('puoi riscattarlo quando vuoi');
     await expect(homeCard).toContainText('Incasso corrente');
     await expect(homeCard).toContainText('600.000 B');
 
@@ -199,12 +208,12 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await page.goto('/app/movimenti');
     await expect(page.getByText('Riscatto film').first()).toBeVisible();
 
-    // In homepage: non acquistabile perché già riscattato, con data e rendita
+    // In homepage: stato "Riscattato", con data e rendita
     await page.goto('/app');
     const redeemedCard = page.getByRole('link', { name: new RegExp(title) }).filter({ has: page.getByTestId('owned-status') }).first();
     await expect(redeemedCard.getByTestId('owned-status')).toHaveAttribute('data-status', 'REDEEMED');
-    await expect(redeemedCard).toContainText('Non acquistabile');
-    await expect(redeemedCard).toContainText(/Già riscattato il \d{2} \S+ \d{4}/);
+    await expect(redeemedCard.getByTestId('holding-status')).toHaveAttribute('data-phase', 'RISCATTATO');
+    await expect(redeemedCard).toContainText(/Riscattato il \d{2} \S+ \d{4}/);
     await expect(redeemedCard).toContainText('Rendita');
     await expect(redeemedCard).toContainText('600.000 B');
     await expect(redeemedCard).toContainText('+100.000 B');

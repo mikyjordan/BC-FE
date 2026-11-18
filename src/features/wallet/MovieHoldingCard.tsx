@@ -9,6 +9,7 @@ import { Poster } from '../../components/Poster';
 import { Alert, Badge, Bc, Button, Gain, Muted, Stack } from '../../components/ui';
 import { formatBc, formatDate, formatDateTime } from '../../components/format';
 import { AutoRedeemNotice } from '../catalog/AutoRedeemNotice';
+import { HoldingStatusBadge } from './HoldingStatusBadge';
 import { t, tx } from '../../i18n';
 
 type Tone = 'up' | 'down' | 'neutral';
@@ -38,8 +39,9 @@ const Row = styled.div`
 `;
 
 /**
- * Film posseduto: prezzo d'acquisto, incasso attuale e guadagno/perdita
- * (verde se l'incasso supera il prezzo pagato, rosso se è inferiore).
+ * Film posseduto: stato attuale, prezzo d'acquisto, incasso attuale e guadagno/perdita
+ * (verde se l'incasso supera il prezzo pagato, rosso se è inferiore). Rimborsato (film
+ * cancellato): solo il prezzo restituito.
  * Il pulsante "Riscatta" accredita l'incasso attuale e chiude la partecipazione.
  */
 export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean }) {
@@ -48,6 +50,8 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
   const [confirm, setConfirm] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const redeemed = h.status === 'REDEEMED';
+  const refunded = h.status === 'REFUNDED';
+  const closed = h.status !== 'OPEN';
   const tone: Tone = h.trend === 'UP' ? 'up' : h.trend === 'DOWN' ? 'down' : 'neutral';
   const pct = h.profit !== null && h.purchasePrice > 0 ? (h.profit / h.purchasePrice) * 100 : undefined;
   const title = <strong style={{ fontSize: '0.98rem' }}>{h.title}</strong>;
@@ -63,10 +67,8 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
         <Stack $gap={4} style={{ minWidth: 0, flex: 1 }}>
           {h.available && moviesEnabled ? <Link to={`/app/film/${h.contentId}`}>{title}</Link> : title}
           <Muted $size="0.78rem">{tx('wallet.movieHoldingCard.acquistatoIlFirstpurchasedat', { firstPurchasedAt: formatDate(h.firstPurchasedAt) })}</Muted>
-          <Stack $row $gap={6} $wrap>
-            {redeemed && <Badge $tone="neutral">{t('wallet.movieHoldingCard.riscattato')}</Badge>}
-            {!h.available && !redeemed && <Badge $tone="amber">{t('wallet.movieHoldingCard.nonPiuInCatalogo')}</Badge>}
-          </Stack>
+          <HoldingStatusBadge h={h} />
+          {!h.available && !closed && <Badge $tone="amber" style={{ alignSelf: 'flex-start' }}>{t('wallet.movieHoldingCard.nonPiuInCatalogo')}</Badge>}
         </Stack>
       </Stack>
 
@@ -75,7 +77,12 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
           <Muted>{t('wallet.movieHoldingCard.prezzoDAcquisto')}</Muted>
           <Bc value={h.purchasePrice} size={13} />
         </Row>
-        {redeemed ? (
+        {refunded ? (
+          <Row>
+            <Muted>{t('wallet.movieHoldingCard.rimborsato')}</Muted>
+            <Bc value={h.refundedAmount ?? h.purchasePrice} size={13} />
+          </Row>
+        ) : redeemed ? (
           <Row>
             <Muted>{t('wallet.movieHoldingCard.riscattatoPer')}</Muted>
             <Bc value={h.redeemedAmount ?? 0} size={13} />
@@ -86,27 +93,22 @@ export function MovieHoldingCard({ h, compact }: { h: Holding; compact?: boolean
             {h.currentGross !== null ? <Bc value={h.currentGross} size={13} /> : <Muted $size="0.85rem">{t('wallet.movieHoldingCard.nonAncoraDisponibile')}</Muted>}
           </Row>
         )}
-        <Row>
+        {!refunded && <Row>
           <Muted>{redeemed ? t('wallet.movieHoldingCard.risultato') : h.trend === 'DOWN' ? t('wallet.movieHoldingCard.perdita') : t('wallet.movieHoldingCard.guadagno')}</Muted>
           <Gain value={h.profit} size={14} pct={pct} />
-        </Row>
-        {!redeemed && h.currentGrossAt && <Muted $size="0.72rem">{tx('wallet.movieHoldingCard.incassoAggiornatoAlCurrentgrossat', { currentGrossAt: formatDateTime(h.currentGrossAt) })}</Muted>}
-        {redeemed && h.redeemedAt && <Muted $size="0.72rem">{tx('wallet.movieHoldingCard.riscattatoIlRedeemedat', { redeemedAt: formatDateTime(h.redeemedAt) })}</Muted>}
+        </Row>}
+        {!closed && h.currentGrossAt && <Muted $size="0.72rem">{tx('wallet.movieHoldingCard.incassoAggiornatoAlCurrentgrossat', { currentGrossAt: formatDateTime(h.currentGrossAt) })}</Muted>}
       </Stack>
 
       {done && <Alert $tone="success">{done}</Alert>}
       {redeem.error && <Alert $tone="error">{redeem.error.message}</Alert>}
 
-      {!redeemed && (
+      {!closed && (
         <Button $variant="gold" $block disabled={!h.redeemable || redeem.isPending} onClick={() => { redeem.reset(); setConfirm(true); }}>
           <HandCoins size={16} />{' '}{t('wallet.movieHoldingCard.riscatta')}</Button>
       )}
-      {!redeemed && !h.redeemable && <Muted $size="0.75rem" style={{ textAlign: 'center' }}>{t('wallet.movieHoldingCard.disponibileQuandoVerraInseritoL')}</Muted>}
-      {redeemed ? (
-        h.redeemedBy === 'AUTO' && <Muted $size="0.76rem">{t('wallet.movieHoldingCard.riscattatoAutomaticamenteAllUscitaDalle')}</Muted>
-      ) : (
-        <AutoRedeemNotice date={h.autoRedeemAt} />
-      )}
+      {!closed && !h.redeemable && <Muted $size="0.75rem" style={{ textAlign: 'center' }}>{t('wallet.movieHoldingCard.disponibileQuandoVerraInseritoL')}</Muted>}
+      {!closed && <AutoRedeemNotice date={h.autoRedeemAt} />}
 
       {confirm && h.currentGross !== null && (
         <ConfirmModal

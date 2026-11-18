@@ -139,7 +139,8 @@ export interface Holding {
   title: string;
   posterUrl: string | null;
   available: boolean;
-  status: 'OPEN' | 'REDEEMED';
+  /** OPEN posseduto · REDEEMED riscattato · REFUNDED rimborsato (film cancellato). */
+  status: 'OPEN' | 'REDEEMED' | 'REFUNDED';
   units: number;
   purchasePrice: number;
   totalInvested: number;
@@ -155,6 +156,11 @@ export interface Holding {
   redeemedAt: string | null;
   redeemedAmount: number | null;
   redeemedBy: 'USER' | 'AUTO' | null;
+  refundedAt: string | null;
+  refundedAmount: number | null;
+  /** Solo film: uscita nelle sale "AAAA-MM-GG". */
+  releaseDate: string | null;
+  movieDeleted: boolean;
   autoRedeemAt: string | null;
   firstPurchasedAt: string;
   lastPurchaseAt: string | null;
@@ -194,6 +200,16 @@ export interface PurchaseResult {
 }
 
 /** Record amministrativo completo (tutti gli stati). */
+export interface MovieDeletionPreview {
+  movieId: string;
+  title: string;
+  holders: number;
+  totalRefund: number;
+  redeemed: number;
+  deletable: boolean;
+  reason: string | null;
+}
+
 export interface AdminContent {
   id: string;
   title: string;
@@ -231,6 +247,8 @@ export interface AdminContent {
   latestGrossReadingId?: string | null;
   autoRedeemAt?: string | null;
   autoRedeemedAt?: string | null;
+  /** Solo film: cancellato dal Superadmin (con rimborso ai possessori). */
+  deletedAt?: string | null;
   notifyOnPublish: boolean;
   notificationQueuedAt: string | null;
   notificationRecipients: number | null;
@@ -273,7 +291,7 @@ export interface AdminUserRow {
 /** Periodo in cui l'incasso si può modificare: dall'uscita in sala al riscatto di tutti. */
 export interface BoxOfficeWindow {
   editable: boolean;
-  code: 'OPEN' | 'BOX_OFFICE_NO_RELEASE_DATE' | 'BOX_OFFICE_NOT_YET' | 'BOX_OFFICE_CLOSED';
+  code: 'OPEN' | 'BOX_OFFICE_NO_RELEASE_DATE' | 'BOX_OFFICE_NOT_YET' | 'BOX_OFFICE_CLOSED' | 'MOVIE_DELETED';
   message: string | null;
   opensOn: string | null;
   holdings: { total: number; open: number };

@@ -21,6 +21,7 @@ import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadg
 import { NotificationSection } from './NotificationSection';
 import { DateTimeInput } from './DateTimeInput';
 import { MovieRulesSection } from './MovieRulesSection';
+import { MovieDeletionSection } from './MovieDeletionSection';
 import { t, tx } from '../../i18n';
 
 const FormGrid = styled.div`
@@ -374,7 +375,10 @@ export function ContentEditorPage() {
             <PublicationSection kind={kind} item={item} />
             <NotificationSection kind={kind} item={item} />
             {kind === 'movies' ? (
-              <MovieRulesSection movie={item} />
+              <>
+                <MovieRulesSection movie={item} />
+                <MovieDeletionSection movie={item} />
+              </>
             ) : (
               <>
                 <VisibilitySection kind={kind} item={item} />

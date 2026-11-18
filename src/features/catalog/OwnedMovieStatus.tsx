@@ -1,23 +1,8 @@
 import styled from 'styled-components';
-import { BadgeCheck, Lock } from 'lucide-react';
 import type { Holding } from '../../api/types';
 import { Bc, Gain, Muted } from '../../components/ui';
-import { formatDate } from '../../components/format';
-import { t, tx } from '../../i18n';
-
-const Pill = styled.span<{ $tone: 'owned' | 'redeemed' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  align-self: flex-start;
-  padding: 3px 11px 3px 8px;
-  border-radius: ${({ theme }) => theme.radii.pill};
-  font-size: 0.76rem;
-  font-weight: 700;
-  white-space: nowrap;
-  color: #ffffff;
-  background: ${({ $tone, theme }) => ($tone === 'owned' ? theme.colors.brand : theme.colors.danger)};
-`;
+import { t } from '../../i18n';
+import { HoldingStatusBadge } from '../wallet/HoldingStatusBadge';
 
 const Box = styled.div`
   display: flex;
@@ -34,19 +19,23 @@ const Line = styled.div`
 `;
 
 /**
- * Stato personale di un film nelle card di home e catalogo:
- *  - acquistato → "Già acquistato" con l'incasso corrente (e guadagno/perdita);
- *  - riscattato → "Non acquistabile", con data del riscatto e rendita accreditata.
+ * Stato personale di un film nelle card di home e catalogo: lo stato attuale (Acquistato,
+ * In sala, Uscito dalle sale, Riscattato, Rimborsato) e, secondo il caso, l'incasso corrente
+ * con guadagno/perdita o la rendita accreditata.
  */
 export function OwnedMovieStatus({ h }: { h: Holding }) {
+  if (h.status === 'REFUNDED') {
+    return (
+      <Box data-testid="owned-status" data-status="REFUNDED">
+        <HoldingStatusBadge h={h} />
+      </Box>
+    );
+  }
   if (h.status === 'REDEEMED') {
     const redeemed = h.redeemedAmount ?? 0;
     return (
       <Box data-testid="owned-status" data-status="REDEEMED">
-        <Pill $tone="redeemed">
-          <Lock size={12} aria-hidden strokeWidth={3} />{' '}{t('catalog.ownedMovieStatus.nonAcquistabile')}</Pill>
-        <Muted $size="0.8rem">{tx('catalog.ownedMovieStatus.giaRiscattatoIlRedeemedatV', { redeemedAt: formatDate(h.redeemedAt), v: h.redeemedBy === 'AUTO' ? t('catalog.ownedMovieStatus.riscattoAutomatico') : '' })}
-        </Muted>
+        <HoldingStatusBadge h={h} />
         <Line>
           <Muted as="span" $size="0.8rem">{t('catalog.ownedMovieStatus.rendita')}</Muted>
           <Bc value={redeemed} size={13} />
@@ -57,8 +46,7 @@ export function OwnedMovieStatus({ h }: { h: Holding }) {
   }
   return (
     <Box data-testid="owned-status" data-status="OPEN">
-      <Pill $tone="owned">
-        <BadgeCheck size={12} aria-hidden strokeWidth={3} />{' '}{t('catalog.ownedMovieStatus.giaAcquistato')}</Pill>
+      <HoldingStatusBadge h={h} />
       <Line>
         <Muted as="span" $size="0.8rem">{t('catalog.ownedMovieStatus.incassoCorrente')}</Muted>
         {h.currentGross !== null ? <Bc value={h.currentGross} size={13} /> : <Muted as="span" $size="0.8rem">{t('catalog.ownedMovieStatus.nonAncoraDisponibile')}</Muted>}

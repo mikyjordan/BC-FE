@@ -40,7 +40,7 @@ const SeriesRow = styled.div`
 // Colori della distribuzione dal tema (blu del marchio e una sua tinta chiara).
 const PIE_COLORS = theme.colors.chart;
 
-type Filter = 'all' | 'MOVIE' | 'TV_SERIES' | 'REDEEMED';
+type Filter = 'all' | 'MOVIE' | 'TV_SERIES' | 'REDEEMED' | 'REFUNDED';
 
 function SeriesHoldingRow({ h }: { h: Holding }) {
   const seriesEnabled = !!useFeatures().data?.tvSeries;
@@ -79,10 +79,13 @@ export function WalletPage() {
   const all = holdings.data?.items ?? [];
   // "Tutti": film aperti e poi riscattati (l'ordine arriva dal server); "Film": solo aperti; "Riscattati": solo chiusi.
   const movies = all.filter(
-    (h) => h.contentType === 'MOVIE' && (filter === 'all' || (filter === 'REDEEMED' ? h.status === 'REDEEMED' : h.status === 'OPEN')),
+    (h) =>
+      h.contentType === 'MOVIE' &&
+      (filter === 'all' || (filter === 'REDEEMED' ? h.status === 'REDEEMED' : filter === 'REFUNDED' ? h.status === 'REFUNDED' : h.status === 'OPEN')),
   );
   const series = all.filter((h) => h.contentType === 'TV_SERIES');
-  const showMovies = filter === 'all' || filter === 'MOVIE' || filter === 'REDEEMED';
+  const showMovies = filter === 'all' || filter === 'MOVIE' || filter === 'REDEEMED' || filter === 'REFUNDED';
+  const hasRefunded = all.some((h) => h.status === 'REFUNDED');
   const showSeries = filter === 'all' || filter === 'TV_SERIES';
   const pieData = w
     ? [
@@ -152,6 +155,7 @@ export function WalletPage() {
               {features?.movies && <Tab $active={filter === 'MOVIE'} onClick={() => setFilter('MOVIE')}>{t('common.film')}</Tab>}
               {features?.tvSeries && <Tab $active={filter === 'TV_SERIES'} onClick={() => setFilter('TV_SERIES')}>{t('common.serieTv')}</Tab>}
               <Tab $active={filter === 'REDEEMED'} onClick={() => setFilter('REDEEMED')}>{t('wallet.walletPage.riscattati')}</Tab>
+              {hasRefunded && <Tab $active={filter === 'REFUNDED'} onClick={() => setFilter('REFUNDED')}>{t('wallet.walletPage.rimborsati')}</Tab>}
             </Tabs>
           </Stack>
           {holdings.isLoading ? (
