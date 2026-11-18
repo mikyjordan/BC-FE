@@ -8,6 +8,7 @@ import { ConfirmModal } from '../../components/Modal';
 import { Alert, Badge, Button, Card, Field, Input, Muted, PageHeader, Spinner, Stack } from '../../components/ui';
 import { useAuthStore } from '../../store/auth';
 import { t } from '../../i18n';
+import { ClockCard } from './ClockCard';
 
 const Row = styled(Card)`
   display: flex;
@@ -108,6 +109,7 @@ export function SettingsAdminPage() {
         ))}
         <Alert $tone="info">{t('admin.settingsAdminPage.conUnaSezioneDisattivataSpariscono')}</Alert>
         <EconomyCard />
+        <ClockCard />
       </Stack>
 
       {pending && (

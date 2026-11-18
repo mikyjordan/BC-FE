@@ -1,3 +1,5 @@
+import { appNow } from './clock';
+
 /**
  * Ora italiana nel frontend. Date e orari si mostrano e si inseriscono SEMPRE in ora italiana
  * (Europe/Rome), anche se il PC o il telefono hanno un altro fuso orario: "23:59" in un campo
@@ -51,7 +53,7 @@ export function fromItalyInput(value: string): string | null {
 }
 
 /** Giorno di calendario in Italia, "AAAA-MM-GG". */
-export const italyToday = (now: Date = new Date()) => toItalyInput(now).slice(0, 10);
+export const italyToday = (now: Date = appNow()) => toItalyInput(now).slice(0, 10);
 
 /** Aggiunge giorni a una data "AAAA-MM-GG" (calendario puro, senza fusi). */
 export function addDays(date: string, days: number): string {

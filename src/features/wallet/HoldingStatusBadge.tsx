@@ -5,11 +5,12 @@ import { Muted } from '../../components/ui';
 import { formatBc, formatDate } from '../../components/format';
 import { italyToday } from '../../components/time';
 import { t } from '../../i18n';
+import { appNow } from '../../components/clock';
 
 /** Fase di un film posseduto, dal punto di vista dell'utente. */
 export type HoldingPhase = 'ACQUISTATO' | 'IN_SALA' | 'USCITO_DALLE_SALE' | 'RISCATTATO' | 'RIMBORSATO';
 
-export function holdingPhase(h: Holding, now: Date = new Date()): HoldingPhase {
+export function holdingPhase(h: Holding, now: Date = appNow()): HoldingPhase {
   if (h.status === 'REFUNDED') return 'RIMBORSATO';
   if (h.status === 'REDEEMED') return 'RISCATTATO';
   if (h.autoRedeemAt && new Date(h.autoRedeemAt).getTime() <= now.getTime()) return 'USCITO_DALLE_SALE';

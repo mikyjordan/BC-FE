@@ -114,6 +114,9 @@
       "paginaPageDiTotalpages": "Pagina {page} di {totalPages}",
       "successiva": "Successiva",
       "inAttesaDellIncasso": "In attesa dell’incasso"
+    },
+    "simulatedClock": {
+      "avviso": "Ambiente di simulazione · data del sistema: {date}"
     }
   },
   "admin": {
@@ -521,6 +524,19 @@
       "annulla": "Annulla",
       "inCorso": "Cancellazione in corso…",
       "cancellaERimborsa": "Cancella e rimborsa"
+    },
+    "clockCard": {
+      "titolo": "Orologio di simulazione",
+      "nota": "Solo in sviluppo, sul database di simulazione: sposta in avanti la data su cui si basa tutto il sistema (pubblicazioni, chiusura acquisti, uscite nelle sale, riscatti automatici, bonus del lunedì). Il tempo poi continua a scorrere da lì.",
+      "dataSimulata": "Data simulata attuale",
+      "dataVera": "Data attuale (non ancora simulata)",
+      "piuUnOra": "+1 ora",
+      "piuUnGiorno": "+1 giorno",
+      "piuUnaSettimana": "+7 giorni",
+      "vaiA": "Vai a una data e ora",
+      "soloAvanti": "Si può solo andare avanti: tornare indietro renderebbe incoerenti saldi e movimenti.",
+      "imposta": "Imposta la data",
+      "errore": "Impossibile spostare la data"
     }
   },
   "auth": {

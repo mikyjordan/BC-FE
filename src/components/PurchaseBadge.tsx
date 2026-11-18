@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { Check, X } from 'lucide-react';
 import type { AdminContent } from '../api/types';
 import { t } from '../i18n';
+import { appNowMs } from './clock';
 
 const Pill = styled.span<{ $active: boolean }>`
   display: inline-flex;
@@ -49,7 +50,7 @@ export function PurchaseBadge({ active, reason, showReason = true }: { active: b
  * Acquistabilità reale di un titolo nell'area admin (stesse regole del backend):
  * pubblicato, acquisti abilitati, prezzo, finestra valida e, per i film, non uscito dalle sale.
  */
-export function adminPurchaseState(c: AdminContent, now = Date.now()): { active: boolean; reason: string | null } {
+export function adminPurchaseState(c: AdminContent, now = appNowMs()): { active: boolean; reason: string | null } {
   if (c.publicationStatus !== 'PUBLISHED') return { active: false, reason: t('components.purchaseBadge.titoloNonPubblicato') };
   if (c.availableFrom && new Date(c.availableFrom).getTime() > now) return { active: false, reason: t('components.purchaseBadge.nonAncoraDisponibile') };
   if (!c.purchasesEnabled) return { active: false, reason: t('components.purchaseBadge.acquistiDisattivati') };

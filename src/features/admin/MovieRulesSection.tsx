@@ -14,6 +14,7 @@ import { hasPermission, useAuthStore } from '../../store/auth';
 import { theme } from '../../theme/theme';
 import { DateTimeInput, dayBeforeReleaseAt2359 } from './DateTimeInput';
 import { t, tx } from '../../i18n';
+import { appNowMs } from '../../components/clock';
 
 const Group = styled.div`
   display: grid;
@@ -76,7 +77,7 @@ export function MovieRulesSection({ movie }: { movie: AdminContent }) {
   const closes = fromItalyInput(dayBeforeReleaseAt2359(form.release));
   const redeemDone = !!movie.autoRedeemedAt;
   const autoRedeemChanged = (fromItalyInput(form.autoRedeem) ?? null) !== (movie.autoRedeemAt ? new Date(movie.autoRedeemAt).toISOString() : null);
-  const legacyAvailableFrom = movie.availableFrom && new Date(movie.availableFrom).getTime() > Date.now() ? movie.availableFrom : null;
+  const legacyAvailableFrom = movie.availableFrom && new Date(movie.availableFrom).getTime() > appNowMs() ? movie.availableFrom : null;
   const open = summary.data?.open ?? 0;
 
   /** Stesse regole del backend, per segnalare subito i campi da correggere. */
@@ -88,7 +89,7 @@ export function MovieRulesSection({ movie }: { movie: AdminContent }) {
     if (!form.price) e.priceBc = t('admin.movieRules.prezzoObbligatorio');
     else if (!Number.isInteger(n) || n <= 0) e.priceBc = t('admin.movieRules.prezzoIntero');
     if (form.autoRedeem && autoRedeemChanged) {
-      if (new Date(fromItalyInput(form.autoRedeem)!).getTime() < Date.now()) e.autoRedeemAt = t('admin.movieRules.riscattoNelPassato');
+      if (new Date(fromItalyInput(form.autoRedeem)!).getTime() < appNowMs()) e.autoRedeemAt = t('admin.movieRules.riscattoNelPassato');
       else if (form.release && form.autoRedeem.slice(0, 10) < form.release) e.autoRedeemAt = t('admin.movieRules.riscattoPrimaDellUscita');
     }
     setErrors(e);

@@ -7,6 +7,7 @@ import { Badge } from '../../components/ui';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
 import { t } from '../../i18n';
+import { SimulatedClockBanner } from '../../components/SimulatedClockBanner';
 
 const Shell = styled.div`
   min-height: 100vh;
@@ -66,6 +67,7 @@ export function AdminLayout() {
 
   return (
     <Shell>
+      <SimulatedClockBanner />
       <Top>
         <Link to="/admin" aria-label={t('admin.adminLayout.amministrazione')}><Logo height={26} tone="light" /></Link>
         <Badge $tone="neutral">{user?.role === 'SUPERADMIN' ? t('admin.adminLayout.superadmin') : t('admin.adminLayout.admin')}</Badge>

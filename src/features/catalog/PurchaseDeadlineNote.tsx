@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Clock } from 'lucide-react';
 import { formatDate, formatTime } from '../../components/format';
 import { t } from '../../i18n';
+import { appNowMs } from '../../components/clock';
 
 const Note = styled.p`
   display: flex;
@@ -21,7 +22,7 @@ const Note = styled.p`
  * nelle sale, ora italiana). Non compare se gli acquisti sono già chiusi.
  */
 export function PurchaseDeadlineNote({ closesAt, $size }: { closesAt: string | null | undefined; $size?: string }) {
-  if (!closesAt || new Date(closesAt).getTime() <= Date.now()) return null;
+  if (!closesAt || new Date(closesAt).getTime() <= appNowMs()) return null;
   return (
     <Note data-testid="purchase-deadline" style={$size ? { fontSize: $size } : undefined}>
       <Clock size={13} aria-hidden />

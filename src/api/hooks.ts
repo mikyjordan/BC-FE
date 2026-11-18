@@ -2,12 +2,17 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { api, newIdempotencyKey } from './client';
 import type { AdminContent, AdminSeason, AdminUserRow, AuditEntry, BoxOfficeReading, BoxOfficeWindow, ContentKindPath, ContentNotificationStats, EconomySettings, Features, Holding, HomeResponse, LedgerEntry, Me, Paginated, PublicMovie, PublicSeries, PublicationStatus, PurchaseResult, RedeemResult, UserDeletionPreview, WalletSummary } from './types';
 import { useAuthStore } from '../store/auth';
+import { appNowMs } from '../components/clock';
 
 const authed = () => useAuthStore.getState().status === 'authenticated';
 const walletUser = () => authed() && useAuthStore.getState().user?.role !== 'SUPERADMIN';
 
 /* ---------- Sezioni attive ---------- */
 /** Film e Serie TV sono visibili solo se abilitati dal Superadmin (il backend lo applica comunque). */
+/** Data del sistema (con l'orologio simulato, solo in sviluppo, è quella simulata). */
+export const useServerClock = () =>
+  useQuery({ queryKey: ['clock'], queryFn: () => api<{ simulated: boolean; now: string }>('/clock'), staleTime: 30_000, refetchInterval: 60_000 });
+
 export const useFeatures = () => useQuery({ queryKey: ['features'], queryFn: () => api<Features>('/features'), staleTime: 60_000 });
 
 export const useEconomy = () => useQuery({ queryKey: ['economy'], queryFn: () => api<EconomySettings>('/economy'), staleTime: 60_000 });
@@ -145,7 +150,7 @@ export const useAdminDashboard = () =>
 function refetchAroundSchedule(items: Array<Pick<AdminContent, 'scheduledPublishAt'>>): number | false {
   const next = items.map((i) => (i.scheduledPublishAt ? new Date(i.scheduledPublishAt).getTime() : NaN)).filter((n) => !Number.isNaN(n));
   if (!next.length) return false;
-  const ms = Math.min(...next) - Date.now();
+  const ms = Math.min(...next) - appNowMs();
   if (ms > 60_000) return 30_000;
   return Math.max(ms + 1_500, 2_000);
 }

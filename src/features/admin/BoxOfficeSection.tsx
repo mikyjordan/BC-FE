@@ -8,6 +8,7 @@ import { hasPermission, useAuthStore } from '../../store/auth';
 import { fromLocalInput, toLocalInput } from './content-fields';
 import { BoxOfficeReadingRow } from './BoxOfficeReadingRow';
 import { t, tx } from '../../i18n';
+import { appNow, appNowMs } from '../../components/clock';
 
 /**
  * Incasso del film (1 € = 1 B). Ogni inserimento è una rilevazione, modificabile o eliminabile.
@@ -24,7 +25,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
   const editable = can && !!win?.editable;
   const [gross, setGross] = useState('');
   // La data di rilevazione parte sempre da "adesso" ed è modificabile.
-  const [when, setWhen] = useState(() => toLocalInput(new Date().toISOString()));
+  const [when, setWhen] = useState(() => toLocalInput(appNow().toISOString()));
   // Se l'operatore non modifica la data si usa l'istante esatto dell'invio (il campo ha precisione al minuto).
   const [whenTouched, setWhenTouched] = useState(false);
   const [notes, setNotes] = useState('');
@@ -41,7 +42,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
     if (gross === '') e.grossAmount = t('admin.boxOfficeSection.lIncassoEObbligatorio');
     else if (!Number.isInteger(amount) || amount < 0) e.grossAmount = t('admin.boxOfficeSection.inserisciUnNumeroInteroMaggiore');
     if (!when) e.recordedAt = t('admin.boxOfficeSection.laDataDiRilevazioneE');
-    else if (new Date(fromLocalInput(when)!).getTime() > Date.now() + 60_000) e.recordedAt = t('admin.boxOfficeSection.laDataDiRilevazioneNon');
+    else if (new Date(fromLocalInput(when)!).getTime() > appNowMs() + 60_000) e.recordedAt = t('admin.boxOfficeSection.laDataDiRilevazioneNon');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -53,7 +54,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
     mutation.mutate(
       {
         grossAmount: amount,
-        recordedAt: whenTouched ? fromLocalInput(when) : new Date().toISOString(),
+        recordedAt: whenTouched ? fromLocalInput(when) : appNow().toISOString(),
         ...(notes.trim() ? { notes: notes.trim() } : {}),
       },
       {
@@ -61,7 +62,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
           const res = r as { becomesCurrent: boolean };
           setSaved(res.becomesCurrent ? t('admin.boxOfficeSection.incassoAggiornatoAAmount', { amount: formatBc(amount) }) : t('admin.boxOfficeSection.rilevazioneSalvataNelloStoricoData'));
           setGross('');
-          setWhen(toLocalInput(new Date().toISOString()));
+          setWhen(toLocalInput(appNow().toISOString()));
           setWhenTouched(false);
           setNotes('');
           void history.refetch();

@@ -8,6 +8,7 @@ import { Badge, Button, FieldError, Input, Muted, Stack } from '../../components
 import { formatBc, formatDateTime } from '../../components/format';
 import { fromLocalInput, toLocalInput } from './content-fields';
 import { t, tx } from '../../i18n';
+import { appNowMs } from '../../components/clock';
 
 /**
  * Riga dello storico incassi con modifica in linea ed eliminazione.
@@ -48,7 +49,7 @@ export function BoxOfficeReadingRow({
     const n = Number(gross);
     if (gross === '' || !Number.isInteger(n) || n < 0) return setError(t('admin.boxOfficeReadingRow.incassoObbligatorioNumeroIntero0'));
     if (!when) return setError(t('admin.boxOfficeReadingRow.dataDiRilevazioneObbligatoria'));
-    if (new Date(fromLocalInput(when)!).getTime() > Date.now() + 60_000) return setError(t('admin.boxOfficeReadingRow.laDataDiRilevazioneNon'));
+    if (new Date(fromLocalInput(when)!).getTime() > appNowMs() + 60_000) return setError(t('admin.boxOfficeReadingRow.laDataDiRilevazioneNon'));
     setError(null);
     update.mutate(
       { grossAmount: n, recordedAt: fromLocalInput(when), ...(notes.trim() ? { notes: notes.trim() } : {}) },

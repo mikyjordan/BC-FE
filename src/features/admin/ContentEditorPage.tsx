@@ -23,6 +23,7 @@ import { DateTimeInput } from './DateTimeInput';
 import { MovieRulesSection } from './MovieRulesSection';
 import { MovieDeletionSection } from './MovieDeletionSection';
 import { t, tx } from '../../i18n';
+import { appNow, appNowMs } from '../../components/clock';
 
 const FormGrid = styled.div`
   display: grid;
@@ -178,7 +179,7 @@ function PublicationSection({ kind, item }: { kind: ContentKindPath; item: Admin
                   disabled={!when || schedule.isPending}
                   onClick={() => {
                     const at = fromLocalInput(when)!;
-                    if (new Date(at).getTime() <= Date.now()) return setWhenError(t('admin.contentEditorPage.dataFutura'));
+                    if (new Date(at).getTime() <= appNowMs()) return setWhenError(t('admin.contentEditorPage.dataFutura'));
                     schedule.mutate(at, { onSuccess: () => setWhen('') });
                   }}
                 >
@@ -198,7 +199,7 @@ function VisibilitySection({ kind, item }: { kind: ContentKindPath; item: AdminC
   const can = hasPermission(user, 'content.publish');
   const mutation = useAdminMutation((body: Record<string, unknown>) => api(`/admin/${kind}/${item.id}/visibility`, { method: 'PATCH', body }));
   // Data "disponibile dal" impostata prima che il campo venisse tolto: si può solo rimuovere.
-  const legacyAvailableFrom = item.availableFrom && new Date(item.availableFrom).getTime() > Date.now() ? item.availableFrom : null;
+  const legacyAvailableFrom = item.availableFrom && new Date(item.availableFrom).getTime() > appNowMs() ? item.availableFrom : null;
 
   type FlagKey = 'showOnHomepage' | 'showInLeaderboards';
   // Stato ottimistico: la casella cambia subito e torna indietro se il server rifiuta.
@@ -255,7 +256,7 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
   // Apertura da indicare (proposta: adesso); chiusura con l'ora proposta alle 23:59.
   const initial = () => ({
     price: item.priceBc ? String(item.priceBc) : '',
-    opens: toLocalInput(item.purchaseOpensAt) || toLocalInput(new Date().toISOString()),
+    opens: toLocalInput(item.purchaseOpensAt) || toLocalInput(appNow().toISOString()),
     closes: toLocalInput(item.purchaseClosesAt),
   });
   const [price, setPrice] = useState(initial().price);

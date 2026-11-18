@@ -11,6 +11,7 @@ import { logout } from '../../api/client';
 import { hasWallet, isStaff, useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
 import { t } from '../../i18n';
+import { SimulatedClockBanner } from '../SimulatedClockBanner';
 
 /* ---------- Header blu a tutta larghezza ---------- */
 const Header = styled.header`
@@ -186,6 +187,7 @@ export function AppShell() {
 
   return (
     <>
+      <SimulatedClockBanner />
       <Header>
         <Link to="/app" aria-label={t('components.appShell.bustercinemaHome')}>
           <Logo height={28} tone="light" />
