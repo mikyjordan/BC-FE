@@ -121,7 +121,11 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
   test('un utente compra il film, vede incasso e guadagno in verde, riscatta e non può ricomprarlo', async ({ page, browser }) => {
     await registerNewUser(page);
     await expect(page.getByText('1.000.000 B').first()).toBeVisible();
-    // Sotto il film in homepage: fino a quando è acquistabile, con il link a "Come funziona"
+    // La dashboard mostra solo i film acquistati: per ora nessuno
+    await expect(page.getByTestId('home-movies')).toContainText('I tuoi film');
+    await expect(page.getByTestId('no-movies')).toContainText('Non hai ancora acquistato film.');
+    // Sotto il film nel catalogo: fino a quando è acquistabile, con il link a "Come funziona"
+    await page.goto('/app/film');
     const deadlineText = `Acquistabile fino alle 23:59 del ${shownDay(italianDay(19))}.`;
     const homeDeadline = page.getByRole('link', { name: new RegExp(title) }).first().locator('xpath=..').getByTestId('purchase-deadline');
     await expect(homeDeadline).toContainText(deadlineText);
@@ -143,6 +147,7 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
 
     // Nelle attività recenti la riga dell'acquisto porta alla scheda del film
     await page.goto('/app');
+    await expect(page.getByTestId('home-movies').getByRole('link', { name: new RegExp(title) })).toBeVisible();
     const activity = page.getByTestId('activity-movie-link').first();
     await expect(activity).toContainText('Acquisto film');
     await activity.click();
@@ -225,11 +230,9 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await expect(page.getByRole('heading', { name: 'Film riscattato' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Acquista' })).toHaveCount(0);
 
-    // Tutti i possessori hanno riscattato: per il Superadmin l'incasso non è più modificabile
+    // Anche se tutti hanno riscattato, il film è ancora in sala: l'incasso resta modificabile
     await admin.reload();
-    await expect(admin.getByTestId('box-office-window')).toContainText('Tutti gli utenti hanno riscattato il film');
-    await expect(admin.getByLabel('Nuovo incasso totale (€)')).toHaveCount(0);
-    await expect(admin.getByRole('button', { name: /^Modifica rilevazione/ })).toHaveCount(0);
+    await expect(admin.getByLabel('Nuovo incasso totale (€)')).toBeVisible();
     await admin.close();
   });
 

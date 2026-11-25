@@ -18,12 +18,12 @@ export function holdingPhase(h: Holding, now: Date = appNow()): HoldingPhase {
   return 'ACQUISTATO';
 }
 
-type Tone = 'brand' | 'success' | 'warning' | 'neutral';
+type Tone = 'brand' | 'redeemed' | 'warning' | 'neutral';
 const TONE: Record<HoldingPhase, Tone> = {
   ACQUISTATO: 'brand',
   IN_SALA: 'brand',
   USCITO_DALLE_SALE: 'warning',
-  RISCATTATO: 'success',
+  RISCATTATO: 'redeemed',
   RIMBORSATO: 'neutral',
 };
 const ICON = { ACQUISTATO: BadgeCheck, IN_SALA: Clapperboard, USCITO_DALLE_SALE: Clock, RISCATTATO: HandCoins, RIMBORSATO: Undo2 };
@@ -39,7 +39,7 @@ const Pill = styled.span<{ $tone: Tone }>`
   white-space: nowrap;
   color: #ffffff;
   background: ${({ $tone, theme }) =>
-    $tone === 'brand' ? theme.colors.brand : $tone === 'success' ? theme.colors.success : $tone === 'warning' ? theme.colors.warning : theme.colors.textMuted};
+    $tone === 'brand' ? theme.colors.brand : $tone === 'redeemed' ? theme.colors.redeemed : $tone === 'warning' ? theme.colors.warning : theme.colors.textMuted};
 `;
 
 const Wrap = styled.div`

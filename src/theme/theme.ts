@@ -28,6 +28,8 @@ export const theme = {
     primarySoft: 'rgba(26, 124, 182, 0.12)',
     primaryText: '#145F8B',
     success: '#1B7F50',
+    /** Film riscattato: viola, ben distinto dal verde di "Acquisti attivi". */
+    redeemed: '#6741D9',
     successSoft: '#E3F4EA',
     successBorder: '#9ED3B5',
     successText: '#146140',

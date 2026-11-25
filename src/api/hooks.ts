@@ -46,6 +46,9 @@ export function useUpdateFeatures() {
 }
 
 /* ---------- Catalogo pubblico ---------- */
+/** Film acquistati dall'utente (dashboard). */
+export const useMyMovies = () => useQuery({ queryKey: ['holdings', 'my-movies'], queryFn: () => api<{ items: PublicMovie[] }>('/movies/mine'), enabled: walletUser() });
+
 export const useHome = () => useQuery({ queryKey: ['home'], queryFn: () => api<HomeResponse>('/home') });
 
 export interface CatalogFilters {

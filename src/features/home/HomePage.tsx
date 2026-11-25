@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { ChevronRight, Clapperboard, Gift, Trophy, Tv } from 'lucide-react';
-import { useHome, useTransactions, useWallet } from '../../api/hooks';
+import { useHome, useMyMovies, useTransactions, useWallet } from '../../api/hooks';
 import { Alert, Bc, Card, Gain, EmptyState, Grid, Muted, SectionTitle, Spinner, Stack } from '../../components/ui';
 import { formatDateTime, formatNumber, formatPct, LEDGER_LABELS } from '../../components/format';
 import { hasWallet, useAuthStore } from '../../store/auth';
@@ -69,8 +69,13 @@ export function HomePage() {
   const features = home.data?.features;
   const wallet = useWallet();
   const activity = useTransactions(1);
+  // Nella dashboard dell'utente compaiono solo i film che ha acquistato; il Superadmin, che non
+  // compra, vede quelli in homepage.
+  const myMovies = useMyMovies();
+  const movies = withWallet ? (myMovies.data?.items ?? []) : (home.data?.movies ?? []);
+  const showMovies = features?.movies !== false && (withWallet || movies.length > 0);
 
-  const hasContent = !!home.data && (home.data.movies.length + home.data.tvSeries.length > 0);
+  const hasContent = !!home.data && (showMovies || home.data.tvSeries.length > 0);
 
   return (
     <>
@@ -110,16 +115,25 @@ export function HomePage() {
         </Section>
       ) : (
         <>
-          {home.data!.movies.length > 0 && (
-            <Section>
+          {showMovies && (
+            <Section data-testid="home-movies">
               <SectionTitle>
-                <Clapperboard size={18} />{' '}{t('home.homePage.filmDisponibili')}{' '}<MoreLink to="/app/film">{t('home.homePage.vediTutti')}</MoreLink>
+                <Clapperboard size={18} />{' '}{withWallet ? t('home.homePage.iTuoiFilm') : t('home.homePage.filmDisponibili')}{' '}<MoreLink to="/app/film">{withWallet ? t('home.homePage.scopriIFilm') : t('home.homePage.vediTutti')}</MoreLink>
               </SectionTitle>
-              <Grid $min={150} $gap={22}>
-                {home.data!.movies.map((c) => (
-                  <ContentCard key={c.id} item={c} />
-                ))}
-              </Grid>
+              {movies.length > 0 ? (
+                <Grid $min={150} $gap={22}>
+                  {movies.map((c) => (
+                    <ContentCard key={c.id} item={c} />
+                  ))}
+                </Grid>
+              ) : (
+                myMovies.isLoading ? <Spinner /> : (
+                  <Card $padding="18px" data-testid="no-movies">
+                    <Muted>{t('home.homePage.nessunFilmAcquistato')}</Muted>{' '}
+                    <Link to="/app/film" style={{ textDecoration: 'underline' }}>{t('home.homePage.scopriIFilmDisponibili')}</Link>
+                  </Card>
+                )
+              )}
             </Section>
           )}
           {home.data!.tvSeries.length > 0 && (

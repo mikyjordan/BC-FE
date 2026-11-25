@@ -479,7 +479,7 @@
       "rimuoviDisponibileDal": "Rimuovi la data (il film diventa subito visibile)",
       "dateEAcquisti": "Uscita nelle sale e acquisti",
       "uscitaNelleSale": "Uscita nelle sale *",
-      "uscitaNelleSaleNota": "Primo giorno di programmazione nei cinema italiani. Dal giorno di uscita si inserisce l’incasso.",
+      "uscitaNelleSaleNota": "Primo giorno di programmazione nei cinema italiani. L’incasso si inserisce dal giorno di uscita fino all’uscita dalle sale.",
       "aperturaAutomatica": "Apertura acquisti: automatica, dalla creazione del film ({date}).",
       "chiusuraAutomatica": "Chiusura acquisti: {strong} (automatica, alle 23:59 del giorno prima dell’uscita nelle sale).",
       "chiusuraSenzaUscita": "Chiusura acquisti: automatica alle 23:59 del giorno prima dell’uscita nelle sale. Indica l’uscita nelle sale per calcolarla.",
@@ -763,7 +763,11 @@
       "storico": "Storico",
       "ledgerLabelsDescriptionApriLa": "{label}: {description} — apri la scheda del film",
       "nessunaAttivita": "Nessuna attività.",
-      "accountAttivato": "Account attivato, benvenuto in BusterCinema!"
+      "accountAttivato": "Account attivato, benvenuto in BusterCinema!",
+      "iTuoiFilm": "I tuoi film",
+      "scopriIFilm": "Scopri i film",
+      "nessunFilmAcquistato": "Non hai ancora acquistato film.",
+      "scopriIFilmDisponibili": "Scopri quelli disponibili"
     }
   },
   "info": {
