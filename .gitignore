@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build, test e report (generati)
+build/
+coverage/
+test-results/
+playwright-report/
+# Variabili locali
+.env
+.env.*
+!.env.example
+# file del PID scritto da pm2 per l'opzione -spa dello script pm2
+-a
