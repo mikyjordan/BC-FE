@@ -19,7 +19,7 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 // Nome, descrizione e lingua dell'app vengono dal file dei testi (src/i18n/it.json).
 const texts = JSON.parse(readFileSync(path.join(root, "src/i18n/it.json"), "utf8"));
 const appMeta = texts.app.meta;
-const API_TARGET = process.env.API_PROXY ?? "http://localhost:4000";
+const API_TARGET = process.env.API_PROXY ?? "http://localhost:4001";
 
 const manifest = {
   name: appMeta.name,
