@@ -1,5 +1,6 @@
 /**
- * Indirizzo dell'API (backend), deciso alla build.
+ * Indirizzo dell'API (backend), deciso alla build. Si imposta nel file api.config.json del
+ * progetto ("apiUrl" e "apiPort"), che webpack trasforma in REACT_APP_API_URL / REACT_APP_API_PORT.
  *
  * - REACT_APP_API_URL impostato (es. https://api.miosito.it): si usa quello.
  * - In sviluppo (npm start): stesso indirizzo della pagina, il server di sviluppo fa da proxy.

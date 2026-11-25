@@ -13,7 +13,8 @@
   },
   "api": {
     "client": {
-      "siEVerificatoUnErrore": "Si è verificato un errore"
+      "siEVerificatoUnErrore": "Si è verificato un errore",
+      "apiNonValida": "Il server dell’API ({url}) non ha risposto con dati validi: controlla l’indirizzo dell’API (REACT_APP_API_URL usato nella build) e che il backend sia acceso."
     }
   },
   "app": {

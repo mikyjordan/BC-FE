@@ -100,6 +100,9 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
     const err = data?.error ?? {};
     throw new ApiError(res.status, err.code ?? "ERROR", err.message ?? t("api.client.siEVerificatoUnErrore"), err.details);
   }
+  // Risposta "ok" ma non JSON: di solito l'indirizzo dell'API punta al server del sito (che risponde
+  // con la pagina HTML) invece che al backend. Meglio un errore chiaro che dati nulli nelle pagine.
+  if (data === null) throw new ApiError(res.status, 'API_NOT_JSON', t('api.client.apiNonValida', { url: BASE }));
   return data as T;
 }
 

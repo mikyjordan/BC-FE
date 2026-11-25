@@ -5,10 +5,12 @@ import { fileURLToPath } from 'node:url';
 import { expect, type Page } from '@playwright/test';
 
 /**
- * Senza SMTP il backend di sviluppo salva ogni email come file .html in backend/tmp/mails
+ * Senza SMTP il backend di sviluppo salva ogni email come file .html in tmp/mails del backend (di default la cartella BC-BE accanto a questa; altrimenti E2E_MAIL_DIR)
  * (MAIL_PREVIEW_DIR): i test leggono da lì il link di conferma, come farebbe l'utente.
  */
-export const MAIL_DIR = process.env.E2E_MAIL_DIR ?? fileURLToPath(new URL('../../backend/tmp/mails', import.meta.url));
+/** Cartella del backend: di default BC-BE accanto a questo progetto (~/dev/BC-BE), altrimenti E2E_BACKEND_DIR. */
+export const BACKEND_DIR = process.env.E2E_BACKEND_DIR ?? fileURLToPath(new URL('../../BC-BE', import.meta.url));
+export const MAIL_DIR = process.env.E2E_MAIL_DIR ?? `${BACKEND_DIR}/tmp/mails`;
 
 /** Email ricevute da un indirizzo (contenuto HTML), dalla più recente. */
 export function mailsTo(email: string): string[] {
@@ -38,7 +40,7 @@ export async function verificationPath(email: string): Promise<string> {
  */
 export function simulateRelease(title: string) {
   execFileSync('npm', ['run', '--silent', 'film:simula-uscita', '--', title], {
-    cwd: fileURLToPath(new URL('../../backend', import.meta.url)),
+    cwd: BACKEND_DIR,
     stdio: 'pipe',
     shell: process.platform === 'win32',
   });
