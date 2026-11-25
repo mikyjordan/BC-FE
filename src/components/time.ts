@@ -31,10 +31,38 @@ function italyOffset(ms: number): number {
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
+/** Anni accettati nei campi data: fuori da questo intervallo la data è considerata non valida. */
+export const MIN_YEAR = 2000;
+export const MAX_YEAR = 2100;
+export const MIN_DATE = `${MIN_YEAR}-01-01`;
+export const MAX_DATE = `${MAX_YEAR}-12-31`;
+
+/**
+ * "AAAA-MM-GG" valida: formato esatto, giorno esistente nel calendario (niente 31 aprile o
+ * 30 febbraio) e anno tra MIN_YEAR e MAX_YEAR. Il browser può passare valori come "20266-11-06"
+ * se si digita un anno troppo lungo.
+ */
+export function isValidDate(value: string | null | undefined): boolean {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? '');
+  if (!m) return false;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  if (y < MIN_YEAR || y > MAX_YEAR) return false;
+  const date = new Date(Date.UTC(y, mo - 1, d));
+  return date.getUTCMonth() === mo - 1 && date.getUTCDate() === d;
+}
+
+/** "AAAA-MM-GGTHH:MM" valida (data come isValidDate, ora 00:00–23:59). */
+export function isValidDateTime(value: string | null | undefined): boolean {
+  const [date, time] = (value ?? '').split('T');
+  return isValidDate(date) && /^([01]\d|2[0-3]):[0-5]\d$/.test(time ?? '');
+}
+
 /** Istante → "AAAA-MM-GGTHH:MM" in ora italiana (valore per i campi data/ora). */
 export function toItalyInput(iso: string | Date | null | undefined): string {
   if (!iso) return '';
-  const p = italyParts(new Date(iso).getTime());
+  const ms = new Date(iso).getTime();
+  if (Number.isNaN(ms)) return '';
+  const p = italyParts(ms);
   return `${p.y}-${pad(p.mo)}-${pad(p.d)}T${pad(p.h)}:${pad(p.mi)}`;
 }
 
@@ -42,6 +70,8 @@ export function toItalyInput(iso: string | Date | null | undefined): string {
 export function fromItalyInput(value: string): string | null {
   if (!value) return null;
   const [date, time = '00:00'] = value.split('T');
+  // Data o ora non valide: nessun istante (chi chiama lo segnala come errore del campo).
+  if (!isValidDateTime(`${date}T${time}`)) return null;
   const [y, mo, d] = date.split('-').map(Number);
   const [h, mi] = time.split(':').map(Number);
   const wall = Date.UTC(y, mo - 1, d, h, mi);
@@ -57,6 +87,7 @@ export const italyToday = (now: Date = appNow()) => toItalyInput(now).slice(0, 1
 
 /** Aggiunge giorni a una data "AAAA-MM-GG" (calendario puro, senza fusi). */
 export function addDays(date: string, days: number): string {
+  if (!isValidDate(date)) return '';
   const [y, m, d] = date.split('-').map(Number);
   return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 }

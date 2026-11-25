@@ -1,3 +1,4 @@
+import { MAX_YEAR, MIN_YEAR } from '../../components/time';
 import { useState } from 'react';
 import { api, ApiError } from '../../api/client';
 import { useAdminBoxOffice, useAdminMutation } from '../../api/hooks';
@@ -42,6 +43,7 @@ export function BoxOfficeSection({ movie }: { movie: AdminContent }) {
     if (gross === '') e.grossAmount = t('admin.boxOfficeSection.lIncassoEObbligatorio');
     else if (!Number.isInteger(amount) || amount < 0) e.grossAmount = t('admin.boxOfficeSection.inserisciUnNumeroInteroMaggiore');
     if (!when) e.recordedAt = t('admin.boxOfficeSection.laDataDiRilevazioneE');
+    else if (!fromLocalInput(when)) e.recordedAt = t('common.dataNonValida', { min: MIN_YEAR, max: MAX_YEAR });
     else if (new Date(fromLocalInput(when)!).getTime() > appNowMs() + 60_000) e.recordedAt = t('admin.boxOfficeSection.laDataDiRilevazioneNon');
     setErrors(e);
     return Object.keys(e).length === 0;

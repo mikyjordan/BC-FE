@@ -1,3 +1,4 @@
+import { MAX_YEAR, MIN_YEAR } from '../../components/time';
 import { useState } from 'react';
 import { Check, Pencil, Trash2, X } from 'lucide-react';
 import { api, ApiError } from '../../api/client';
@@ -49,6 +50,7 @@ export function BoxOfficeReadingRow({
     const n = Number(gross);
     if (gross === '' || !Number.isInteger(n) || n < 0) return setError(t('admin.boxOfficeReadingRow.incassoObbligatorioNumeroIntero0'));
     if (!when) return setError(t('admin.boxOfficeReadingRow.dataDiRilevazioneObbligatoria'));
+    if (!fromLocalInput(when)) return setError(t('common.dataNonValida', { min: MIN_YEAR, max: MAX_YEAR }));
     if (new Date(fromLocalInput(when)!).getTime() > appNowMs() + 60_000) return setError(t('admin.boxOfficeReadingRow.laDataDiRilevazioneNon'));
     setError(null);
     update.mutate(

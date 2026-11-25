@@ -9,7 +9,7 @@ import { ConfirmModal } from '../../components/Modal';
 import { Alert, Bc, Button, Card, Checkbox, Field, Input, Muted, Stack } from '../../components/ui';
 import { formatBc, formatDate, formatDateTime } from '../../components/format';
 import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadge';
-import { fromItalyInput, toItalyInput } from '../../components/time';
+import { fromItalyInput, isValidDate, isValidDateTime, MAX_DATE, MAX_YEAR, MIN_DATE, MIN_YEAR, toItalyInput } from '../../components/time';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { theme } from '../../theme/theme';
 import { DateTimeInput, dayBeforeReleaseAt2359 } from './DateTimeInput';
@@ -85,10 +85,12 @@ export function MovieRulesSection({ movie }: { movie: AdminContent }) {
     const e: Partial<Record<RuleField, string>> = {};
     const n = Number(form.price);
     if (!form.release) e.italianReleaseDate = t('admin.movieRules.uscitaObbligatoria');
+    else if (!isValidDate(form.release)) e.italianReleaseDate = t('common.dataNonValida', { min: MIN_YEAR, max: MAX_YEAR });
     else if (form.release !== movie.italianReleaseDate && closes && new Date(closes) <= new Date(opens)) e.italianReleaseDate = t('admin.movieRules.uscitaDopoCreazione');
     if (!form.price) e.priceBc = t('admin.movieRules.prezzoObbligatorio');
     else if (!Number.isInteger(n) || n <= 0) e.priceBc = t('admin.movieRules.prezzoIntero');
-    if (form.autoRedeem && autoRedeemChanged) {
+    if (form.autoRedeem && !isValidDateTime(form.autoRedeem)) e.autoRedeemAt = t('common.dataNonValida', { min: MIN_YEAR, max: MAX_YEAR });
+    else if (form.autoRedeem && autoRedeemChanged) {
       if (new Date(fromItalyInput(form.autoRedeem)!).getTime() < appNowMs()) e.autoRedeemAt = t('admin.movieRules.riscattoNelPassato');
       else if (form.release && form.autoRedeem.slice(0, 10) < form.release) e.autoRedeemAt = t('admin.movieRules.riscattoPrimaDellUscita');
     }
@@ -168,7 +170,7 @@ export function MovieRulesSection({ movie }: { movie: AdminContent }) {
         <Group>
           <h4>{t('admin.movieRules.dateEAcquisti')}</h4>
           <Field label={t('admin.movieRules.uscitaNelleSale')} error={errors.italianReleaseDate} hint={t('admin.movieRules.uscitaNelleSaleNota')}>
-            <Input type="date" required aria-invalid={!!errors.italianReleaseDate} value={form.release} disabled={!can} onChange={(e) => set('release', e.target.value)} />
+            <Input type="date" min={MIN_DATE} max={MAX_DATE} required aria-invalid={!!errors.italianReleaseDate} value={form.release} disabled={!can} onChange={(e) => set('release', e.target.value)} />
           </Field>
           <Muted $size="0.85rem" data-testid="auto-opens">{t('admin.movieRules.aperturaAutomatica', { date: formatDateTime(opens) })}</Muted>
           <div data-testid="auto-closes">

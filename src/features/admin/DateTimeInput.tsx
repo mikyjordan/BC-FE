@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Input } from '../../components/ui';
 import { t } from '../../i18n';
-import { addDays } from '../../components/time';
+import { addDays, MAX_DATE, MIN_DATE } from '../../components/time';
 
 const Row = styled.div`
   display: grid;
@@ -41,6 +41,8 @@ export function DateTimeInput({
       <Input
         id={id}
         type="date"
+        min={MIN_DATE}
+        max={MAX_DATE}
         value={date}
         disabled={disabled}
         aria-invalid={invalid}
@@ -60,6 +62,6 @@ export function DateTimeInput({
 
 /** Le 23:59 (ora italiana) del giorno prima dell'uscita al cinema, nel formato del campo. */
 export function dayBeforeReleaseAt2359(releaseDate: string | null | undefined): string {
-  if (!releaseDate) return '';
-  return `${addDays(releaseDate, -1)}T${END_OF_DAY}`;
+  const day = releaseDate ? addDays(releaseDate, -1) : '';
+  return day ? `${day}T${END_OF_DAY}` : '';
 }

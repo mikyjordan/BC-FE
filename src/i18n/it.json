@@ -8,7 +8,8 @@
     "serieTv": "Serie TV",
     "premi": "Premi",
     "email": "Email",
-    "lePasswordNonCoincidono": "Le password non coincidono"
+    "lePasswordNonCoincidono": "Le password non coincidono",
+    "dataNonValida": "Data non valida: inserisci un giorno esistente, con anno tra il {min} e il {max}."
   },
   "api": {
     "client": {

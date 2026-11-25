@@ -10,10 +10,16 @@ export const formatNumber = (n: number) => nf.format(n);
 /** Importo Bustercoin, con segno opzionale per i movimenti. */
 export const formatBc = (n: number, signed = false) => t('components.format.importoBc', { sign: signed && n > 0 ? '+' : '', amount: nf.format(n) });
 export const formatPct = (n: number) => t('components.format.percentuale', { sign: n > 0 ? '+' : '', value: n.toLocaleString(LOCALE, { maximumFractionDigits: 2 }) });
-export const formatDate = (d: string | null | undefined) => (d ? df.format(new Date(d)) : '—');
+/** Formatta una data; una data assente o non valida diventa "—" (mai un errore a schermo). */
+function safe(fmt: Intl.DateTimeFormat, d: string | null | undefined) {
+  if (!d) return '—';
+  const date = new Date(d);
+  return Number.isNaN(date.getTime()) ? '—' : fmt.format(date);
+}
+export const formatDate = (d: string | null | undefined) => safe(df, d);
 /** Solo l'ora, "HH:MM" in ora italiana. */
-export const formatTime = (d: string | null | undefined) => (d ? tf.format(new Date(d)) : '—');
-export const formatDateTime = (d: string | null | undefined) => (d ? dtf.format(new Date(d)) : '—');
+export const formatTime = (d: string | null | undefined) => safe(tf, d);
+export const formatDateTime = (d: string | null | undefined) => safe(dtf, d);
 
 export const LEDGER_LABELS: Record<string, string> = {
   INITIAL_BONUS: t('components.format.bonusDiBenvenuto'),

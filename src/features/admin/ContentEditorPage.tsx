@@ -1,3 +1,4 @@
+import { MAX_YEAR, MIN_YEAR } from '../../components/time';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useParams } from 'react-router';
@@ -178,7 +179,8 @@ function PublicationSection({ kind, item }: { kind: ContentKindPath; item: Admin
                   $variant="secondary"
                   disabled={!when || schedule.isPending}
                   onClick={() => {
-                    const at = fromLocalInput(when)!;
+                    const at = fromLocalInput(when);
+                    if (!at) return setWhenError(t('common.dataNonValida', { min: MIN_YEAR, max: MAX_YEAR }));
                     if (new Date(at).getTime() <= appNowMs()) return setWhenError(t('admin.contentEditorPage.dataFutura'));
                     schedule.mutate(at, { onSuccess: () => setWhen('') });
                   }}
@@ -282,7 +284,9 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
     if (!price) e.priceBc = t('admin.contentEditorPage.ilPrezzoEObbligatorio');
     else if (!Number.isInteger(n) || n <= 0) e.priceBc = t('admin.contentEditorPage.inserisciUnNumeroInteroMaggiore');
     if (!opens) e.purchaseOpensAt = t('admin.contentEditorPage.lAperturaDegliAcquistiE');
+    else if (!fromLocalInput(opens)) e.purchaseOpensAt = t('common.dataNonValida', { min: MIN_YEAR, max: MAX_YEAR });
     if (!closes) e.purchaseClosesAt = t('admin.contentEditorPage.laChiusuraDegliAcquistiE');
+    else if (!fromLocalInput(closes)) e.purchaseClosesAt = t('common.dataNonValida', { min: MIN_YEAR, max: MAX_YEAR });
     else if (opens && new Date(fromLocalInput(closes)!) <= new Date(fromLocalInput(opens)!)) e.purchaseClosesAt = t('admin.contentEditorPage.laChiusuraDeveSeguireL');
     setErrors(e);
     return Object.keys(e).length === 0;

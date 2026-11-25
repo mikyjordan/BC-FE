@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { addDays, fromItalyInput, italyToday, toItalyInput } from '../src/components/time';
-import { formatDateTime } from '../src/components/format';
+import { addDays, fromItalyInput, isValidDate, isValidDateTime, italyToday, toItalyInput } from '../src/components/time';
+import { formatDate, formatDateTime } from '../src/components/format';
 import { dayBeforeReleaseAt2359 } from '../src/features/admin/DateTimeInput';
 
 // Questi risultati non devono dipendere dal fuso del dispositivo: il test gira anche con
@@ -24,5 +24,29 @@ describe('ora italiana indipendente dal fuso del dispositivo', () => {
     expect(addDays('2026-03-01', -1)).toBe('2026-02-28');
     expect(dayBeforeReleaseAt2359('2026-11-06')).toBe('2026-11-05T23:59');
     expect(formatDateTime('2026-11-05T22:59:00.000Z')).toMatch(/23:59/);
+  });
+});
+
+describe('date non valide nei campi', () => {
+  it('riconosce date inesistenti, anni fuori intervallo e formati sbagliati', () => {
+    expect(isValidDate('2026-11-06')).toBe(true);
+    expect(isValidDate('2028-02-29')).toBe(true);
+    expect(isValidDate('2026-02-30')).toBe(false);
+    expect(isValidDate('2026-04-31')).toBe(false);
+    expect(isValidDate('20266-11-06')).toBe(false);
+    expect(isValidDate('275760-09-13')).toBe(false);
+    expect(isValidDate('0002-01-01')).toBe(false);
+    expect(isValidDate('')).toBe(false);
+    expect(isValidDateTime('2026-11-06T23:59')).toBe(true);
+    expect(isValidDateTime('2026-11-06T24:00')).toBe(false);
+  });
+
+  it('una data non valida non manda in errore la pagina', () => {
+    expect(fromItalyInput('275760-09-13T23:59')).toBeNull();
+    expect(fromItalyInput('20266-11-06T23:59')).toBeNull();
+    expect(addDays('20266-11-06', -1)).toBe('');
+    expect(toItalyInput('non è una data')).toBe('');
+    expect(formatDateTime('non è una data')).toBe('—');
+    expect(formatDate('275760-09-14')).toBe('—');
   });
 });

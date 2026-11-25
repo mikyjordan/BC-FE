@@ -5,7 +5,7 @@ import { api, ApiError } from '../../api/client';
 import { useAdminMutation } from '../../api/hooks';
 import { Alert, Button, Card, Field, Muted, Stack } from '../../components/ui';
 import { formatDateTime } from '../../components/format';
-import { fromItalyInput } from '../../components/time';
+import { fromItalyInput, MAX_YEAR, MIN_YEAR } from '../../components/time';
 import { DateTimeInput } from './DateTimeInput';
 import { t } from '../../i18n';
 
@@ -65,7 +65,11 @@ export function ClockCard() {
           <DateTimeInput value={when} onChange={setWhen} defaultTime="09:00" />
         </Field>
         <div>
-          <Button disabled={!when || set.isPending} onClick={() => move(fromItalyInput(when)!)}>{t('admin.clockCard.imposta')}</Button>
+          <Button disabled={!when || set.isPending} onClick={() => {
+              const at = fromItalyInput(when);
+              if (at) move(at);
+              else setError(t('common.dataNonValida', { min: MIN_YEAR, max: MAX_YEAR }));
+            }}>{t('admin.clockCard.imposta')}</Button>
         </div>
         {error && <Alert $tone="error">{error}</Alert>}
       </Stack>
