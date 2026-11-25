@@ -23,10 +23,19 @@ const CardLink = styled(Link)`
   img { transition: transform 0.25s; }
 `;
 
-const Wrap = styled.div`
+const Wrap = styled.div<{ $unavailable?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 6px;
+  /* Film non più acquistabile (per qualsiasi motivo): card in penombra, in grigio. */
+  ${({ $unavailable }) =>
+    $unavailable &&
+    `
+    filter: grayscale(1);
+    opacity: 0.55;
+    transition: opacity 0.2s, filter 0.2s;
+    &:hover, &:focus-within { opacity: 0.85; }
+  `}
 `;
 
 const Title = styled.h3`
@@ -47,8 +56,10 @@ export function ContentCard({ item }: { item: PublicContent }) {
   const meta = item.kind === 'MOVIE' ? item.genres.slice(0, 2).join(' · ') : item.platforms.slice(0, 2).join(' · ');
   // Sotto il film acquistabile: fino a quando. Il link "Come funziona" sta fuori dal link della card.
   const deadline = item.kind === 'MOVIE' && !owned && item.purchase.purchasable ? item.purchase.closesAt : null;
+  // Grigio/penombra quando il film non è più acquistabile: chiusura acquisti, uscito, riscattato, ecc.
+  const unavailable = item.kind === 'MOVIE' && !item.purchase.purchasable;
   return (
-    <Wrap>
+    <Wrap $unavailable={unavailable} data-unavailable={unavailable ? 'true' : undefined} data-testid="content-card">
       <CardLink to={contentPath(item)}>
         <div style={{ position: 'relative' }}>
           <Poster src={item.posterUrl} alt={item.title} kind={item.kind} />

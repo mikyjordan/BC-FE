@@ -86,11 +86,13 @@ export function WalletPage() {
   const series = all.filter((h) => h.contentType === 'TV_SERIES');
   const showMovies = filter === 'all' || filter === 'MOVIE' || filter === 'REDEEMED' || filter === 'REFUNDED';
   const hasRefunded = all.some((h) => h.status === 'REFUNDED');
-  const showSeries = filter === 'all' || filter === 'TV_SERIES';
+  // Le serie TV compaiono nel portafoglio solo se la funzionalità è attiva.
+  const seriesEnabled = !!features?.tvSeries;
+  const showSeries = seriesEnabled && (filter === 'all' || filter === 'TV_SERIES');
   const pieData = w
     ? [
         { name: t('common.film'), value: w.distribution.movies.value },
-        { name: t('common.serieTv'), value: w.distribution.tvSeries.value },
+        ...(seriesEnabled ? [{ name: t('common.serieTv'), value: w.distribution.tvSeries.value }] : []),
       ].filter((d) => d.value > 0)
     : [];
 
@@ -142,7 +144,7 @@ export function WalletPage() {
           {w && (
             <Stack $gap={6} style={{ marginTop: 8 }}>
               <Stack $row $justify="space-between"><Muted>{tx('wallet.walletPage.filmCount', { count: w.distribution.movies.count })}</Muted><Bc value={w.distribution.movies.value} size={13} /></Stack>
-              <Stack $row $justify="space-between"><Muted>{tx('wallet.walletPage.serieTvCount', { count: w.distribution.tvSeries.count })}</Muted><Bc value={w.distribution.tvSeries.value} size={13} /></Stack>
+              {seriesEnabled && <Stack $row $justify="space-between" data-testid="distribution-series"><Muted>{tx('wallet.walletPage.serieTvCount', { count: w.distribution.tvSeries.count })}</Muted><Bc value={w.distribution.tvSeries.value} size={13} /></Stack>}
             </Stack>
           )}
         </Card>

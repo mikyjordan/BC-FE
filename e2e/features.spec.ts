@@ -25,6 +25,11 @@ test.describe.serial('Sezioni attivabili dal Superadmin', () => {
     await expect(sidebar.getByRole('link', { name: 'Serie TV' })).toHaveCount(0);
     await u.goto('/app/serie');
     await expect(u).toHaveURL(/\/app$/);
+    // Portafoglio: niente tab, voce di distribuzione o elenco delle Serie TV
+    await u.goto('/app/portafoglio');
+    await expect(u.getByRole('heading', { name: 'Distribuzione' })).toBeVisible();
+    await expect(u.getByTestId('distribution-series')).toHaveCount(0);
+    await expect(u.getByText(/Serie TV/)).toHaveCount(0);
 
     // Riattivazione
     await row.getByRole('button', { name: 'Attiva Serie TV' }).click();

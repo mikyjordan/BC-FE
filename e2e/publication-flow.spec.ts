@@ -222,6 +222,8 @@ test.describe.serial('Flusso completo: bozza → pubblicazione → acquisto', ()
     await expect(redeemedCard).toContainText('Rendita');
     await expect(redeemedCard).toContainText('600.000 B');
     await expect(redeemedCard).toContainText('+100.000 B');
+    // Non più acquistabile: card in penombra, in grigio
+    await expect(page.getByTestId('content-card').filter({ has: redeemedCard })).toHaveAttribute('data-unavailable', 'true');
 
     // Non è più riacquistabile
     await page.goto('/app/portafoglio');
