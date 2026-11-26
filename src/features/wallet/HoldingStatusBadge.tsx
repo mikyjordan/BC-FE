@@ -37,7 +37,7 @@ const Pill = styled.span<{ $tone: Tone }>`
   font-size: 0.76rem;
   font-weight: 700;
   white-space: nowrap;
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.onStatus};
   background: ${({ $tone, theme }) =>
     $tone === 'brand' ? theme.colors.brand : $tone === 'redeemed' ? theme.colors.redeemed : $tone === 'warning' ? theme.colors.warning : theme.colors.textMuted};
 `;

@@ -13,7 +13,7 @@ const Pill = styled.span<{ $active: boolean }>`
   font-size: 0.76rem;
   font-weight: 700;
   white-space: nowrap;
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.onStatus};
   background: ${({ $active, theme }) => ($active ? theme.colors.success : theme.colors.danger)};
 `;
 

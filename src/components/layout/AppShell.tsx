@@ -19,14 +19,14 @@ const Header = styled.header`
   top: 0;
   z-index: 20;
   height: ${({ theme }) => theme.layout.header};
-  background: ${({ theme }) => theme.colors.brand};
+  background: linear-gradient(100deg, ${({ theme }) => theme.colors.brand} 55%, ${({ theme }) => theme.colors.brandAccent});
   color: ${({ theme }) => theme.colors.onBrand};
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 0 16px;
-  box-shadow: 0 2px 8px rgba(14, 75, 111, 0.25);
+  box-shadow: 0 2px 10px ${({ theme }) => theme.colors.brandShadow};
   ${media.md} { padding: 0 24px; }
 `;
 
@@ -132,7 +132,7 @@ const BottomNav = styled.nav`
   grid-template-columns: repeat(5, 1fr);
   background: ${({ theme }) => theme.colors.brand};
   padding-bottom: env(safe-area-inset-bottom);
-  box-shadow: 0 -2px 8px rgba(14, 75, 111, 0.25);
+  box-shadow: 0 -2px 10px ${({ theme }) => theme.colors.brandShadow};
   ${media.md} { display: none; }
 `;
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { Wallet as WalletIcon } from 'lucide-react';
 import { MovieHoldingCard } from './MovieHoldingCard';
@@ -9,7 +9,7 @@ import type { Features, Holding } from '../../api/types';
 import { Badge, Bc, Card, EmptyState, Gain, Grid, Muted, PageHeader, Pagination, Spinner, Stack, Tab, Tabs, Table, TableScroll } from '../../components/ui';
 import { formatBc, formatDate, formatDateTime, formatPct, LEDGER_LABELS } from '../../components/format';
 import { Poster } from '../../components/Poster';
-import { media, theme } from '../../theme/theme';
+import { media } from '../../theme/theme';
 import { t, tx } from '../../i18n';
 
 const Summary = styled.div`
@@ -38,7 +38,6 @@ const SeriesRow = styled.div`
 `;
 
 // Colori della distribuzione dal tema (blu del marchio e una sua tinta chiara).
-const PIE_COLORS = theme.colors.chart;
 
 type Filter = 'all' | 'MOVIE' | 'TV_SERIES' | 'REDEEMED' | 'REFUNDED';
 
@@ -69,6 +68,8 @@ function SeriesHoldingRow({ h }: { h: Holding }) {
 }
 
 export function WalletPage() {
+  const theme = useTheme();
+  const PIE_COLORS = [theme.colors.chart1, theme.colors.chart2];
   const wallet = useWallet();
   const holdings = useHoldings();
   const features = useFeatures().data;

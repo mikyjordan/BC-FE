@@ -9,6 +9,7 @@ import { Alert, Badge, Button, Card, Field, Input, Muted, PageHeader, Spinner, S
 import { useAuthStore } from '../../store/auth';
 import { t } from '../../i18n';
 import { ClockCard } from './ClockCard';
+import { ThemeColorsCard } from './ThemeColorsCard';
 
 const Row = styled(Card)`
   display: flex;
@@ -109,6 +110,7 @@ export function SettingsAdminPage() {
         ))}
         <Alert $tone="info">{t('admin.settingsAdminPage.conUnaSezioneDisattivataSpariscono')}</Alert>
         <EconomyCard />
+        <ThemeColorsCard />
         <ClockCard />
       </Stack>
 

@@ -27,13 +27,13 @@ export const Button = styled.button<{ $variant?: Variant; $size?: 'sm' | 'md'; $
   ${({ $variant = 'primary', theme }) => {
     switch ($variant) {
       case 'gold':
-        // Azioni economiche (acquisti, riscatti): stesso blu del marchio, più evidente.
+        // Azioni economiche (acquisti, riscatti): colore "azione", il più acceso del tema.
         // L'oro resta solo sull'icona della moneta.
         return css`
-          background: ${theme.colors.brand};
-          color: ${theme.colors.onBrand};
-          box-shadow: 0 2px 8px rgba(26, 124, 182, 0.3);
-          &:hover:not(:disabled) { background: ${theme.colors.brandDark}; }
+          background: ${theme.colors.action};
+          color: ${theme.colors.onAction};
+          box-shadow: 0 3px 12px ${theme.colors.actionGlow};
+          &:hover:not(:disabled) { background: ${theme.colors.actionHover}; }
         `;
       case 'secondary':
         return css`
@@ -53,12 +53,12 @@ export const Button = styled.button<{ $variant?: Variant; $size?: 'sm' | 'md'; $
           background: ${theme.colors.dangerSoft};
           border-color: ${theme.colors.dangerBorder};
           color: ${theme.colors.dangerText};
-          &:hover:not(:disabled) { background: #F9D5D9; }
+          &:hover:not(:disabled) { background: ${theme.colors.dangerSoftHover}; }
         `;
       default:
         return css`
           background: ${theme.colors.primary};
-          color: #fff;
+          color: ${theme.colors.onPrimary};
           &:hover:not(:disabled) { background: ${theme.colors.primaryHover}; }
         `;
     }
@@ -338,7 +338,7 @@ export const Tab = styled.button.attrs<{ $active?: boolean }>((p) => ({ type: 'b
   font-size: 0.85rem;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: ${({ $active }) => ($active ? 'inset 0 -3px 0 rgba(255,255,255,0.85)' : 'none')};
+  box-shadow: ${({ $active, theme }) => ($active ? `inset 0 -3px 0 ${theme.colors.tabIndicator}` : 'none')};
   &:hover { background: ${({ theme }) => theme.colors.brandDark}; }
 `;
 

@@ -1,0 +1,67 @@
+{
+  "bg": "#F3EFFF",
+  "bgElevated": "#FFFFFF",
+  "surface": "#FFFFFF",
+  "surfaceAlt": "#F0EAFF",
+  "surfaceHover": "#E6DCFF",
+  "border": "#DCD2F7",
+  "borderStrong": "#B3A3E6",
+
+  "text": "#1C1433",
+  "textSecondary": "#3B2F5E",
+  "textMuted": "#625882",
+
+  "brand": "#5B2BD9",
+  "brandAccent": "#C21FB8",
+  "brandDark": "#4720B5",
+  "brandDarker": "#351789",
+  "onBrand": "#FFFFFF",
+  "onBrandMuted": "#EEE6FF",
+  "brandShadow": "rgba(53, 23, 137, 0.35)",
+  "tabIndicator": "#FFD23F",
+
+  "primary": "#5B2BD9",
+  "primaryHover": "#4720B5",
+  "onPrimary": "#FFFFFF",
+  "primarySoft": "rgba(91, 43, 217, 0.12)",
+  "primaryText": "#4A22B8",
+
+  "action": "#E0186F",
+  "actionHover": "#B8115A",
+  "onAction": "#FFFFFF",
+  "actionGlow": "rgba(224, 24, 111, 0.35)",
+
+  "success": "#0F8050",
+  "successSoft": "#DDF7EA",
+  "successBorder": "#8FDDB6",
+  "successText": "#0B6B42",
+  "redeemed": "#0E7C9A",
+  "onStatus": "#FFFFFF",
+
+  "danger": "#D0243F",
+  "dangerSoft": "#FFE4E9",
+  "dangerSoftHover": "#FFD0D9",
+  "dangerBorder": "#F7A3B3",
+  "dangerText": "#A3152E",
+
+  "warning": "#A35400",
+  "warningStripe": "#C76A00",
+  "warningSoft": "#FFF1D6",
+  "warningBorder": "#F7C873",
+
+  "infoSoft": "#EAE4FF",
+  "infoBorder": "#BCAEF0",
+
+  "overlay": "rgba(28, 16, 60, 0.6)",
+  "shadow": "rgba(40, 20, 90, 0.07)",
+  "shadowStrong": "rgba(28, 16, 60, 0.28)",
+  "posterStripe": "rgba(28, 20, 51, 0.04)",
+
+  "coinLight": "#FFF4BF",
+  "coin": "#F0CC62",
+  "coinDark": "#C4952F",
+  "coinDeep": "#7A5514",
+
+  "chart1": "#5B2BD9",
+  "chart2": "#FF4FA3"
+}

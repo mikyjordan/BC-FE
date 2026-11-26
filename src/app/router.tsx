@@ -1,5 +1,5 @@
 import type React from 'react';
-import { createBrowserRouter, Navigate } from 'react-router';
+import { createBrowserRouter } from 'react-router';
 import { AppShell } from '../components/layout/AppShell';
 import { RedirectIfAuthenticated, RequireAuth, RequireStaff } from '../components/layout/Guards';
 import { LoginPage } from '../features/auth/LoginPage';
@@ -13,6 +13,7 @@ import { ProfilePage } from '../features/profile/ProfilePage';
 import { SettingsPage } from '../features/profile/SettingsPage';
 import { PrivacyPage, TermsPage } from '../features/legal/LegalPages';
 import { HowItWorksPage } from '../features/info/HowItWorksPage';
+import { LandingPage } from '../features/landing/LandingPage';
 import { BuyCoinsPage, LeaderboardsPage, NotificationsPage, RewardsPage, TrophiesPage } from '../features/upcoming/ComingSoonPage';
 import { NotFoundPage } from './NotFoundPage';
 import { RequireWallet } from '../components/layout/RequireWallet';
@@ -24,7 +25,8 @@ const wallet = () => import('../features/wallet/WalletPage');
 const admin = () => import('../features/admin/admin-pages');
 
 export const router = createBrowserRouter([
-  { path: '/', element: <Navigate to="/app" replace /> },
+  // Pagina iniziale pubblica: spiega il gioco; chi è già entrato va direttamente nell'app.
+  { path: '/', element: <LandingPage /> },
   {
     element: <RedirectIfAuthenticated />,
     children: [

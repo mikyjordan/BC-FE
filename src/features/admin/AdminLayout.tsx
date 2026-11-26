@@ -24,9 +24,9 @@ const Top = styled.header`
   gap: 16px;
   flex-wrap: wrap;
   padding: 10px 16px;
-  background: ${({ theme }) => theme.colors.brand};
+  background: linear-gradient(100deg, ${({ theme }) => theme.colors.brand} 55%, ${({ theme }) => theme.colors.brandAccent});
   color: ${({ theme }) => theme.colors.onBrand};
-  box-shadow: 0 2px 8px rgba(14, 75, 111, 0.25);
+  box-shadow: 0 2px 10px ${({ theme }) => theme.colors.brandShadow};
   ${media.md} { padding: 10px 32px; }
   a { color: ${({ theme }) => theme.colors.onBrand}; }
 `;

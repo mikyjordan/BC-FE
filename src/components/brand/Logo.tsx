@@ -1,3 +1,4 @@
+import { useTheme } from 'styled-components';
 import { t } from '../../i18n';
 
 /**
@@ -6,7 +7,8 @@ import { t } from '../../i18n';
  * "brand" = blu del marchio per gli sfondi chiari. Variante compatta (monogramma) per spazi ridotti.
  */
 export function Logo({ height = 34, compact = false, tone = 'light' }: { height?: number; compact?: boolean; tone?: 'light' | 'brand' }) {
-  const fill = tone === 'light' ? '#FFFFFF' : '#1A7CB6';
+  const { colors } = useTheme();
+  const fill = tone === 'light' ? colors.onBrand : colors.brand;
 
   if (compact) {
     return (

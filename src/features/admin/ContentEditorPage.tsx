@@ -2,7 +2,7 @@ import { MAX_YEAR, MIN_YEAR } from '../../components/time';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useParams } from 'react-router';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { ArrowLeft, CalendarClock, Eye } from 'lucide-react';
 import { api, ApiError } from '../../api/client';
 import { useAdminContent, useAdminMutation } from '../../api/hooks';
@@ -10,7 +10,7 @@ import type { AdminContent, ContentKindPath } from '../../api/types';
 import { Alert, Badge, Bc, Button, Card, Checkbox, Field, Input, Muted, PageHeader, Select, Spinner, Stack, Textarea } from '../../components/ui';
 import { formatDateTime, STATUS_LABELS } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
-import { media, theme } from '../../theme/theme';
+import { media } from '../../theme/theme';
 import { FIELDS, fromLocalInput, toFormValues, toLocalInput, toPayload, type FormValues } from './content-fields';
 import { PublicationActions } from './publication-actions';
 import { PreviewModal } from './PreviewModal';
@@ -349,6 +349,7 @@ function PurchaseSection({ kind, item }: { kind: ContentKindPath; item: AdminCon
 }
 
 export function ContentEditorPage() {
+  const theme = useTheme();
   const { kind: kindParam, id } = useParams();
   const kind: ContentKindPath = kindParam === 'tv-series' ? 'tv-series' : 'movies';
   const isNew = id === 'nuovo';

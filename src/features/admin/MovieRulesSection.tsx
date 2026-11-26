@@ -11,7 +11,6 @@ import { formatBc, formatDate, formatDateTime } from '../../components/format';
 import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadge';
 import { fromItalyInput, isValidDate, isValidDateTime, MAX_DATE, MAX_YEAR, MIN_DATE, MIN_YEAR, toItalyInput } from '../../components/time';
 import { hasPermission, useAuthStore } from '../../store/auth';
-import { theme } from '../../theme/theme';
 import { DateTimeInput, dayBeforeReleaseAt2359 } from './DateTimeInput';
 import { t, tx } from '../../i18n';
 import { appNowMs } from '../../components/clock';
@@ -20,7 +19,7 @@ const Group = styled.div`
   display: grid;
   gap: 12px;
   padding-top: 14px;
-  border-top: 1px solid ${theme.colors.border};
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
   h4 { font-size: 0.92rem; }
 `;
 

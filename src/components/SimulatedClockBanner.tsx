@@ -14,8 +14,12 @@ const Bar = styled.div`
   padding: 6px 12px;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #ffffff;
-  background: repeating-linear-gradient(135deg, #9a5b00, #9a5b00 12px, #b26a00 12px, #b26a00 24px);
+  color: ${({ theme }) => theme.colors.onStatus};
+  background: repeating-linear-gradient(
+    135deg,
+    ${({ theme }) => theme.colors.warning} 0 12px,
+    ${({ theme }) => theme.colors.warningStripe} 12px 24px
+  );
 `;
 
 /**

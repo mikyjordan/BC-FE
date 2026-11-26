@@ -22,6 +22,8 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 // Nome, descrizione e lingua dell'app vengono dal file dei testi (src/i18n/it.json).
 const texts = JSON.parse(readFileSync(path.join(root, 'src/i18n/it.json'), 'utf8'));
 const appMeta = texts.app.meta;
+// Colori di default del sito (gli stessi del tema): barra del browser e schermata di avvio della PWA.
+const defaultColors = JSON.parse(readFileSync(path.join(root, 'src/theme/colors.config.json'), 'utf8'));
 // Indirizzo del backend dichiarato nel progetto (api.config.json); dopo una modifica va rifatta la build.
 const apiConfig = JSON.parse(readFileSync(path.join(root, 'api.config.json'), 'utf8'));
 const API_URL = String(process.env.REACT_APP_API_URL || apiConfig.apiUrl || '').trim().replace(/\/+$/, '');
@@ -37,8 +39,8 @@ const manifest = {
   start_url: '/app',
   scope: '/',
   display: 'standalone',
-  background_color: '#F2F2F2',
-  theme_color: '#1A7CB6',
+  background_color: defaultColors.bg,
+  theme_color: defaultColors.brand,
   icons: [
     { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
     { src: '/pwa-512.png', sizes: '512x512', type: 'image/png' },
@@ -82,7 +84,7 @@ export default (_env, argv) => {
       }),
       new HtmlWebpackPlugin({
         template: path.join(root, 'public/index.html'),
-        templateParameters: { lang: texts.meta.lang, appName: appMeta.name, pageDescription: appMeta.pageDescription },
+        templateParameters: { themeColor: defaultColors.brand, lang: texts.meta.lang, appName: appMeta.name, pageDescription: appMeta.pageDescription },
       }),
       new CopyWebpackPlugin({
         patterns: [{ from: path.join(root, 'public'), globOptions: { ignore: ['**/index.html'] } }],
