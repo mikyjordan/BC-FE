@@ -200,13 +200,16 @@ export interface PurchaseResult {
 }
 
 /** Record amministrativo completo (tutti gli stati). */
-export interface MovieDeletionPreview {
-  movieId: string;
+export interface ContentDeletionPreview {
+  contentId: string;
+  kind: 'MOVIE' | 'TV_SERIES';
   title: string;
   holders: number;
   totalRefund: number;
   redeemed: number;
   deletable: boolean;
+  /** Qualcuno l'ha riscattato: si può solo archiviare. */
+  archiveOnly: boolean;
   reason: string | null;
 }
 

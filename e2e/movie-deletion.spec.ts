@@ -18,7 +18,7 @@ async function publishedMovie(request: APIRequestContext, title: string, priceBc
   return movie.id as string;
 }
 
-test('cancellando un film i possessori vengono rimborsati e vedono lo stato "Rimborsato"', async ({ page, browser, request }) => {
+test('eliminando definitivamente un film i possessori vengono rimborsati e il film sparisce', async ({ page, browser, request }) => {
   const title = `E2E Da cancellare ${uid()}`;
   const movieId = await publishedMovie(request, title, 300_000);
 
@@ -31,15 +31,15 @@ test('cancellando un film i possessori vengono rimborsati e vedono lo stato "Rim
   await page.goto('/app/portafoglio');
   await expect(page.getByText('700.000 B').first()).toBeVisible();
 
-  // Il Superadmin cancella il film dalla sua scheda, scrivendo il titolo per conferma
+  // Il Superadmin elimina il film dalla sua scheda, scrivendo il titolo per conferma
   const admin = await browser.newPage();
   await login(admin, SUPERADMIN.email, SUPERADMIN.password);
   await admin.goto(`/admin/contenuti/movies/${movieId}`);
-  await admin.getByTestId('movie-deletion').getByRole('button', { name: /Cancella il film/ }).click();
-  const modal = admin.getByTestId('delete-movie-modal');
+  await admin.getByTestId('content-deletion').getByTestId('content-delete-open').click();
+  const modal = admin.getByTestId('delete-content-modal');
   await expect(modal.getByTestId('refund-summary')).toContainText('1 utenti lo possiedono');
   await expect(modal.getByTestId('refund-summary')).toContainText('300.000 B');
-  const confirm = modal.getByRole('button', { name: 'Cancella e rimborsa' });
+  const confirm = modal.getByRole('button', { name: 'Elimina definitivamente' });
   await expect(confirm).toBeDisabled();
   await modal.getByLabel(/Per confermare scrivi il titolo/).fill(title);
   await confirm.click();
@@ -49,16 +49,14 @@ test('cancellando un film i possessori vengono rimborsati e vedono lo stato "Rim
   await expect(admin.getByText(title)).toHaveCount(0);
   await admin.close();
 
-  // L'utente ha di nuovo il saldo pieno e vede il film come "Rimborsato"
+  // L'utente ha di nuovo il saldo pieno; il film non è più nel portafoglio né nel sito,
+  // ma acquisto e rimborso restano nei movimenti
   await page.reload();
   await expect(page.getByText('1.000.000 B').first()).toBeVisible();
-  await page.getByRole('tab', { name: 'Rimborsati' }).or(page.getByRole('button', { name: 'Rimborsati' })).click();
-  const card = page.getByRole('article', { name: `Film ${title}` });
-  await expect(card.getByTestId('holding-status')).toHaveAttribute('data-phase', 'RIMBORSATO');
-  await expect(card).toContainText('Rimborsato');
-  await expect(card).toContainText(/Film cancellato: il \d{2} \S+ \d{4} ti sono stati restituiti 300\.000 B/);
-  await expect(card.getByRole('button', { name: 'Riscatta' })).toHaveCount(0);
-
+  await expect(page.getByRole('article', { name: `Film ${title}` })).toHaveCount(0);
+  await page.goto(`/app/film/${movieId}`);
+  await expect(page.getByText(title)).toHaveCount(0);
   await page.goto('/app/movimenti');
   await expect(page.getByText(`Rimborso — film cancellato: ${title}`)).toBeVisible();
+  await expect(page.getByText(`Acquisto film — ${title}`)).toBeVisible();
 });

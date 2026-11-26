@@ -22,7 +22,7 @@ import { adminPurchaseState, PurchaseBadge } from '../../components/PurchaseBadg
 import { NotificationSection } from './NotificationSection';
 import { DateTimeInput } from './DateTimeInput';
 import { MovieRulesSection } from './MovieRulesSection';
-import { MovieDeletionSection } from './MovieDeletionSection';
+import { ContentDeletionSection } from './ContentDeletionSection';
 import { t, tx } from '../../i18n';
 import { appNow, appNowMs } from '../../components/clock';
 
@@ -383,12 +383,13 @@ export function ContentEditorPage() {
             {kind === 'movies' ? (
               <>
                 <MovieRulesSection movie={item} />
-                <MovieDeletionSection movie={item} />
+                <ContentDeletionSection kind={kind} item={item} />
               </>
             ) : (
               <>
                 <VisibilitySection kind={kind} item={item} />
                 <PurchaseSection kind={kind} item={item} />
+                <ContentDeletionSection kind={kind} item={item} />
               </>
             )}
           </Stack>
