@@ -7,7 +7,7 @@ import { ArrowLeft, CalendarClock, Eye } from 'lucide-react';
 import { api, ApiError } from '../../api/client';
 import { useAdminContent, useAdminMutation } from '../../api/hooks';
 import type { AdminContent, ContentKindPath } from '../../api/types';
-import { Alert, Badge, Bc, Button, Card, Checkbox, Field, Input, Muted, PageHeader, Select, Spinner, Stack, Textarea } from '../../components/ui';
+import { Alert, Badge, Bc, Button, Card, Checkbox, Field, Input, Muted, PageHeader, Select, Spinner, Stack, Tab, Tabs, Textarea } from '../../components/ui';
 import { formatDateTime, STATUS_LABELS } from '../../components/format';
 import { hasPermission, useAuthStore } from '../../store/auth';
 import { media } from '../../theme/theme';
@@ -33,10 +33,26 @@ const FormGrid = styled.div`
   .wide { grid-column: 1 / -1; }
 `;
 
-const Columns = styled.div`
-  display: grid;
+/** Sezioni una sotto l'altra, nell'ordine in cui si prepara un titolo. */
+const Sections = styled.div`
+  display: flex;
+  flex-direction: column;
   gap: 18px;
-  ${media.lg} { grid-template-columns: 1.6fr 1fr; align-items: start; }
+  max-width: 980px;
+  > section { scroll-margin-top: calc(${({ theme }) => theme.layout.header} + 70px); }
+`;
+
+/** Barra delle sezioni (resta in alto mentre si scorre): porta alla sezione scelta. */
+const SectionNav = styled.nav`
+  position: sticky;
+  top: calc(${({ theme }) => theme.layout.header} + 8px);
+  z-index: 5;
+  max-width: 980px;
+  margin-bottom: 16px;
+  padding: 8px;
+  border-radius: ${({ theme }) => theme.radii.lg};
+  background: ${({ theme }) => theme.colors.bg};
+  > div { margin: 0; padding: 0; }
 `;
 
 function Section({ title, children, note }: { title: string; children: ReactNode; note?: string }) {
@@ -355,6 +371,30 @@ export function ContentEditorPage() {
   const isNew = id === 'nuovo';
   const q = useAdminContent(kind, isNew ? undefined : id);
   const [preview, setPreview] = useState(false);
+  const isSuperadmin = useAuthStore((s) => s.user?.role === 'SUPERADMIN');
+  const [active, setActive] = useState('dati');
+  const sections = [
+    { id: 'dati', label: t('admin.editorTabs.datiEditoriali') },
+    ...(kind === 'movies'
+      ? [
+          { id: 'regole', label: t('admin.editorTabs.regole') },
+          { id: 'avviso', label: t('admin.editorTabs.avviso') },
+          { id: 'pubblicazione', label: t('admin.editorTabs.pubblicazione') },
+          { id: 'incasso', label: t('admin.editorTabs.incasso') },
+        ]
+      : [
+          { id: 'visibilita', label: t('admin.editorTabs.visibilita') },
+          { id: 'acquisti', label: t('admin.editorTabs.acquisti') },
+          { id: 'avviso', label: t('admin.editorTabs.avviso') },
+          { id: 'pubblicazione', label: t('admin.editorTabs.pubblicazione') },
+          { id: 'stagioni', label: t('admin.editorTabs.stagioni') },
+        ]),
+    ...(isSuperadmin ? [{ id: 'elimina', label: t('admin.editorTabs.elimina') }] : []),
+  ];
+  const goTo = (id: string) => {
+    setActive(id);
+    document.getElementById(`sez-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
   const label = kind === 'movies' ? t('admin.contentEditorPage.film') : t('admin.contentEditorPage.serieTv');
 
   if (!isNew && q.isLoading) return <Spinner />;
@@ -370,31 +410,39 @@ export function ContentEditorPage() {
         subtitle={item ? t('admin.contentEditorPage.idIdFonteSourceV', { id: item.id, source: item.source, v: item.externalId ? ` (${item.externalId})` : '' }) : undefined}
         actions={item && <Button $variant="secondary" onClick={() => setPreview(true)}><Eye size={15} />{' '}{t('admin.contentEditorPage.anteprimaPubblica')}</Button>}
       />
-      <Columns>
-        <Stack $gap={18}>
-          <EditorialForm kind={kind} item={item} />
-          {item && kind === 'movies' && <BoxOfficeSection movie={item} />}
-          {item && kind === 'tv-series' && <SeasonsSection seriesId={item.id} />}
-        </Stack>
-        {item && (
-          <Stack $gap={18}>
-            <PublicationSection kind={kind} item={item} />
-            <NotificationSection kind={kind} item={item} />
-            {kind === 'movies' ? (
-              <>
-                <MovieRulesSection movie={item} />
-                <ContentDeletionSection kind={kind} item={item} />
-              </>
-            ) : (
-              <>
-                <VisibilitySection kind={kind} item={item} />
-                <PurchaseSection kind={kind} item={item} />
-                <ContentDeletionSection kind={kind} item={item} />
-              </>
-            )}
-          </Stack>
+      {item && (
+        <SectionNav aria-label={t('admin.editorTabs.etichetta')}>
+          <Tabs>
+            {sections.map((s) => (
+              <Tab key={s.id} $active={active === s.id} onClick={() => goTo(s.id)} data-testid={`tab-${s.id}`}>
+                {s.label}
+              </Tab>
+            ))}
+          </Tabs>
+        </SectionNav>
+      )}
+      <Sections>
+        {/* Ordine: Dati editoriali, Regole, Avviso email, Pubblicazione, Incasso, Elimina definitivamente */}
+        <section id="sez-dati"><EditorialForm kind={kind} item={item} /></section>
+        {item && kind === 'movies' && (
+          <>
+            <section id="sez-regole"><MovieRulesSection movie={item} /></section>
+            <section id="sez-avviso"><NotificationSection kind={kind} item={item} /></section>
+            <section id="sez-pubblicazione"><PublicationSection kind={kind} item={item} /></section>
+            <section id="sez-incasso"><BoxOfficeSection movie={item} /></section>
+          </>
         )}
-      </Columns>
+        {item && kind === 'tv-series' && (
+          <>
+            <section id="sez-visibilita"><VisibilitySection kind={kind} item={item} /></section>
+            <section id="sez-acquisti"><PurchaseSection kind={kind} item={item} /></section>
+            <section id="sez-avviso"><NotificationSection kind={kind} item={item} /></section>
+            <section id="sez-pubblicazione"><PublicationSection kind={kind} item={item} /></section>
+            <section id="sez-stagioni"><SeasonsSection seriesId={item.id} /></section>
+          </>
+        )}
+        {item && isSuperadmin && <section id="sez-elimina"><ContentDeletionSection kind={kind} item={item} /></section>}
+      </Sections>
       {preview && item && <PreviewModal kind={kind} id={item.id} status={item.publicationStatus} onClose={() => setPreview(false)} />}
     </>
   );

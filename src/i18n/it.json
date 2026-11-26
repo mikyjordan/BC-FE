@@ -626,6 +626,18 @@
       "annulla": "Annulla",
       "inCorso": "Eliminazione in corso…",
       "elimina": "Elimina definitivamente"
+    },
+    "editorTabs": {
+      "etichetta": "Sezioni del titolo",
+      "datiEditoriali": "Dati editoriali",
+      "regole": "Regole",
+      "avviso": "Avviso email agli utenti",
+      "pubblicazione": "Pubblicazione",
+      "incasso": "Incasso",
+      "visibilita": "Visibilità",
+      "acquisti": "Acquisti",
+      "stagioni": "Stagioni",
+      "elimina": "Elimina definitivamente"
     }
   },
   "auth": {
