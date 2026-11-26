@@ -14,26 +14,27 @@ const CardLink = styled(Link)`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  img { transition: transform 0.25s; }
+`;
+
+/** Tutta la card (anche la scadenza d'acquisto sotto il link) si evidenzia al passaggio del mouse. */
+const Wrap = styled.div<{ $unavailable?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   padding: 8px;
   margin: -8px;
   border-radius: ${({ theme }) => theme.radii.lg};
   transition: background 0.15s;
   &:hover { background: ${({ theme }) => theme.colors.surface}; }
   &:hover img { transform: scale(1.03); }
-  img { transition: transform 0.25s; }
-`;
-
-const Wrap = styled.div<{ $unavailable?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   /* Film non più acquistabile (per qualsiasi motivo): card in penombra, in grigio. */
   ${({ $unavailable }) =>
     $unavailable &&
     `
     filter: grayscale(1);
     opacity: 0.55;
-    transition: opacity 0.2s, filter 0.2s;
+    transition: opacity 0.2s, filter 0.2s, background 0.15s;
     &:hover, &:focus-within { opacity: 0.85; }
   `}
 `;
