@@ -6,13 +6,13 @@ Sito/PWA di BusterCinema in React (webpack, senza Vite). Il backend è nel repos
 
 ```bash
 npm install
-npm run dev           # server: build di produzione + avvio/riavvio con pm2 (processo PGFE) + log
+npm run dev           # server: build di produzione + avvio/riavvio con pm2 (processo BCFE) + log
 npm start             # sviluppo su http://localhost:3000 (le chiamate /api vanno al backend)
 npm run start:rete    # sviluppo raggiungibile da altri dispositivi della rete
 npm run build         # solo build di produzione nella cartella build/
 ```
 
-`npm run dev` usa `pm2 startOrRestart pm2.config.cjs`: se PGFE è già acceso viene riavviato con la
+`npm run dev` usa `pm2 startOrRestart pm2.config.cjs`: se BCFE è già acceso viene riavviato con la
 nuova build, non se ne crea mai un secondo e non serve cancellarlo. Funziona anche su Windows.
 Con Ctrl+C si chiudono solo i log: il sito resta acceso.
 
@@ -36,6 +36,7 @@ Tutti i colori del sito sono in questo file (colori di **default**); nei compone
 `theme.colors.<nome>`, mai un colore scritto direttamente.
 
 Il Superadmin li può cambiare da **Area admin → Impostazioni → Colori del sito**:
+
 - le modifiche si vedono subito in anteprima solo per chi modifica;
 - con **Salva colori** diventano visibili a tutti (il backend salva solo i colori diversi dal default);
 - con **Ripristina colori di default** si torna ai valori di questo file.
