@@ -3,7 +3,7 @@
  *
  *   npm start                 → server di sviluppo su http://localhost:3000 (con proxy verso l'API)
  *   npm run build             → build di produzione nella cartella build/
- *   GENERATE_SOURCEMAP=false  → build senza source map
+ *   GENERATE_SOURCEMAP=false  → build senza source map (oppure: webpack --env nosourcemap, vale anche su Windows)
  *
  * Indirizzo dell'API (backend): si imposta nel file api.config.json, nella cartella del progetto:
  *   "apiUrl"  → indirizzo completo del backend, es. "http://192.168.1.50:4001" (backend su un altro server)
@@ -51,9 +51,9 @@ const manifest = {
 /** Variabili REACT_APP_* rese disponibili al codice come process.env.REACT_APP_* (lette alla build). */
 const reactAppEnv = Object.fromEntries(Object.entries(process.env).filter(([k]) => k.startsWith('REACT_APP_')));
 
-export default (_env, argv) => {
+export default (env, argv) => {
   const production = argv.mode !== 'development';
-  const sourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+  const sourceMap = process.env.GENERATE_SOURCEMAP !== 'false' && !env?.nosourcemap;
   return {
     mode: production ? 'production' : 'development',
     entry: path.join(root, 'src/main.tsx'),

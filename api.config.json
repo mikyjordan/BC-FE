@@ -1,4 +1,5 @@
 {
   "apiUrl": "",
-  "apiPort": 4001
+  "apiPort": 4001,
+  "sitePort": 4000
 }

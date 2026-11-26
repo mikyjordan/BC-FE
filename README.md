@@ -6,20 +6,23 @@ Sito/PWA di BusterCinema in React (webpack, senza Vite). Il backend è nel repos
 
 ```bash
 npm install
+npm run dev           # server: build di produzione + avvio/riavvio con pm2 (processo PGFE) + log
 npm start             # sviluppo su http://localhost:3000 (le chiamate /api vanno al backend)
 npm run start:rete    # sviluppo raggiungibile da altri dispositivi della rete
-npm run build         # build di produzione nella cartella build/
-npm run pm2           # build + avvio con pm2 (processo PGFE, porta 3000)
+npm run build         # solo build di produzione nella cartella build/
 ```
 
-Dopo una nuova build non serve riavviare PGFE: basta ricaricare la pagina (Ctrl+F5).
+`npm run dev` usa `pm2 startOrRestart pm2.config.cjs`: se PGFE è già acceso viene riavviato con la
+nuova build, non se ne crea mai un secondo e non serve cancellarlo. Funziona anche su Windows.
+Con Ctrl+C si chiudono solo i log: il sito resta acceso.
 
-## Indirizzo del backend — `api.config.json`
+## Porta del sito e indirizzo del backend — `api.config.json`
 
 ```json
-{ "apiUrl": "", "apiPort": 4000 }
+{ "apiUrl": "", "apiPort": 4000, "sitePort": 3000 }
 ```
 
+- `sitePort`: porta su cui pm2 serve il sito (`npm run dev`).
 - `apiUrl` vuoto: il sito chiama lo **stesso host** da cui viene aperto, sulla porta `apiPort`
   (backend e frontend sullo stesso server).
 - `apiUrl` pieno (es. `http://192.168.1.50:4001`): backend su un altro server.
